@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Cursos</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/JavaScript/script.js" defer></script>
+</head>
+<body>
+
+<h1>Historial de Cursos</h1>
+<p class="description">Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el historial de cursos registrados en el informe
+    de avance a lo largo de tu programa académico.</p>
+
+<form method="post" enctype="multipart/form-data" th:action="@{/subir-pdf}">
+    <input type="file" name="archivo" accept="application/pdf" required />
+    <button type="submit">Cargar PDF</button>
+</form>
+
+<p th:if="${error}" th:text="${error}" style="color: red; text-align: center;"></p>
+
+<table th:if="${materias != null}">
+    <thead>
+    <tr>
+        <th>Ciclo</th>
+        <th>Materia</th>
+        <th>N° Cat</th>
+        <th>Curso</th>
+        <th>Título</th>
+        <th>Calif</th>
+        <th>Cred</th>
+        <th>Tipo</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="materia : ${materias}">
+        <td th:text="${materia.cicloLectivo}"></td>
+        <td th:text="${materia.materia}"></td>
+        <td th:text="${materia.numeroCat}"></td>
+        <td th:text="${materia.curso}"></td>
+        <td th:text="${materia.titulo}"></td>
+        <td th:text="${materia.calif}"></td>
+        <td th:text="${materia.cred}"></td>
+        <td th:text="${materia.tipo}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
