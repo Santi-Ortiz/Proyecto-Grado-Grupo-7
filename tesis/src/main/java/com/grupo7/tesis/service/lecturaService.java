@@ -1,11 +1,11 @@
 package com.grupo7.tesis.service;
 
-import com.grupo7.tesis.model.Materia;
+import com.grupo7.tesis.model.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,9 @@ import java.util.regex.Pattern;
 
 @Service
 public class lecturaService {
+
+    @Autowired
+    private ProgresoService progresoService;
 
     public List<Materia> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
         List<Materia> materias = new ArrayList<>();
@@ -60,6 +63,10 @@ public class lecturaService {
         }
         
         return materias;
+    }
+
+    public Progreso obtenerResumenAcademico(List<Materia> materias) {
+        return progresoService.obtenerResumenAcademico(materias);
     }
 
 }

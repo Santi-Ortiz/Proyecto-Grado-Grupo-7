@@ -1,6 +1,6 @@
 package com.grupo7.tesis.controller;
 
-import com.grupo7.tesis.model.Materia;
+import com.grupo7.tesis.model.*;
 import com.grupo7.tesis.service.lecturaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,6 +36,17 @@ public class lecturaController {
             model.addAttribute("error", "No se pudieron extraer datos del PDF.");
         } else {
             model.addAttribute("materias", materias);
+
+            //Progreso del estudiante
+            Progreso progreso = lecturaService.obtenerResumenAcademico(materias);
+            model.addAttribute("promedio", progreso.getPromedio());
+            model.addAttribute("materiasCursadas", progreso.getMateriasCursadas());
+            model.addAttribute("materiasCursando", progreso.getTotalCursando());
+            model.addAttribute("materiasFaltantes", progreso.getMateriasFaltantes());
+            model.addAttribute("listaMateriasFaltantes", progreso.getListaMateriasFaltantes());
+            model.addAttribute("totalMaterias", progreso.getTotalMaterias());
+            model.addAttribute("totalFaltantes", progreso.getTotalFaltantes());
+            model.addAttribute("porcentaje", (progreso.getMateriasCursadas() * 100.0) / progreso.getTotalMaterias());
         }
 
         return "lecturaInforme";
