@@ -67,3 +67,28 @@ td {
 tr:nth-child(even) {
     background-color: #f9fbff;
 }
+
+.progress-container {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 30px;
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  color: #fff;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  transition: width 0.5s;
+  font-size: 1.1em;
+}
+
+.progreso-carrera-section {
+  margin-top: 40px;
+  margin-bottom: 20px;
+}

@@ -46,5 +46,30 @@
     </tbody>
 </table>
 
+<div class="progreso-carrera-section">
+  <h3>Progreso de la carrera</h3>
+  <div class="progress-container">
+    <div class="progress-bar" th:style="'width:' + ${porcentaje} + '%'">
+      <span th:text="${#numbers.formatDecimal(porcentaje, 1, 2)} + '%'"></span>
+    </div>
+  </div>
+</div>
+
+<div th:if="${promedio != null}">
+    <h2>Promedio: <span th:text="${#numbers.formatDecimal(promedio, 1, 2)}"></span></h2>
+    <p>
+        <b>Materias cursadas: </b> <span th:text="${materiasCursadas}"></span><br>
+        <b>Materias que se estan cursando: </b> <span th:text="${materiasCursando}"></span><br>
+        <b>Materias faltantes: </b> <span th:text="${materiasFaltantes}"></span>
+    </p>
+    <div th:if="${listaMateriasFaltantes != null}">
+        <h3>Materias que te faltan:</h3>
+        <ul>
+            <li th:each="mat : ${listaMateriasFaltantes}">
+                <span th:text="${mat.nombre}"></span> (Código: <span th:text="${mat.codigo}"></span>)
+            </li>
+        </ul>
+    </div>
+</div>
 </body>
 </html>
