@@ -39,12 +39,21 @@
         <td th:text="${materia.numeroCat}"></td>
         <td th:text="${materia.curso}"></td>
         <td th:text="${materia.titulo}"></td>
-        <td th:text="${materia.calif}"></td>
+        <td th:if="${materia.calif == 'SIN CALIFICACIÓN'}" 
+            style="background-color: #fff3cd; color: #856404; font-weight: bold; text-align: center;">
+            ⚠️
+        </td>
+        <td th:if="${materia.calif != 'SIN CALIFICACIÓN'}" th:text="${materia.calif}"></td>
         <td th:text="${materia.cred}"></td>
         <td th:text="${materia.tipo}"></td>
     </tr>
     </tbody>
 </table>
+
+<p th:if="${materias != null}" style="text-align: right; font-size: 13px; color: #666; margin-top: 10px;">
+    <span style="background-color: #fff3cd; padding: 2px 6px; border-radius: 3px;">⚠️</span>
+    Indica que la asignatura aún no tiene calificación registrada.
+</p>
 
 <div class="progreso-carrera-section">
   <h3>Progreso de la carrera</h3>

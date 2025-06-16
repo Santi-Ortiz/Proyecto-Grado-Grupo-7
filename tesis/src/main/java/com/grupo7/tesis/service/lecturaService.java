@@ -35,24 +35,34 @@ public class lecturaService {
 
                 for (String linea : lineas) {
                     if (linea.trim().isEmpty() || linea.contains("Ciclo Lectivo")) continue;
+
                     Matcher matcher = patronFinal.matcher(linea);
                     if (matcher.find()) {
-                        String lineaSinFinal = matcher.group(1).trim();
-                        String calif = matcher.group(2);
-                        String cred = matcher.group(3);
-                        String tipo = matcher.group(4);
-                        String[] tokens = lineaSinFinal.split("\\s+");
-                        if (tokens.length >= 5) {
+                        //String posibleFinal = matcher.group(0);
+                        String calif = matcher.group(2).trim();
+                        String cred = matcher.group(3).trim();
+                        String tipo = matcher.group(4).trim();
+
+                        String[] tokens = matcher.group(1).trim().split("\\s+");
+
+                        if (tokens.length >= 4) {
                             String ciclo = tokens[0];
                             String materiaCod = tokens[1];
                             String nCat = tokens[2];
                             String cursoCod = tokens[3];
+
                             StringBuilder tituloBuilder = new StringBuilder();
                             for (int i = 4; i < tokens.length; i++) {
                                 tituloBuilder.append(tokens[i]).append(" ");
                             }
                             String tituloCurso = tituloBuilder.toString().trim();
-                            materias.add(new Materia(ciclo, materiaCod, nCat, cursoCod, tituloCurso, calif, cred, tipo));
+
+                            if (!calif.matches("[0-9]+(\\.[0-9]{1,2})?|[A-ZÑ]")) {
+                                tituloCurso += " " + calif;
+                                calif = "SIN CALIFICACIÓN";
+                            }
+
+                            materias.add(new Materia(ciclo, materiaCod, nCat, cursoCod, tituloCurso.trim(), calif, cred, tipo));
                         }
                     }
                 }
