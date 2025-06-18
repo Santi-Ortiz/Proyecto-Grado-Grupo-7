@@ -32,6 +32,13 @@ public class lecturaController {
         }
 
         List<Materia> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
+
+        String textoElectivas = lecturaService.extraerTextoElectivasBruto(archivo);
+        model.addAttribute("textoElectivas", textoElectivas);
+
+        List<Materia> tablaElectivas = lecturaService.convertirTextoElectivasATabla(textoElectivas);
+        model.addAttribute("cursosElectivas", tablaElectivas);
+
         if (materias.isEmpty()) {
             model.addAttribute("error", "No se pudieron extraer datos del PDF.");
         } else {

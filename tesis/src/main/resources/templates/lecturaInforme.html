@@ -55,6 +55,37 @@
     Indica que la asignatura aún no tiene calificación registrada.
 </p>
 
+<div th:if="${cursosElectivas != null and !#lists.isEmpty(cursosElectivas)}">
+    <h2>Electivas</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosElectivas}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
 <div class="progreso-carrera-section">
   <h3>Progreso de la carrera</h3>
   <div class="progress-container">

@@ -79,4 +79,95 @@ public class lecturaService {
         return progresoService.obtenerResumenAcademico(materias);
     }
 
+    public String extraerTextoElectivasBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Electivas Universidad";
+            String finClave = "Requisitos de grado";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean incluir = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase("Electivas Universidad") && resultado.length() == 0) {
+                        resultado.append("Electivas Universidad\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        incluir = true;
+                        continue;
+                    }
+
+                    if (incluir) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public List<Materia> convertirTextoElectivasATabla(String texto) {
+        List<Materia> lista = new ArrayList<>();
+
+        if (texto == null || texto.isEmpty()) return lista;
+
+        String[] lineas = texto.split("\\n");
+
+        boolean tablaComenzada = false;
+
+        for (String linea : lineas) {
+            String l = linea.trim();
+
+            if (l.startsWith("Ciclo Lectivo")) {
+                tablaComenzada = true;
+                continue;
+            }
+
+            if (tablaComenzada && !l.isEmpty()) {
+                String[] tokens = l.split("\\s+");
+
+                if (tokens.length >= 8) {
+                    String ciclo = tokens[0];
+                    String materiaCod = tokens[1];
+                    String nCat = tokens[2];
+                    String cursoCod = tokens[3];
+
+                    StringBuilder tituloBuilder = new StringBuilder();
+                    for (int i = 4; i < tokens.length - 3; i++) {
+                        tituloBuilder.append(tokens[i]).append(" ");
+                    }
+
+                    String titulo = tituloBuilder.toString().trim();
+                    String calif = tokens[tokens.length - 3];
+                    String cred = tokens[tokens.length - 2];
+                    String tipo = tokens[tokens.length - 1];
+
+                    lista.add(new Materia(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
+                }
+            }
+        }
+
+        return lista;
+    }
+
 }
