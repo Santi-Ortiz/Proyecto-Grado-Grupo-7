@@ -79,6 +79,194 @@ public class lecturaService {
         return progresoService.obtenerResumenAcademico(materias);
     }
 
+    public String extraerTextoElectivaBasicasBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Electiva de Cs. Básicas";
+            String finClave = "Fundamentos de Ciencias de la Computación";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase("Electiva de Cs. Básicas") && resultado.length() == 0) {
+                        resultado.append("Electiva de Cs. Básicas\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoEnfasisBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Énfasis y Complementarias";
+            String finClave = "Complementaria Lenguas";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase("Énfasis y Complementarias") && resultado.length() == 0) {
+                        resultado.append("Énfasis y Complementarias\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoComplementariaLenguasBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Complementaria Lenguas";
+            String finClave = "Electivas Universidad";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase("Complementaria Lenguas") && resultado.length() == 0) {
+                        resultado.append("Complementaria Lenguas\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoComplementariaInformacionBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Complementaria Información";
+            String finClave = "Complementaria Lenguas";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase("Complementaria Información") && resultado.length() == 0) {
+                        resultado.append("Complementaria Información\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public String extraerTextoElectivasBruto(MultipartFile archivo) {
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();

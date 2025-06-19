@@ -85,6 +85,125 @@
     </table>
 </div>
 
+<div th:if="${cursosEnfasis != null and !#lists.isEmpty(cursosEnfasis)}">
+    <h2>Énfasis</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosEnfasis}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosComplementariaLenguas != null and !#lists.isEmpty(cursosComplementariaLenguas)}">
+    <h2>Complementaria Lenguas</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosComplementariaLenguas}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosComplementariaInformacion != null and !#lists.isEmpty(cursosComplementariaInformacion)}">
+    <h2>Complementaria Información</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosComplementariaInformacion}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosElectivaBasicas != null and !#lists.isEmpty(cursosElectivaBasicas)}">
+    <h2>Electiva de Ciencias Básicas</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosElectivaBasicas}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 
 <div class="progreso-carrera-section">
   <h3>Progreso de la carrera</h3>

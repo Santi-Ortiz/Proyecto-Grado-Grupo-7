@@ -33,6 +33,30 @@ public class lecturaController {
 
         List<Materia> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
 
+        String textoElectivaBasicas = lecturaService.extraerTextoElectivaBasicasBruto(archivo);
+        model.addAttribute("textoElectivaBasicas", textoElectivaBasicas);
+
+        List<Materia> cursosElectivaBasicas = lecturaService.convertirTextoElectivasATabla(textoElectivaBasicas);
+        model.addAttribute("cursosElectivaBasicas", cursosElectivaBasicas);
+
+        String textoEnfasis = lecturaService.extraerTextoEnfasisBruto(archivo);
+        model.addAttribute("textoEnfasis", textoEnfasis);
+
+        List<Materia> cursosEnfasis = lecturaService.convertirTextoElectivasATabla(textoEnfasis);
+        model.addAttribute("cursosEnfasis", cursosEnfasis);
+
+        String textoComplementariaLenguas = lecturaService.extraerTextoComplementariaLenguasBruto(archivo);
+        model.addAttribute("textoComplementariaLenguas", textoComplementariaLenguas);
+
+        List<Materia> cursosComplementariaLenguas = lecturaService.convertirTextoElectivasATabla(textoComplementariaLenguas);
+        model.addAttribute("cursosComplementariaLenguas", cursosComplementariaLenguas);
+
+        String textoComplementariaInfo = lecturaService.extraerTextoComplementariaInformacionBruto(archivo);
+        model.addAttribute("textoComplementariaInformacion", textoComplementariaInfo);
+
+        List<Materia> cursosComplementariaInfo = lecturaService.convertirTextoElectivasATabla(textoComplementariaInfo);
+        model.addAttribute("cursosComplementariaInformacion", cursosComplementariaInfo);
+
         String textoElectivas = lecturaService.extraerTextoElectivasBruto(archivo);
         model.addAttribute("textoElectivas", textoElectivas);
 
