@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Cursos</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/JavaScript/script.js" defer></script>
+</head>
+<body>
+    <h1>Plan de estudios</h1>
+
+    <div class="malla-container">
+        <div th:each="entry : ${materiasPorSemestre}">
+            <div class="columna">
+                <h3 th:text="'Semestre ' + ${entry.key}">Semestre</h3>
+                <div class="caja"
+                    th:each="materia : ${entry.value}"
+                    th:id="${materia.codigo}"
+                    th:data-codigo="${materia.codigo}"
+                    th:data-nombre="${materia.nombre}"
+                    th:data-creditos="${materia.creditos}"
+                    th:attr="data-requisitos=${materia.requisitosJson}">
+                    <span th:text="${materia.nombre}"></span>
+                    <span class="tooltip" style="display: none;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.7/leader-line.min.js"></script>
+    <script th:inline="none" th:utext="'let conexionesDesdeBackend = ' + ${conexiones} + ';'"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const cajas = document.querySelectorAll(".caja");
+            const lineas = new Map();
+            const salientes = {};
+
+            // Crear líneas y mapa de salidas
+            conexionesDesdeBackend.forEach(({ origen, destino }) => {
+                if (!salientes[origen]) salientes[origen] = [];
+                salientes[origen].push(destino);
+
+                const from = document.getElementById(origen);
+                const to = document.getElementById(destino);
+
+                if (from && to) {
+                    const linea = new LeaderLine(from, to, {
+                        color: "#2a5885",
+                        path: "fluid",
+                        startPlug: "disc",
+                        endPlug: "arrow3",
+                        size: 2,
+                        dash: { animation: true }
+                    });
+                    lineas.set(`${origen}->${destino}`, linea);
+                }
+            });
+
+            function limpiarResaltado() {
+                document.querySelectorAll('.caja.resaltada').forEach(el => el.classList.remove('resaltada'));
+                lineas.forEach(linea => linea.setOptions({ color: '#2a5885', size: 2 }));
+            }
+
+            cajas.forEach(caja => {
+              const codigo = caja.dataset.codigo;
+              const nombre = caja.dataset.nombre;
+              const creditos = caja.dataset.creditos;
+              const tooltip = caja.querySelector(".tooltip");
+
+              // Mostrar tooltip en hover
+              caja.addEventListener("mouseenter", () => {
+                  tooltip.innerHTML = `<strong>${nombre}</strong><br>Código: ${codigo}<br>Créditos: ${creditos}`;
+                  tooltip.style.display = "block";
+              });
+
+              // Ocultar tooltip al salir
+              caja.addEventListener("mouseleave", () => {
+                  tooltip.style.display = "none";
+              });
+
+              // Resaltar al hacer clic
+              caja.addEventListener("click", () => {
+                  limpiarResaltado();
+                  caja.classList.add("resaltada");
+
+                  const destinos = salientes[codigo] || [];
+                  destinos.forEach(dest => {
+                      const destCaja = document.getElementById(dest);
+                      if (destCaja) destCaja.classList.add("resaltada");
+
+                      const key = `${codigo}->${dest}`;
+                      const linea = lineas.get(key);
+                      if (linea) {
+                          linea.setOptions({ color: "red", size: 3 });
+                      }
+                  });
+              });
+          });
+        });
+    </script>
+</body>
+</html>

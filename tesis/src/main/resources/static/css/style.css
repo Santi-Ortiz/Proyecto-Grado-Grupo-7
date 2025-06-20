@@ -92,3 +92,66 @@ tr:nth-child(even) {
   margin-top: 40px;
   margin-bottom: 20px;
 }
+
+.malla-container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 100px; /* antes quizás era 30px o nada */
+    padding: 40px;
+  }
+  
+  
+  .columna {
+      flex-shrink: 0;
+      width: 200px;
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .columna h3 {
+      text-align: center;
+      color: #2a5885;
+      margin-bottom: 15px;
+      font-size: 18px;
+  }
+  
+  .caja {
+      background-color: #f2f6fc;
+      border-left: 5px solid #2a5885;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 25px; /* Aumentado de 10px a 25px */
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  
+  .caja.resaltada {
+      background-color: #ffe5e5;
+      border-color: red;
+  }
+  
+  .caja {
+      position: relative; 
+  }
+  
+
+  .tooltip {
+      position: absolute;
+      top: 50%;
+      left: 105%; 
+      transform: translateY(-50%);
+      background-color: #fff8e1;
+      border-left: 5px solid #ff9800;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      font-size: 14px;
+      white-space: nowrap;
+      z-index: 1000;
+  }
+  
+  
+  
