@@ -45,6 +45,12 @@ public class lecturaController {
         List<Materia> cursosEnfasis = lecturaService.convertirTextoElectivasATabla(textoEnfasis);
         model.addAttribute("cursosEnfasis", cursosEnfasis);
 
+        String textoSeguridad = lecturaService.extraerTextoDesarrolloYSeguridadBruto(archivo);
+        model.addAttribute("textoSeguridad", textoSeguridad);
+
+        List<Materia> cursosSeguridad = lecturaService.convertirTextoElectivasATabla(textoSeguridad);
+        model.addAttribute("cursosSeguridad", cursosSeguridad);
+
         String textoComplementariaLenguas = lecturaService.extraerTextoComplementariaLenguasBruto(archivo);
         model.addAttribute("textoComplementariaLenguas", textoComplementariaLenguas);
 
@@ -62,6 +68,12 @@ public class lecturaController {
 
         List<Materia> tablaElectivas = lecturaService.convertirTextoElectivasATabla(textoElectivas);
         model.addAttribute("cursosElectivas", tablaElectivas);
+
+        String textoIA = lecturaService.extraerTextoInteligenciaArtificialBruto(archivo);
+        model.addAttribute("textoIA", textoIA);
+
+        List<Materia> cursosIA = lecturaService.convertirTextoElectivasATabla(textoIA);
+        model.addAttribute("cursosIA", cursosIA);
 
         if (materias.isEmpty()) {
             model.addAttribute("error", "No se pudieron extraer datos del PDF.");
