@@ -81,7 +81,7 @@ public class lecturaController {
             model.addAttribute("materias", materias);
 
             //Progreso del estudiante
-            Progreso progreso = lecturaService.obtenerResumenAcademico(materias, tablaElectivas, cursosComplementariaLenguas, cursosComplementariaInfo, cursosEnfasis, cursosElectivaBasicas);
+            Progreso progreso = lecturaService.obtenerResumenAcademico(materias, tablaElectivas, cursosComplementariaLenguas, cursosComplementariaInfo, cursosEnfasis, cursosElectivaBasicas, cursosSeguridad, cursosIA);
             model.addAttribute("promedio", progreso.getPromedio());
             model.addAttribute("materiasCursadas", progreso.getMateriasCursadas());
             model.addAttribute("materiasCursando", progreso.getTotalCursando());
