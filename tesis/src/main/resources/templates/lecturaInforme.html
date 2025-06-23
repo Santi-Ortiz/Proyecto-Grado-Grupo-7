@@ -205,7 +205,7 @@
     </table>
 </div>
 
-<div class="progreso-carrera-section">
+<div th:if="${promedio != null}">
   <h3>Progreso de la carrera</h3>
   <div class="progress-container">
     <div class="progress-bar" th:style="'width:' + ${porcentaje} + '%'">
@@ -221,11 +221,22 @@
         <b>Materias que se estan cursando: </b> <span th:text="${materiasCursando}"></span><br>
         <b>Materias faltantes: </b> <span th:text="${materiasFaltantes}"></span>
     </p>
+
+    <div>
+        <h3>Créditos faltantes por tipo:</h3>
+        <ul>
+            <li><b>Electivas:</b> <span th:text="${faltanElectiva}"></span> créditos</li>
+            <li><b>Complementarias:</b> <span th:text="${faltanComplementaria}"></span> créditos</li>
+            <li><b>Énfasis:</b> <span th:text="${faltanEnfasis}"></span> créditos</li>
+            <li><b>Electiva de Ciencias Básicas:</b> <span th:text="${faltanElectivaBasicas}"></span> créditos</li>
+        </ul>
+    </div>
+
     <div th:if="${listaMateriasFaltantes != null}">
         <h3>Materias que te faltan:</h3>
         <ul>
             <li th:each="mat : ${listaMateriasFaltantes}">
-                <span th:text="${mat.nombre}"></span> (Código: <span th:text="${mat.codigo}"></span>)
+                <span th:text="${mat.nombre}"></span> (Código: <span th:text="${mat.codigo}"></span> - Creditos: <span th:text="${mat.creditos}"></span>)
             </li>
         </ul>
     </div>
