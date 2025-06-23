@@ -6,9 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo7.tesis.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 public class ProgresoService {
+
+    private static final int REQ_ELECTIVA = 8;
+    private static final int REQ_COMPLEMENTARIA = 6;
+    private static final int REQ_ENFASIS = 6;
+    private static final int REQ_ELECTIVA_BASICAS = 3;
     
     private boolean esNumero(String str) {
         try {
@@ -43,11 +49,16 @@ public class ProgresoService {
         return promedio;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materiasCursadas) {
+    public Progreso obtenerResumenAcademico(List<Materia> materiasCursadas, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas) {
         double promedio = calcularPromedio(materiasCursadas);
         int totalMaterias = 0;
         int totalFaltantes = 0;
         int totalCursando = 0;
+        int totalCreditos = 0;
+        int faltanElectiva = 0;
+        int faltanComplementaria = 0;
+        int faltanEnfasis = 0;
+        int faltanElectivaBasicas = 0;
 
         Set<String> codigosCursados = new HashSet<>();
         Set<String> codigosCursando = new HashSet<>();
@@ -57,7 +68,7 @@ public class ProgresoService {
 
         for (Materia m : materiasCursadas) {
             String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
-            if (m.getTipo() != null && m.getTipo().equalsIgnoreCase("Si") && ((int)Double.parseDouble(m.getCred())) != 0) {
+            if (m.getTipo() != null && m.getTipo().equalsIgnoreCase("Si") && esNumero(m.getCred()) && ((int)Double.parseDouble(m.getCred())) != 0) {
                 codigosCursando.add(codigoSinCeros);
                 continue;
             }
@@ -68,9 +79,33 @@ public class ProgresoService {
                     codigosCursados.add(codigoSinCeros);
                     materiasRealmenteCursadas.add(m);
                     codigosAgregados.add(codigoSinCeros);
+                    totalCreditos += (int) Double.parseDouble(m.getCred());
                 }
             }
         }
+
+        int creditosElectiva = cursosElectivas.stream()
+            .filter(m -> esNumero(m.getCred()))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .sum();
+
+        int creditosComplementaria = Stream.concat(
+                cursosComplementariaLenguas.stream(),
+                cursosComplementariaInformacion.stream()
+            )
+            .filter(m -> esNumero(m.getCred()))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .sum();
+
+        int creditosEnfasis = cursosEnfasis.stream()
+            .filter(m -> esNumero(m.getCred()))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .sum();
+
+        int creditosElectivaBasicas = cursosElectivaBasicas.stream()
+            .filter(m -> esNumero(m.getCred()))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .sum();
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -78,7 +113,13 @@ public class ProgresoService {
             List<MateriaJson> todasLasMaterias = mapper.readValue(is, new TypeReference<List<MateriaJson>>() {});
 
             for (MateriaJson m : todasLasMaterias) {
+                String nombre = m.getNombre().toLowerCase();
                 String codigoJson = m.getCodigo().replaceFirst("^0+(?!$)", "");
+
+                if (nombre.contains("electiva") || nombre.contains("complementaria") || nombre.contains("énfasis")) {
+                    continue;
+                }
+
                 if (!codigosCursados.contains(codigoJson) && !codigosCursando.contains(codigoJson)) {
                     materiasFaltantes.add(m);
                 }
@@ -87,6 +128,11 @@ public class ProgresoService {
             totalMaterias = todasLasMaterias.size();
             totalFaltantes = materiasFaltantes.size();
             totalCursando = codigosCursando.size();
+
+            faltanElectiva = Math.max(REQ_ELECTIVA - creditosElectiva, 0);
+            faltanComplementaria = Math.max(REQ_COMPLEMENTARIA - creditosComplementaria, 0);
+            faltanEnfasis = Math.max(REQ_ENFASIS - creditosEnfasis, 0);
+            faltanElectivaBasicas = Math.max(REQ_ELECTIVA_BASICAS - creditosElectivaBasicas, 0);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,8 +145,13 @@ public class ProgresoService {
             materiasFaltantes,
             totalMaterias,
             totalFaltantes,
-            totalCursando 
+            totalCursando,
+            totalCreditos,
+            faltanElectiva,
+            faltanComplementaria,
+            faltanEnfasis,
+            faltanElectivaBasicas
         );
     }
-
+    
 }

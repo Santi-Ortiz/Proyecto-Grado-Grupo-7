@@ -81,7 +81,7 @@ public class lecturaController {
             model.addAttribute("materias", materias);
 
             //Progreso del estudiante
-            Progreso progreso = lecturaService.obtenerResumenAcademico(materias);
+            Progreso progreso = lecturaService.obtenerResumenAcademico(materias, tablaElectivas, cursosComplementariaLenguas, cursosComplementariaInfo, cursosEnfasis, cursosElectivaBasicas);
             model.addAttribute("promedio", progreso.getPromedio());
             model.addAttribute("materiasCursadas", progreso.getMateriasCursadas());
             model.addAttribute("materiasCursando", progreso.getTotalCursando());
@@ -89,7 +89,11 @@ public class lecturaController {
             model.addAttribute("listaMateriasFaltantes", progreso.getListaMateriasFaltantes());
             model.addAttribute("totalMaterias", progreso.getTotalMaterias());
             model.addAttribute("totalFaltantes", progreso.getTotalFaltantes());
-            model.addAttribute("porcentaje", (progreso.getMateriasCursadas() * 100.0) / progreso.getTotalMaterias());
+            model.addAttribute("porcentaje", (progreso.getTotalCreditos() * 100.0) / 138.0);
+            model.addAttribute("faltanElectiva", progreso.getFaltanElectiva());
+            model.addAttribute("faltanComplementaria", progreso.getFaltanComplementaria());
+            model.addAttribute("faltanEnfasis", progreso.getFaltanEnfasis());
+            model.addAttribute("faltanElectivaBasicas", progreso.getFaltanElectivaBasicas());
         }
 
         return "lecturaInforme";

@@ -75,8 +75,8 @@ public class lecturaService {
         return materias;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materias) {
-        return progresoService.obtenerResumenAcademico(materias);
+    public Progreso obtenerResumenAcademico(List<Materia> materias, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas){
+        return progresoService.obtenerResumenAcademico(materias, cursosElectivas, cursosComplementariaLenguas, cursosComplementariaInformacion, cursosEnfasis, cursosElectivaBasicas);
     }
 
     public String extraerTextoElectivaBasicasBruto(MultipartFile archivo) {
