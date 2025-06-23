@@ -49,7 +49,7 @@ public class ProgresoService {
         return promedio;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materiasCursadas, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas) {
+    public Progreso obtenerResumenAcademico(List<Materia> materiasCursadas, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad, List<Materia> cursosIA) {
         double promedio = calcularPromedio(materiasCursadas);
         int totalMaterias = 0;
         int totalFaltantes = 0;
@@ -89,15 +89,14 @@ public class ProgresoService {
             .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
             .sum();
 
-        int creditosComplementaria = Stream.concat(
-                cursosComplementariaLenguas.stream(),
-                cursosComplementariaInformacion.stream()
-            )
+        int creditosComplementaria = Stream.of(cursosComplementariaLenguas,cursosComplementariaInformacion)
+            .flatMap(Collection::stream)
             .filter(m -> esNumero(m.getCred()))
             .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
             .sum();
 
-        int creditosEnfasis = cursosEnfasis.stream()
+        int creditosEnfasis = Stream.of(cursosEnfasis, cursosSeguridad, cursosIA)
+            .flatMap(Collection::stream)
             .filter(m -> esNumero(m.getCred()))
             .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
             .sum();
@@ -129,8 +128,11 @@ public class ProgresoService {
             totalFaltantes = materiasFaltantes.size();
             totalCursando = codigosCursando.size();
 
+            int extraEnfasis = Math.max(creditosEnfasis - REQ_ENFASIS, 0);
+            int creditosComplementariaValidados = creditosComplementaria + extraEnfasis;
+
             faltanElectiva = Math.max(REQ_ELECTIVA - creditosElectiva, 0);
-            faltanComplementaria = Math.max(REQ_COMPLEMENTARIA - creditosComplementaria, 0);
+            faltanComplementaria = Math.max(REQ_COMPLEMENTARIA - creditosComplementariaValidados, 0);
             faltanEnfasis = Math.max(REQ_ENFASIS - creditosEnfasis, 0);
             faltanElectivaBasicas = Math.max(REQ_ELECTIVA_BASICAS - creditosElectivaBasicas, 0);
 
