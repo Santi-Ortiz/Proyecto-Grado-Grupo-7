@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<h1>Historial de Cursos</h1>
+<h1 id="historial">Historial de Cursos</h1>
 <p class="description">Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el historial de cursos registrados en el informe
     de avance a lo largo de tu programa académico.</p>
 
@@ -56,7 +56,7 @@
 </p>
 
 <div th:if="${cursosElectivas != null and !#lists.isEmpty(cursosElectivas)}">
-    <h2>Electivas</h2>
+    <h2 id="electivas-universidad">Electivas Universidad</h2>
     <table>
         <thead>
         <tr>
@@ -207,7 +207,7 @@
 </div>
 
 <div th:if="${cursosIA != null and !#lists.isEmpty(cursosIA)}">
-    <h2>Enfasis validado como Complementaria</h2>
+    <h2>Énfasis validado como Complementaria</h2>
     <table>
         <thead>
         <tr>
@@ -223,6 +223,156 @@
         </thead>
         <tbody>
         <tr th:each="m : ${cursosIA}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosDesarrolloComputacion != null and !#lists.isEmpty(cursosDesarrolloComputacion)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosDesarrolloComputacion}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosDesarrolloGestion != null and !#lists.isEmpty(cursosDesarrolloGestion)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosDesarrolloGestion}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosComputacionVisual != null and !#lists.isEmpty(cursosComputacionVisual)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosComputacionVisual}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosCVtoIA != null and !#lists.isEmpty(cursosCVtoIA)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosCVtoIA}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosSIGtoIA != null and !#lists.isEmpty(cursosSIGtoIA)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosSIGtoIA}">
             <td th:text="${m.cicloLectivo}"></td>
             <td th:text="${m.materia}"></td>
             <td th:text="${m.numeroCat}"></td>

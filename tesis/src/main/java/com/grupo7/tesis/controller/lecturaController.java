@@ -75,6 +75,36 @@ public class lecturaController {
         List<Materia> cursosIA = lecturaService.convertirTextoElectivasATabla(textoIA);
         model.addAttribute("cursosIA", cursosIA);
 
+        String textoDesarrolloComputacion = lecturaService.extraerTextoDesarrolloSeguridadAComputacionBruto(archivo);
+        model.addAttribute("textoDesarrolloComputacion", textoDesarrolloComputacion);
+
+        List<Materia> tablaDesarrolloComputacion = lecturaService.convertirTextoElectivasATabla(textoDesarrolloComputacion);
+        model.addAttribute("cursosDesarrolloComputacion", tablaDesarrolloComputacion);
+
+        String textoDesarrolloGestion = lecturaService.extraerTextoDesarrolloYGestionBruto(archivo);
+        model.addAttribute("textoDesarrolloGestion", textoDesarrolloGestion);
+
+        List<Materia> tablaDesarrolloGestion = lecturaService.convertirTextoElectivasATabla(textoDesarrolloGestion);
+        model.addAttribute("cursosDesarrolloGestion", tablaDesarrolloGestion);
+
+        String textoComputacionVisual = lecturaService.extraerTextoComputacionVisualBruto(archivo);
+        model.addAttribute("textoComputacionVisual", textoComputacionVisual);
+
+        List<Materia> tablaComputacionVisual = lecturaService.convertirTextoElectivasATabla(textoComputacionVisual);
+        model.addAttribute("cursosComputacionVisual", tablaComputacionVisual);
+
+        String textoCVtoIA = lecturaService.extraerTextoComputacionVisualAInteligenciaArtificialBruto(archivo);
+        model.addAttribute("textoCVtoIA", textoCVtoIA);
+
+        List<Materia> tablaCVtoIA = lecturaService.convertirTextoElectivasATabla(textoCVtoIA);
+        model.addAttribute("cursosCVtoIA", tablaCVtoIA);
+
+        String textoSIGtoIA = lecturaService.extraerTextoSistemasGestionAInteligenciaArtificialBruto(archivo);
+        model.addAttribute("textoSIGtoIA", textoSIGtoIA);
+
+        List<Materia> tablaSIGtoIA = lecturaService.convertirTextoElectivasATabla(textoSIGtoIA);
+        model.addAttribute("cursosSIGtoIA", tablaSIGtoIA);
+
         if (materias.isEmpty()) {
             model.addAttribute("error", "No se pudieron extraer datos del PDF.");
         } else {

@@ -220,6 +220,241 @@ public class lecturaService {
         return null;
     }
 
+    public String extraerTextoDesarrolloSeguridadAComputacionBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Desarrollo avanzado de SW y Seguridad digital";
+            String finClave = "Computación Visual";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase(inicioClave) && resultado.length() == 0) {
+                        resultado.append("Desarrollo avanzado de SW y Seguridad digital\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoDesarrolloYGestionBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Desarrollo avanzado de SW y Seguridad digital";
+            String finClave = "Sistemas de Información Y Gestión";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase(inicioClave) && resultado.length() == 0) {
+                        resultado.append("Desarrollo avanzado de SW y Seguridad digital\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoComputacionVisualBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Computación Visual";
+            String finClave = "Sistemas de Información Y Gestión";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase(inicioClave) && resultado.length() == 0) {
+                        resultado.append("Computación Visual\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoComputacionVisualAInteligenciaArtificialBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Computación Visual";
+            String finClave = "Inteligencia artificial y ciencia de datos";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase(inicioClave) && resultado.length() == 0) {
+                        resultado.append("Computación Visual\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoSistemasGestionAInteligenciaArtificialBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Sistemas de Información Y Gestión";
+            String finClave = "Inteligencia artificial y ciencia de datos";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase(inicioClave) && resultado.length() == 0) {
+                        resultado.append("Sistemas de Información Y Gestión\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public String extraerTextoComplementariaLenguasBruto(MultipartFile archivo) {
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();
