@@ -75,8 +75,8 @@ public class lecturaService {
         return materias;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materias, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad, List<Materia> cursosIA) {
-        return progresoService.obtenerResumenAcademico(materias, cursosElectivas, cursosComplementariaLenguas, cursosComplementariaInformacion, cursosEnfasis, cursosElectivaBasicas, cursosSeguridad, cursosIA);
+    public Progreso obtenerResumenAcademico(List<Materia> materias, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad, List<Materia> cursosIA, List<Materia> tablaDesarrolloComputacion, List<Materia> tablaDesarrolloGestion, List<Materia> tablaComputacionVisual, List<Materia> tablaCVtoIA, List<Materia> tablaSIGtoIA) {
+        return progresoService.obtenerResumenAcademico(materias, cursosElectivas, cursosComplementariaLenguas, cursosComplementariaInformacion, cursosEnfasis, cursosElectivaBasicas, cursosSeguridad, cursosIA, tablaDesarrolloComputacion, tablaDesarrolloGestion, tablaComputacionVisual, tablaCVtoIA, tablaSIGtoIA);
     }
 
     public String extraerTextoElectivaBasicasBruto(MultipartFile archivo) {

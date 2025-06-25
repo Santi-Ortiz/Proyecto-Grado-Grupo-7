@@ -32,6 +32,9 @@ public class ProgresoService {
         for (Materia materia : materias) {
             String calif = materia.getCalif();
             String cred = materia.getCred();
+            if (calif != null) calif = calif.replace(",", ".");
+            if (cred != null) cred = cred.replace(",", ".");
+
             if (calif != null && cred != null && esNumero(calif) && esNumero(cred) && Double.parseDouble(calif) > 0) {
                 int creditosInt = (int) Double.parseDouble(cred);
                 promedio += Double.parseDouble(calif) * creditosInt;
@@ -49,7 +52,7 @@ public class ProgresoService {
         return promedio;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materiasCursadas, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad, List<Materia> cursosIA) {
+    public Progreso obtenerResumenAcademico(List<Materia> materiasCursadas, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad, List<Materia> cursosIA, List<Materia> tablaDesarrolloComputacion, List<Materia> tablaDesarrolloGestion, List<Materia> tablaComputacionVisual, List<Materia> tablaCVtoIA, List<Materia> tablaSIGtoIA) {
         double promedio = calcularPromedio(materiasCursadas);
         int totalMaterias = 0;
         int totalFaltantes = 0;
@@ -68,42 +71,44 @@ public class ProgresoService {
 
         for (Materia m : materiasCursadas) {
             String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
-            if (m.getTipo() != null && m.getTipo().equalsIgnoreCase("Si") && esNumero(m.getCred()) && ((int)Double.parseDouble(m.getCred())) != 0) {
+            String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
+            String calif = m.getCalif() != null ? m.getCalif().replace(",", ".") : null;
+
+            if (m.getTipo() != null && m.getTipo().equalsIgnoreCase("Si") && cred != null && esNumero(cred) && ((int)Double.parseDouble(cred)) != 0) {
                 codigosCursando.add(codigoSinCeros);
                 continue;
             }
-            if (m.getCred() != null && esNumero(m.getCred()) &&
-                m.getCalif() != null && esNumero(m.getCalif())) {
-                double calif = Double.parseDouble(m.getCalif());
-                if (calif > 0 && !codigosAgregados.contains(codigoSinCeros)) {
+            if (cred != null && esNumero(cred) && calif != null && esNumero(calif)) {
+                double califNum = Double.parseDouble(calif);
+                if (califNum > 0 && !codigosAgregados.contains(codigoSinCeros)) {
                     codigosCursados.add(codigoSinCeros);
                     materiasRealmenteCursadas.add(m);
                     codigosAgregados.add(codigoSinCeros);
-                    totalCreditos += (int) Double.parseDouble(m.getCred());
+                    totalCreditos += (int) Double.parseDouble(cred);
                 }
             }
         }
 
         int creditosElectiva = cursosElectivas.stream()
-            .filter(m -> esNumero(m.getCred()))
-            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
             .sum();
 
-        int creditosComplementaria = Stream.of(cursosComplementariaLenguas,cursosComplementariaInformacion)
+        int creditosComplementaria = Stream.of(cursosComplementariaLenguas, cursosComplementariaInformacion)
             .flatMap(Collection::stream)
-            .filter(m -> esNumero(m.getCred()))
-            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
             .sum();
 
-        int creditosEnfasis = Stream.of(cursosEnfasis, cursosSeguridad, cursosIA)
+        int creditosEnfasis = Stream.of(cursosEnfasis, cursosSeguridad, cursosIA, tablaDesarrolloComputacion, tablaDesarrolloGestion, tablaComputacionVisual, tablaCVtoIA, tablaSIGtoIA)
             .flatMap(Collection::stream)
-            .filter(m -> esNumero(m.getCred()))
-            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
             .sum();
 
         int creditosElectivaBasicas = cursosElectivaBasicas.stream()
-            .filter(m -> esNumero(m.getCred()))
-            .mapToInt(m -> (int) Double.parseDouble(m.getCred()))
+            .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
+            .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
             .sum();
 
         try {
