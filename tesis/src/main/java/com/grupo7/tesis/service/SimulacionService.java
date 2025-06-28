@@ -32,10 +32,21 @@ public class SimulacionService {
                 }
             }
 
-            // TODO: hacer validacion para electivas
-            // TODO: hacer validacion para complementarias
-            // TODO: hacer validacion para énfasis
-            // TODO: hacer validacion para electivas de ciencias básicas
+            if (validarElectivas(progreso, materiasPensum, p.getSemestre()) > 0) {
+
+            }
+
+            if (validarComplementarias(progreso, materiasPensum, p.getSemestre()) > 0) {
+
+            }
+
+            if (validarEnfasis(progreso, materiasPensum, p.getSemestre()) > 0) {
+
+            }
+
+            if (validarElectivasCB(progreso, materiasPensum, p.getSemestre()) > 0) {
+
+            }
 
         }
 
@@ -59,6 +70,70 @@ public class SimulacionService {
             }
         }
         return true;
+    }
+
+    // Devuelve la cantidad de créditos que faltan por cursar en electivas para ese
+    // semestre
+    public int validarElectivas(Progreso progreso, List<MateriaJson> materiasPensum, int semestre) {
+        int numCreditosElectivas = 0;
+        int numCreditosElectivasVistas = Math.max(8 - progreso.getFaltanElectiva(), 0);
+
+        for (MateriaJson materia : materiasPensum) {
+            if (materia.getCodigo().equals("0") &&
+                    materia.getSemestre() <= semestre) {
+                numCreditosElectivas += materia.getCreditos();
+            }
+        }
+
+        return Math.max(numCreditosElectivas - numCreditosElectivasVistas, 0);
+    }
+
+    // Devuelve la cantidad de créditos que faltan por cursar en complementarias
+    // para ese semestre
+    public int validarComplementarias(Progreso progreso, List<MateriaJson> materiasPensum, int semestre) {
+        int numCreditosComplementarias = 0;
+        int numCreditosComplementariasVistas = Math.max(6 - progreso.getFaltanComplementaria(), 0);
+
+        for (MateriaJson materia : materiasPensum) {
+            if (materia.getCodigo().equals("1") &&
+                    materia.getSemestre() <= semestre) {
+                numCreditosComplementarias += materia.getCreditos();
+            }
+        }
+
+        return Math.max(numCreditosComplementarias - numCreditosComplementariasVistas, 0);
+    }
+
+    // Devuelve la cantidad de créditos que faltan por cursar en énfasis para ese
+    // semestre
+    public int validarEnfasis(Progreso progreso, List<MateriaJson> materiasPensum, int semestre) {
+        int numCreditosEnfasis = 0;
+        int numCreditosEnfasisVistas = Math.max(6 - progreso.getFaltanEnfasis(), 0);
+
+        for (MateriaJson materia : materiasPensum) {
+            if (materia.getCodigo().equals("5") &&
+                    materia.getSemestre() <= semestre) {
+                numCreditosEnfasis += materia.getCreditos();
+            }
+        }
+
+        return Math.max(numCreditosEnfasis - numCreditosEnfasisVistas, 0);
+    }
+
+    // Devuelve la cantidad de créditos que faltan por cursar en electivas de cs.
+    // básicas para ese semestre
+    public int validarElectivasCB(Progreso progreso, List<MateriaJson> materiasPensum, int semestre) {
+        int numCreditosElectivasCB = 0;
+        int numCreditosElectivasCBVistas = 3 - progreso.getFaltanElectivaBasicas();
+
+        for (MateriaJson materia : materiasPensum) {
+            if (materia.getCodigo().equals("6") &&
+                    materia.getSemestre() <= semestre) {
+                numCreditosElectivasCB += materia.getCreditos();
+            }
+        }
+
+        return Math.max(numCreditosElectivasCB - numCreditosElectivasCBVistas, 0);
     }
 
 }
