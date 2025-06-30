@@ -2,7 +2,6 @@ package com.grupo7.tesis.model;
 
 public class Proyeccion {
 
-    private String anio;
     private int semestre;
     private int creditos;
     private int materias;
@@ -12,21 +11,12 @@ public class Proyeccion {
     public Proyeccion() {
     }
 
-    public Proyeccion(String anio, int semestre, int creditos, int materias, int tipoMatricula, int doblePrograma) {
-        this.anio = anio;
+    public Proyeccion(int semestre, int creditos, int materias, int tipoMatricula, int doblePrograma) {
         this.semestre = semestre;
         this.creditos = creditos;
         this.materias = materias;
         this.tipoMatricula = tipoMatricula;
         this.doblePrograma = doblePrograma;
-    }
-
-    public String getAnio() {
-        return anio;
-    }
-
-    public void setAnio(String anio) {
-        this.anio = anio;
     }
 
     public int getSemestre() {
