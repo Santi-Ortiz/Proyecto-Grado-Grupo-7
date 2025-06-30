@@ -1,6 +1,5 @@
 package com.grupo7.tesis.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -18,38 +17,46 @@ public class SimulacionService {
         Simulacion simulacion = new Simulacion();
         int contadorCreditosSimulacion = 0; // Se aumentará a medida que se agreguen créditos a la simulación
         int contadorMateriasSimulacion = 0; // Se aumentará a medida que se agreguen materias a la simulación
+        String tipoMateria = "";
 
         for (MateriaJson p : progreso.getListaMateriasFaltantes()) {
+            tipoMateria = determinarTipoMateria(p.getCodigo());
             if (p.getSemestre() <= proyeccion.getSemestre() &&
                     contadorCreditosSimulacion + p.getCreditos() <= proyeccion.getCreditos() &&
                     contadorMateriasSimulacion + 1 <= proyeccion.getMaterias()) {
+
                 if (validarPrerequisito(progreso, materiasPensum, p.getRequisitos())) {
                     // Se añade una materia en la simulación priorizando las materias de semestres
                     // anteriores al actual no vistas
-                    simulacion.agregarMateria(p);
-                    contadorCreditosSimulacion += p.getCreditos();
-                    contadorMateriasSimulacion++;
+
+                    if (tipoMateria.equals("Nucleo")) {
+                        simulacion.agregarMateria(p);
+                        contadorCreditosSimulacion += p.getCreditos();
+                        contadorMateriasSimulacion++;
+                    } else if (tipoMateria.equals("Electiva")
+                            && validarElectivas(progreso, materiasPensum, p.getSemestre()) > 0) {
+                        simulacion.agregarMateria(p);
+                        contadorCreditosSimulacion += p.getCreditos();
+                        contadorMateriasSimulacion++;
+                    } else if (tipoMateria.equals("Complementaria")
+                            && validarComplementarias(progreso, materiasPensum, p.getSemestre()) > 0) {
+                        simulacion.agregarMateria(p);
+                        contadorCreditosSimulacion += p.getCreditos();
+                        contadorMateriasSimulacion++;
+                    } else if (tipoMateria.equals("Enfasis")
+                            && validarEnfasis(progreso, materiasPensum, p.getSemestre()) > 0) {
+                        simulacion.agregarMateria(p);
+                        contadorCreditosSimulacion += p.getCreditos();
+                        contadorMateriasSimulacion++;
+                    } else if (tipoMateria.equals("ElectivaCB")
+                            && validarElectivasCB(progreso, materiasPensum, p.getSemestre()) > 0) {
+                        simulacion.agregarMateria(p);
+                        contadorCreditosSimulacion += p.getCreditos();
+                        contadorMateriasSimulacion++;
+                    }
                 }
             }
-
-            if (validarElectivas(progreso, materiasPensum, p.getSemestre()) > 0) {
-
-            }
-
-            if (validarComplementarias(progreso, materiasPensum, p.getSemestre()) > 0) {
-
-            }
-
-            if (validarEnfasis(progreso, materiasPensum, p.getSemestre()) > 0) {
-
-            }
-
-            if (validarElectivasCB(progreso, materiasPensum, p.getSemestre()) > 0) {
-
-            }
-
         }
-
         return simulacion;
     }
 
@@ -134,6 +141,22 @@ public class SimulacionService {
         }
 
         return Math.max(numCreditosElectivasCB - numCreditosElectivasCBVistas, 0);
+    }
+
+    // Retorna el tipo de materia según su código
+    public String determinarTipoMateria(String codigo) {
+        switch (codigo) {
+            case "0":
+                return "Electiva";
+            case "1":
+                return "Complementaria";
+            case "5":
+                return "Enfasis";
+            case "6":
+                return "ElectivaCB";
+            default:
+                return "Nucleo";
+        }
     }
 
 }
