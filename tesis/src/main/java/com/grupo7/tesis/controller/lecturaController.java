@@ -146,7 +146,7 @@ public class lecturaController {
             Proyeccion proyeccion = proyeccionService.generarProyeccion(
                     8,
                     20,
-                    6,
+                    10,
                     1,
                     0);
 

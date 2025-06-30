@@ -461,13 +461,13 @@
                 <h3>Configuración de la proyección</h3>
                 <div>
                     <div>
-                        <strong>Semestre:</strong> <span th:text="${semestreProyeccion}"></span>
+                        <strong>Semestre a proyectar:</strong> <span th:text="${semestreProyeccion}"></span>
                     </div>
                     <div>
-                        <strong>Créditos Máximos:</strong> <span th:text="${creditosProyeccion}"></span>
+                        <strong>Cantidad de créditos:</strong> <span th:text="${creditosProyeccion}"></span>
                     </div>
                     <div>
-                        <strong>Materias Máximas:</strong> <span th:text="${materiasProyeccion}"></span>
+                        <strong>Cantidad de materias:</strong> <span th:text="${materiasProyeccion}"></span>
                     </div>
                     <div>
                         <strong>Tipo Matrícula:</strong> 
@@ -537,7 +537,6 @@
             <div th:if="${simulacion.materias == null or #lists.isEmpty(simulacion.materias)}" 
                  style="text-align: center; padding: 30px; color: #666;">
                 <h3>No se generaron materias para la simulación</h3>
-                <p>Esto puede ocurrir si:</p>
                 <ul style="text-align: left; display: inline-block; margin: 15px 0;">
                     <li>Ya se completaron todas las materias disponibles</li>
                     <li>No hay materias que cumplan los prerrequisitos</li>
