@@ -1,8 +1,6 @@
 package com.grupo7.tesis.service;
 
 import org.springframework.stereotype.Service;
-
-import com.grupo7.tesis.model.Progreso;
 import com.grupo7.tesis.model.Proyeccion;
 
 @Service

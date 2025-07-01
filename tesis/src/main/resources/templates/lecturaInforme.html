@@ -512,8 +512,10 @@
                     <tbody>
                         <tr th:each="materia, iterStat : ${simulacion.materias}" 
                             th:style="${iterStat.even} ? 'background-color: #f9f9f9;' : 'background-color: white;'">
-                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #1976d2;" 
-                                th:text="${materia.codigo}"></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #1976d2;">
+                                <span th:if="${materia.codigo != '0' and materia.codigo != '1' and materia.codigo != '5' and materia.codigo != '6'}" th:text="${materia.codigo}"></span>
+                                <span th:if="${materia.codigo == '0' or materia.codigo == '1' or materia.codigo == '5' or materia.codigo == '6'}">-</span>
+                            </td>
                             <td style="padding: 10px; border: 1px solid #ddd;" th:text="${materia.nombre}"></td>
                             <td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;" 
                                 th:text="${materia.creditos}"></td>
