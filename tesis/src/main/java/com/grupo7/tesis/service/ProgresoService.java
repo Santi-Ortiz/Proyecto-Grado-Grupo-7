@@ -58,6 +58,7 @@ public class ProgresoService {
         int totalFaltantes = 0;
         int totalCursando = 0;
         int totalCreditos = 0;
+        int creditosPensum = 0;
         int faltanElectiva = 0;
         int faltanComplementaria = 0;
         int faltanEnfasis = 0;
@@ -116,6 +117,32 @@ public class ProgresoService {
             InputStream is = getClass().getResourceAsStream("/plan_estudios_INGSIS.json");
             List<MateriaJson> todasLasMaterias = mapper.readValue(is, new TypeReference<List<MateriaJson>>() {});
 
+            // Crear un Set con todos los códigos del pensum para facilitar la búsqueda
+            Set<String> codigosPensum = new HashSet<>();
+            for (MateriaJson m : todasLasMaterias) {
+                String codigo = m.getCodigo().replaceFirst("^0+(?!$)", "");
+                codigosPensum.add(codigo);
+            }
+
+            // Calcular créditos del pensum vs. créditos extra
+            for (Materia m : materiasRealmenteCursadas) {
+                String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
+                String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
+                
+                if (cred != null && esNumero(cred)) {
+                    int creditos = (int) Double.parseDouble(cred);
+                    if (codigosPensum.contains(codigoSinCeros)) {
+                        creditosPensum += creditos;
+                    }
+                }
+            }
+
+            // Agregar créditos de electivas, complementarias, etc. (limitados a los requeridos)
+            creditosPensum += Math.min(creditosElectiva, REQ_ELECTIVA);
+            creditosPensum += Math.min(creditosComplementaria, REQ_COMPLEMENTARIA);
+            creditosPensum += Math.min(creditosEnfasis, REQ_ENFASIS);
+            creditosPensum += Math.min(creditosElectivaBasicas, REQ_ELECTIVA_BASICAS);
+
             for (MateriaJson m : todasLasMaterias) {
                 String nombre = m.getNombre().toLowerCase();
                 String codigoJson = m.getCodigo().replaceFirst("^0+(?!$)", "");
@@ -145,6 +172,14 @@ public class ProgresoService {
             e.printStackTrace();
         }
 
+        // Calcular créditos extra correctamente
+        int creditosElectivaExtra = Math.max(creditosElectiva - REQ_ELECTIVA, 0);
+        int creditosComplementariaExtra = Math.max(creditosComplementaria - REQ_COMPLEMENTARIA, 0);        
+        int creditosEnfasisExtra = Math.max(creditosEnfasis - REQ_ENFASIS, 0);
+        int creditosElectivaBasicasExtra = Math.max(creditosElectivaBasicas - REQ_ELECTIVA_BASICAS, 0);
+        
+        int creditosExtra = creditosElectivaExtra + creditosComplementariaExtra + creditosEnfasisExtra + creditosElectivaBasicasExtra;
+
         return new Progreso(
             promedio,
             materiasRealmenteCursadas.size(),
@@ -154,6 +189,8 @@ public class ProgresoService {
             totalFaltantes,
             totalCursando,
             totalCreditos,
+            creditosPensum,
+            creditosExtra,
             faltanElectiva,
             faltanComplementaria,
             faltanEnfasis,

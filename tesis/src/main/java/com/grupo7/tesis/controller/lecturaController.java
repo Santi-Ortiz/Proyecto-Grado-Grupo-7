@@ -122,7 +122,10 @@ public class lecturaController {
             model.addAttribute("listaMateriasFaltantes", progreso.getListaMateriasFaltantes());
             model.addAttribute("totalMaterias", progreso.getTotalMaterias());
             model.addAttribute("totalFaltantes", progreso.getTotalFaltantes());
-            model.addAttribute("porcentaje", (progreso.getTotalCreditos() * 100.0) / 138.0);
+            model.addAttribute("porcentaje", (progreso.getCreditosPensum() * 100.0) / 138.0);
+            model.addAttribute("creditosPensum", progreso.getCreditosPensum());
+            model.addAttribute("creditosExtra", progreso.getCreditosExtra());
+            model.addAttribute("totalCreditosCursados", progreso.getTotalCreditos());
             model.addAttribute("faltanElectiva", progreso.getFaltanElectiva());
             model.addAttribute("faltanComplementaria", progreso.getFaltanComplementaria());
             model.addAttribute("faltanEnfasis", progreso.getFaltanEnfasis());
