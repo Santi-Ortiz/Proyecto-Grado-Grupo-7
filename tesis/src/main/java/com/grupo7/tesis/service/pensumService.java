@@ -23,8 +23,21 @@ public class pensumService {
     public List<MateriaJson> obtenerPensum() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         InputStream is = getClass().getClassLoader().getResourceAsStream("plan_estudios_INGSIS.json");
-        return mapper.readValue(is, new TypeReference<List<MateriaJson>>() {});
+        List<MateriaJson> materias = mapper.readValue(is, new TypeReference<List<MateriaJson>>() {});
+        
+        // Setear requisitosJson para cada materia
+        for (MateriaJson materia : materias) {
+            try {
+                String requisitosJson = mapper.writeValueAsString(materia.getRequisitos());
+                materia.setRequisitosJson(requisitosJson);
+            } catch (Exception e) {
+                materia.setRequisitosJson("[]");
+            }
+        }
+    
+        return materias;
     }
+    
     
     public Map<Integer, List<MateriaJson>> obtenerMateriasPorSemestre() throws Exception {
         List<MateriaJson> materias = obtenerPensum(); 

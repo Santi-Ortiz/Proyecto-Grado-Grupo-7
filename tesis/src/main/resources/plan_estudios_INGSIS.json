@@ -322,7 +322,7 @@
     "nombre": "Planeación de Proyecto Final",
     "creditos": 2,
     "semestre": 7,
-    "requisitos": ["4082", "34803", "3"]
+    "requisitos": ["4082", "34803"]
   },
   {
     "codigo": "4185",
