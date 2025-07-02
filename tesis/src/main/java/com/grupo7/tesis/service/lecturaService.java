@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -685,6 +686,59 @@ public class lecturaService {
         }
 
         return lista;
+    }
+
+    public List<String> extraerLineasRequisitosGrado(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Requisitos de grado";
+            String finClave = "Historial de Cursos";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+
+                List<String> lineas = new ArrayList<>();
+                String[] todasLineas = bloque.split("\\r?\\n");
+
+                boolean inicioEncontrado = false;
+                for (int i = 0; i < todasLineas.length - 1; i++) {
+                    String lineaActual = todasLineas[i].trim();
+                    String lineaSiguiente = todasLineas[i + 1].trim();
+
+                    if (!inicioEncontrado && lineaActual.equalsIgnoreCase("Requisitos de grado")) {
+                        if (!lineaSiguiente.isEmpty()) {
+                            lineas.add(lineaSiguiente);
+                        }
+                        inicioEncontrado = true;
+                        i++;
+                        continue;
+                    }
+
+                    if (lineaActual.equalsIgnoreCase("Requisito de Lengua Extranjera B2") ||
+                        lineaActual.equalsIgnoreCase("Prueba SABER-PRO")) {
+
+                        if (lineaSiguiente.toLowerCase().startsWith("satisfecho") ||
+                            lineaSiguiente.toLowerCase().startsWith("no satisfecho")) {
+                            lineas.add(lineaActual + " / " + lineaSiguiente);
+                            i++;
+                        } else {
+                            lineas.add(lineaActual);
+                        }
+                    }
+                }
+
+                return lineas;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Collections.emptyList();
     }
 
 }

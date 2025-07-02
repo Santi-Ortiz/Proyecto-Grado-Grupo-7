@@ -105,6 +105,9 @@ public class lecturaController {
         List<Materia> tablaSIGtoIA = lecturaService.convertirTextoElectivasATabla(textoSIGtoIA);
         model.addAttribute("cursosSIGtoIA", tablaSIGtoIA);
 
+        List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado(archivo);
+        model.addAttribute("lineasRequisitosGrado", lineasRequisitosGrado);
+
         if (materias.isEmpty()) {
             model.addAttribute("error", "No se pudieron extraer datos del PDF.");
         } else {

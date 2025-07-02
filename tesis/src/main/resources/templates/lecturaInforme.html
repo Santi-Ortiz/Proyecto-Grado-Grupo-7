@@ -452,5 +452,20 @@
         </ul>
     </div>
 </div>
+<div th:if="${lineasRequisitosGrado != null and !#lists.isEmpty(lineasRequisitosGrado)}">
+    <h2 style="margin-bottom: 4px;">Requisitos de Grado</h2>
+
+    <div style="padding: 0;">
+        <p th:text="${lineasRequisitosGrado.get(0)}"
+           style="margin: 0 0 10px 0; font-family: Arial, sans-serif; font-size: 16px;"></p>
+
+        <ul style="list-style-type: disc; padding-left: 20px;">
+            <li th:each="linea, iterStat : ${lineasRequisitosGrado}"
+                th:if="${iterStat.index > 0}"
+                th:text="${#strings.replace(linea, ' / ', ' ➔ ')}"
+                style="margin: 8px 0; font-family: Arial, sans-serif; font-size: 16px;"></li>
+        </ul>
+    </div>
+</div>
 </body>
 </html>
