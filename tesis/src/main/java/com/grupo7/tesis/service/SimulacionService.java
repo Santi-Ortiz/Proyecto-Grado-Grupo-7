@@ -1,5 +1,6 @@
 package com.grupo7.tesis.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -17,10 +18,6 @@ public class SimulacionService {
         Simulacion simulacion = new Simulacion();
         int contadorCreditosSimulacion = 0; // Se aumentará a medida que se agreguen créditos a la simulación
         int contadorMateriasSimulacion = 0; // Se aumentará a medida que se agreguen materias a la simulación
-        int electivas = 0;
-        int complementarias = 0;
-        int enfasis = 0;
-        int electivasCB = 0;
         int creditos = proyeccion.getCreditos();
         int materias = proyeccion.getMaterias();
 
@@ -38,44 +35,17 @@ public class SimulacionService {
                 }
             }
         }
-
-        electivas = validarElectivas(progreso, materiasPensum, proyeccion.getSemestre());
-        complementarias = validarComplementarias(progreso, materiasPensum, proyeccion.getSemestre());
-        enfasis = validarEnfasis(progreso, materiasPensum, proyeccion.getSemestre());
-        electivasCB = validarElectivasCB(progreso, materiasPensum, proyeccion.getSemestre());
-
-        MateriaJson enfasisMateria = verificarMateria(enfasis, creditos - contadorCreditosSimulacion, materias - contadorMateriasSimulacion, "5", "Enfasis", proyeccion.getSemestre());
         
-        if(enfasisMateria != null){
-            simulacion.agregarMateria(enfasisMateria);
-            contadorCreditosSimulacion += enfasisMateria.getCreditos();
+        //Revisar enfasis, complementarias y electivas de semestres pasados y actual
+        List<MateriaJson> electivasActuales = generarMateriasElectivas(progreso, materiasPensum, proyeccion.getSemestre(),creditos - contadorCreditosSimulacion, materias - contadorMateriasSimulacion, simulacion);
+    
+        for(MateriaJson materia : electivasActuales) {
+            simulacion.agregarMateria(materia);
+            contadorCreditosSimulacion += materia.getCreditos();
             contadorMateriasSimulacion++;
         }
 
-        MateriaJson complementaria = verificarMateria(complementarias, creditos - contadorCreditosSimulacion, materias - contadorMateriasSimulacion, "1", "Complementarias", proyeccion.getSemestre());
-
-        if(complementaria != null){
-            simulacion.agregarMateria(complementaria);
-            contadorCreditosSimulacion += complementaria.getCreditos();
-            contadorMateriasSimulacion++;
-        }
-        
-        MateriaJson electiva = verificarMateria(electivas, creditos - contadorCreditosSimulacion, materias - contadorMateriasSimulacion, "0", "Electiva", proyeccion.getSemestre());
-        
-        if(electiva != null){
-            simulacion.agregarMateria(electiva);
-            contadorCreditosSimulacion += electiva.getCreditos();
-            contadorMateriasSimulacion++;
-        }
-        
-        MateriaJson electivaCB = verificarMateria(electivasCB, creditos - contadorCreditosSimulacion, materias - contadorMateriasSimulacion, "6", "Electiva CB", proyeccion.getSemestre());
-
-        if(electivaCB != null){
-            simulacion.agregarMateria(electivaCB);
-            contadorCreditosSimulacion += electivaCB.getCreditos();
-            contadorMateriasSimulacion++;
-        }
-
+        //Revisa materias de semestres superiores que no se han cursado
         if (creditos - contadorCreditosSimulacion > 0 &&  materias - contadorMateriasSimulacion > 0) {
             for (MateriaJson p : progreso.getListaMateriasFaltantes()) {
                 if (p.getSemestre() <= proyeccion.getSemestre() + 1 &&
@@ -103,6 +73,16 @@ public class SimulacionService {
             }
         }
 
+        // Revisar electivas, complementarias y énfasis de semestres superiores, en caso de que no se hayan alcanzado los créditos o materias
+        if (creditos - contadorCreditosSimulacion > 0 && materias - contadorMateriasSimulacion > 0) {
+            List<MateriaJson> electivasSuperiores = generarMateriasElectivas(progreso, materiasPensum, proyeccion.getSemestre() + 1, creditos - contadorCreditosSimulacion, materias - contadorMateriasSimulacion, simulacion);
+            
+            for(MateriaJson materia : electivasSuperiores) {
+                simulacion.agregarMateria(materia);
+                contadorCreditosSimulacion += materia.getCreditos();
+                contadorMateriasSimulacion++;
+            }
+        }
 
         return simulacion;
     }
@@ -220,4 +200,65 @@ public class SimulacionService {
         }
         return null;
     }
+
+    private List<MateriaJson> generarMateriasElectivas(Progreso progreso, List<MateriaJson> materiasPensum, int semestre, int creditosDisponibles, int materiasDisponibles, Simulacion simulacionActual) {
+        List<MateriaJson> materiasGeneradas = new ArrayList<>();
+        
+        // Calcular cuántos créditos de cada tipo ya están en la simulación
+        int enfasisYaUsado = calcularCreditosUsadosEnSimulacion(simulacionActual, "5");
+        int complementariasYaUsado = calcularCreditosUsadosEnSimulacion(simulacionActual, "1");
+        int electivasYaUsado = calcularCreditosUsadosEnSimulacion(simulacionActual, "0");
+        int electivasCBYaUsado = calcularCreditosUsadosEnSimulacion(simulacionActual, "6");
+        
+        // Calcular créditos faltantes considerando lo ya añadido
+        int electivas = Math.max(validarElectivas(progreso, materiasPensum, semestre) - electivasYaUsado, 0);
+        int complementarias = Math.max(validarComplementarias(progreso, materiasPensum, semestre) - complementariasYaUsado, 0);
+        int enfasis = Math.max(validarEnfasis(progreso, materiasPensum, semestre) - enfasisYaUsado, 0);
+        int electivasCB = Math.max(validarElectivasCB(progreso, materiasPensum, semestre) - electivasCBYaUsado, 0);
+        
+        int creditosRestantes = creditosDisponibles;
+        int materiasRestantes = materiasDisponibles;
+
+        MateriaJson enfasisMateria = verificarMateria(enfasis, creditosRestantes, materiasRestantes, "5", "Enfasis", semestre);
+        if(enfasisMateria != null) {
+            materiasGeneradas.add(enfasisMateria);
+            creditosRestantes -= enfasisMateria.getCreditos();
+            materiasRestantes--;
+        }
+        
+        MateriaJson complementaria = verificarMateria(complementarias, creditosRestantes, materiasRestantes, "1", "Complementarias", semestre);
+        if(complementaria != null) {
+            materiasGeneradas.add(complementaria);
+            creditosRestantes -= complementaria.getCreditos();
+            materiasRestantes--;
+        }
+        
+        MateriaJson electiva = verificarMateria(electivas, creditosRestantes, materiasRestantes, "0", "Electiva", semestre);
+        if(electiva != null) {
+            materiasGeneradas.add(electiva);
+            creditosRestantes -= electiva.getCreditos();
+            materiasRestantes--;
+        }
+        
+        MateriaJson electivaCB = verificarMateria(electivasCB, creditosRestantes, materiasRestantes, "6", "Electiva CB", semestre);
+        if(electivaCB != null) {
+            materiasGeneradas.add(electivaCB);
+            creditosRestantes -= electivaCB.getCreditos();
+            materiasRestantes--;
+        }
+        
+        return materiasGeneradas;
+    }
+
+    // Helper para calcular cuántos créditos de un tipo específico ya están en la simulación
+    private int calcularCreditosUsadosEnSimulacion(Simulacion simulacion, String tipoCodigo) {
+        int creditosUsados = 0;
+        for (MateriaJson materia : simulacion.getMaterias()) {
+            if (materia.getCodigo().equals(tipoCodigo)) {
+                creditosUsados += materia.getCreditos();
+            }
+        }
+        return creditosUsados;
+    }
+
 }
