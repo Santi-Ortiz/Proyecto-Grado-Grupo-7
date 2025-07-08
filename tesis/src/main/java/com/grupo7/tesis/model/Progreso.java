@@ -11,14 +11,15 @@ public class Progreso {
     private int totalFaltantes;
     private int totalCursando;
     private int totalCreditos;
-    private int creditosPensum;      // Solo créditos que cuentan para los 138 del pensum
-    private int creditosExtra;       // Créditos adicionales (electivas extra, etc.)
+    private int creditosPensum; 
+    private int creditosExtra;
     private int faltanElectiva;
     private int faltanComplementaria;
     private int faltanEnfasis;
     private int faltanElectivaBasicas;
+    private int semestre;
 
-    public Progreso(double promedio, int materiasCursadas, int materiasFaltantes, List<MateriaJson> listaMateriasFaltantes, int totalMaterias, int totalFaltantes, int totalCursantes, int totalCreditos, int creditosPensum, int creditosExtra, int faltanElectiva, int faltanComplementaria, int faltanEnfasis, int faltanElectivaBasicas) {
+    public Progreso(double promedio, int materiasCursadas, int materiasFaltantes, List<MateriaJson> listaMateriasFaltantes, int totalMaterias, int totalFaltantes, int totalCursantes, int totalCreditos, int creditosPensum, int creditosExtra, int faltanElectiva, int faltanComplementaria, int faltanEnfasis, int faltanElectivaBasicas, int semestre) {
         this.promedio = promedio;
         this.materiasCursadas = materiasCursadas;
         this.materiasFaltantes = materiasFaltantes;
@@ -33,6 +34,7 @@ public class Progreso {
         this.faltanComplementaria = faltanComplementaria;
         this.faltanEnfasis = faltanEnfasis;
         this.faltanElectivaBasicas = faltanElectivaBasicas;
+        this.semestre = semestre;
     }
 
     public double getPromedio() { return promedio; }
@@ -49,5 +51,5 @@ public class Progreso {
     public int getFaltanComplementaria() { return faltanComplementaria; }
     public int getFaltanEnfasis() { return faltanEnfasis; }
     public int getFaltanElectivaBasicas() { return faltanElectivaBasicas; }
+    public int getSemestre() { return semestre;}
 }
-

@@ -70,6 +70,9 @@ public class ProgresoService {
         Set<String> codigosAgregados = new HashSet<>();
         List<MateriaJson> materiasFaltantes = new ArrayList<>();
 
+        int numeroSemestre = calcularNumeroSemestre(materiasCursadas);
+        System.out.println("Número de semestre calculado: " + numeroSemestre);
+
         for (Materia m : materiasCursadas) {
             String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
             String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
@@ -194,8 +197,38 @@ public class ProgresoService {
             faltanElectiva,
             faltanComplementaria,
             faltanEnfasis,
-            faltanElectivaBasicas
+            faltanElectivaBasicas,
+            numeroSemestre
         );
     }
-    
+
+    public int calcularNumeroSemestre(List<Materia> materias) {
+        if (materias == null || materias.isEmpty()) {
+            return 1;
+        }
+        
+        String semestreAnterior = "";
+        int contadorSemestres = 0;
+        
+        for (Materia materia : materias) {
+            String cicloLectivo = materia.getCicloLectivo();
+            
+            if (cicloLectivo == null || cicloLectivo.trim().isEmpty()) {
+                continue;
+            }
+            
+            cicloLectivo = cicloLectivo.trim();
+            
+            if (cicloLectivo.startsWith("TerPe") || cicloLectivo.startsWith("PrimPe")) {
+                
+                if (!cicloLectivo.equals(semestreAnterior)) {
+                    contadorSemestres++;
+                    semestreAnterior = cicloLectivo;
+                }
+            }
+        }
+        
+        return Math.max(1, contadorSemestres);
+    }
+
 }
