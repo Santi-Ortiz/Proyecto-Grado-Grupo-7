@@ -2,6 +2,7 @@ package com.grupo7.tesis.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,8 @@ import com.grupo7.tesis.model.MateriaJson;
 import com.grupo7.tesis.model.Progreso;
 import com.grupo7.tesis.model.Proyeccion;
 import com.grupo7.tesis.model.Simulacion;
+import com.grupo7.tesis.model.MateriaConPuntaje;
+import com.grupo7.tesis.model.Combinacion;
 
 @Service
 public class SimulacionService {
@@ -175,15 +178,7 @@ public class SimulacionService {
                 materiaSugerida.setNombre(nombre);
                 materiaSugerida.setSemestre(semestre);
 
-                if(codigo.equals("5")){
-                    if(creditosRestantesGeneral >= 6 && creditosRestantes >= 6) {
-                        materiaSugerida.setCreditos(6);
-                    } else if(creditosRestantesGeneral >= 3 && creditosRestantes >= 3) {
-                        materiaSugerida.setCreditos(3);
-                    } else {
-                        return null;
-                    }
-                } else if (codigo.equals("6") || codigo.equals("1")) {
+                if(codigo.equals("5") || codigo.equals("6") || codigo.equals("1")){
                     if(creditosRestantesGeneral >= 3 && creditosRestantes >= 3) {
                         materiaSugerida.setCreditos(3);
                     } else {
@@ -201,7 +196,7 @@ public class SimulacionService {
         return null;
     }
 
-    private List<MateriaJson> generarMateriasElectivas(Progreso progreso, List<MateriaJson> materiasPensum, int semestre, int creditosDisponibles, int materiasDisponibles, Simulacion simulacionActual) {
+    public List<MateriaJson> generarMateriasElectivas(Progreso progreso, List<MateriaJson> materiasPensum, int semestre, int creditosDisponibles, int materiasDisponibles, Simulacion simulacionActual) {
         List<MateriaJson> materiasGeneradas = new ArrayList<>();
         
         // Calcular cuántos créditos de cada tipo ya están en la simulación
@@ -250,8 +245,8 @@ public class SimulacionService {
         return materiasGeneradas;
     }
 
-    // Helper para calcular cuántos créditos de un tipo específico ya están en la simulación
-    private int calcularCreditosUsadosEnSimulacion(Simulacion simulacion, String tipoCodigo) {
+    //Calcular cuántos créditos de un tipo específico ya están en la simulación
+    public int calcularCreditosUsadosEnSimulacion(Simulacion simulacion, String tipoCodigo) {
         int creditosUsados = 0;
         for (MateriaJson materia : simulacion.getMaterias()) {
             if (materia.getCodigo().equals(tipoCodigo)) {
@@ -261,4 +256,219 @@ public class SimulacionService {
         return creditosUsados;
     }
 
+    //-------Combinaciones (De aquí en adelante es el código de combinaciones)-------
+
+    public Simulacion generarSimulacionCombinatorias(Progreso progreso, Proyeccion proyeccion, List<MateriaJson> materiasPensum) {
+        System.out.println("Créditos disponibles: " + proyeccion.getCreditos());
+        System.out.println("Materias máximas: " + proyeccion.getMaterias());
+        System.out.println("Semestre a proyectar: " + proyeccion.getSemestre());
+        
+        // Filtrar materias disponibles
+        List<MateriaJson> materiasDisponibles = filtrarMateriasDisponibles(progreso, materiasPensum, proyeccion);
+        System.out.println("\nMaterias disponibles encontradas: " + materiasDisponibles.size());
+        
+        // Calcular puntajes para cada materia
+        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion);
+        
+        // Mostrar materias con sus puntajes
+        mostrarMateriasPuntajes(materiasConPuntaje);
+        
+        // Combinaciones
+        List<Combinacion> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje, proyeccion.getCreditos(), proyeccion.getMaterias());
+        
+        // Resultados
+        mostrarResultadosCombinaciones(mejoresCombinaciones);
+        
+        // Retornar
+        if (!mejoresCombinaciones.isEmpty()) {
+            Simulacion mejorSimulacion = new Simulacion();
+            for (MateriaJson materia : mejoresCombinaciones.get(0).getMaterias()) {
+                mejorSimulacion.agregarMateria(materia);
+            }
+            return mejorSimulacion;
+        }
+        
+        return new Simulacion();
+    }
+    
+    // Buscar materias faltantes y que pueda cursar
+    public List<MateriaJson> filtrarMateriasDisponibles(Progreso progreso, List<MateriaJson> materiasPensum, Proyeccion proyeccion) {
+        List<MateriaJson> materiasDisponibles = new ArrayList<>();
+        
+        // Agregar materias nucleo faltantes
+        for (MateriaJson materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getSemestre() <= proyeccion.getSemestre() + 1 &&
+                validarPrerequisito(progreso, materiasPensum, materia.getRequisitos())) {
+                materiasDisponibles.add(materia);
+            }
+        }
+        
+        agregarMateriasAdicionalesDisponibles(materiasDisponibles, progreso, materiasPensum, proyeccion);
+        
+        return materiasDisponibles;
+    }
+    
+    //Agrega electivas, complementarias y de énfasis a las materias disponibles
+    public void agregarMateriasAdicionalesDisponibles(List<MateriaJson> materiasDisponibles, Progreso progreso, List<MateriaJson> materiasPensum, Proyeccion proyeccion) {
+        
+        int creditosDisponibles = proyeccion.getCreditos();
+        int materiasDisponiblesNum = proyeccion.getMaterias();
+        
+        int creditosElectivas = validarElectivas(progreso, materiasPensum, proyeccion.getSemestre() + 1);
+        MateriaJson electiva = verificarMateria(creditosElectivas, creditosDisponibles, materiasDisponiblesNum, "0", "Electiva", proyeccion.getSemestre());
+        if (electiva != null) {
+            materiasDisponibles.add(electiva);
+        }
+        
+        int creditosComplementarias = validarComplementarias(progreso, materiasPensum, proyeccion.getSemestre() + 1);
+        MateriaJson complementaria = verificarMateria(creditosComplementarias, creditosDisponibles, materiasDisponiblesNum,"1", "Complementaria", proyeccion.getSemestre());
+        if (complementaria != null) {
+            materiasDisponibles.add(complementaria);
+        }
+        
+        int creditosEnfasis = validarEnfasis(progreso, materiasPensum, proyeccion.getSemestre() + 1);
+        if (creditosEnfasis > 0) {
+            MateriaJson enfasis1 = verificarMateria(3, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis", proyeccion.getSemestre());
+            if (enfasis1 != null) {
+                materiasDisponibles.add(enfasis1);
+            }
+            
+            if (creditosEnfasis >= 6) {
+                MateriaJson enfasis2 = verificarMateria(3, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis", proyeccion.getSemestre());
+                if (enfasis2 != null) {
+                    materiasDisponibles.add(enfasis2);
+                }
+            }
+        }
+        
+        int creditosElectivasCB = validarElectivasCB(progreso, materiasPensum, proyeccion.getSemestre() + 1);
+        MateriaJson electivaCB = verificarMateria(creditosElectivasCB, creditosDisponibles, materiasDisponiblesNum, "6", "Electiva Ciencias Básicas", proyeccion.getSemestre());
+        if (electivaCB != null) {
+            materiasDisponibles.add(electivaCB);
+        }
+    }
+    
+    //Darle valor a las materias
+    public List<MateriaConPuntaje> calcularPuntajes(List<MateriaJson> materias, Progreso progreso, Proyeccion proyeccion) {
+        List<MateriaConPuntaje> materiasConPuntaje = new ArrayList<>();
+        
+        for (MateriaJson materia : materias) {
+            double puntaje = calcularPuntajeMateria(materia, progreso, proyeccion);
+            materiasConPuntaje.add(new MateriaConPuntaje(materia, puntaje));
+        }
+        
+        // Ordenar de mayor a menor para dar prioridad
+        materiasConPuntaje.sort((a, b) -> Double.compare(b.getPuntaje(), a.getPuntaje()));
+        
+        return materiasConPuntaje;
+    }
+    
+    //Puntaje de cada materia (Toca revisar esto pq no sabia como darle puntaje)
+    public double calcularPuntajeMateria(MateriaJson materia, Progreso progreso, Proyeccion proyeccion) {
+        double puntaje = 0;
+        
+        if (materia.getSemestre() < proyeccion.getSemestre()) {
+            puntaje += 100; // Materias de semestres pasados
+        } else if (materia.getSemestre() == proyeccion.getSemestre()) {
+            puntaje += 80;  // Materias del semestre actual
+        } else {
+            puntaje += 60;  // Materias del siguiente semestre
+        }
+        
+        return puntaje;
+    }
+    
+    //Combinaciones 
+    public List<Combinacion> generarMejoresCombinaciones(List<MateriaConPuntaje> materiasConPuntaje, int creditosMax, int materiasMax) {
+        List<Combinacion> todasLasCombinaciones = new ArrayList<>();
+        List<MateriaJson> combinacionActual = new ArrayList<>();
+        
+        backtrackCombinaciones(materiasConPuntaje, combinacionActual, todasLasCombinaciones, 0, creditosMax, materiasMax, 0, 0);
+        
+        // Ordenar por puntaje de mayor a menor
+        todasLasCombinaciones.sort((a, b) -> Double.compare(b.getPuntajeTotal(), a.getPuntajeTotal()));
+        
+        return todasLasCombinaciones.stream().limit(5).collect(Collectors.toList());
+    }
+    
+    //Backtracking para generar combinaciones de materias
+    public void backtrackCombinaciones(List<MateriaConPuntaje> materias, List<MateriaJson> combinacionActual,List<Combinacion> resultado, int indice, int creditosMax, int materiasMax, int creditosActuales, int materiasActuales) {
+        
+        // Si se alcanzan los límites se guarda la combinación actual
+        if (indice == materias.size() || materiasActuales == materiasMax || creditosActuales >= creditosMax) {
+            if (!combinacionActual.isEmpty()) {
+                double puntajeTotal = calcularPuntajeCombinacion(combinacionActual, materias);
+                resultado.add(new Combinacion(combinacionActual, puntajeTotal, creditosActuales));
+            }
+            return;
+        }
+        
+        MateriaJson materiaActual = materias.get(indice).getMateria();
+        
+        // Incluir la materia si es posible
+        if (creditosActuales + materiaActual.getCreditos() <= creditosMax && materiasActuales + 1 <= materiasMax) {
+            
+            combinacionActual.add(materiaActual);
+            backtrackCombinaciones(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax, creditosActuales + materiaActual.getCreditos(), materiasActuales + 1);
+            combinacionActual.remove(combinacionActual.size() - 1);
+        }
+        
+        // No incluir la materia
+        backtrackCombinaciones(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax, creditosActuales, materiasActuales);
+    }
+    
+    //Puntaje de la combinación de materias
+    public double calcularPuntajeCombinacion(List<MateriaJson> combinacion, List<MateriaConPuntaje> materiasConPuntaje) {
+        double puntajeTotal = 0;
+        
+        for (MateriaJson materia : combinacion) {
+            for (MateriaConPuntaje mp : materiasConPuntaje) {
+                if (mp.getMateria().getCodigo().equals(materia.getCodigo())) {
+                    puntajeTotal += mp.getPuntaje();
+                    break;
+                }
+            }
+        }
+        
+        return puntajeTotal;
+    }
+    
+    //Materias con puntajes
+    public void mostrarMateriasPuntajes(List<MateriaConPuntaje> materiasConPuntaje) {
+        System.out.println("\nMATERIAS DISPONIBLES CON PUNTAJES");
+        for (int i = 0; i < Math.min(materiasConPuntaje.size(), 10); i++) {
+            MateriaConPuntaje mp = materiasConPuntaje.get(i);
+            System.out.printf("%d. %s (%s) - %d créditos - Puntaje: %.1f%n", 
+                i + 1, 
+                mp.getMateria().getNombre(), 
+                mp.getMateria().getCodigo(),
+                mp.getMateria().getCreditos(),
+                mp.getPuntaje());
+        }
+    }
+    
+    //Resultados
+    public void mostrarResultadosCombinaciones(List<Combinacion> combinaciones) {
+        System.out.println("\nMEJORES COMBINACIONES ENCONTRADAS");
+        
+        for (int i = 0; i < combinaciones.size(); i++) {
+            Combinacion comb = combinaciones.get(i);
+            System.out.printf("\n--- COMBINACIÓN %d (Puntaje: %.1f, Créditos: %d) ---%n", 
+                i + 1, comb.getPuntajeTotal(), comb.getCreditosTotales());
+            
+            for (int j = 0; j < comb.getMaterias().size(); j++) {
+                MateriaJson materia = comb.getMaterias().get(j);
+                System.out.printf("  %d. %s (%s) - %d créditos - Semestre %d%n",
+                    j + 1,
+                    materia.getNombre(),
+                    materia.getCodigo(),
+                    materia.getCreditos(),
+                    materia.getSemestre());
+            }
+        }
+        
+        if (combinaciones.isEmpty()) {
+            System.out.println("\nNo se encontraron combinaciones válidas");
+        }
+    }
 }

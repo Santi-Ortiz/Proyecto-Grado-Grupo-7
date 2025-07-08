@@ -165,9 +165,11 @@ public class lecturaController {
             List<MateriaJson> materiasPensum = pensumService.obtenerPensum();
             model.addAttribute("materiasPensum", materiasPensum);
 
-            Simulacion simulacion = simulacionService.generarSimulacion(progreso, proyeccion, materiasPensum);
-            model.addAttribute("simulacion", simulacion);
+            /*Simulacion simulacion = simulacionService.generarSimulacion(progreso, proyeccion, materiasPensum);
+            model.addAttribute("simulacion", simulacion);*/
 
+            Simulacion simulacionCombinatorias = simulacionService.generarSimulacionCombinatorias(progreso, proyeccion, materiasPensum);
+            model.addAttribute("simulacion", simulacionCombinatorias);
         }
 
         return "lecturaInforme";
