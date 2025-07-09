@@ -430,7 +430,8 @@
     <p>
         <b>Materias cursadas: </b> <span th:text="${materiasCursadas}"></span><br>
         <b>Materias que se estan cursando: </b> <span th:text="${materiasCursando}"></span><br>
-        <b>Materias faltantes: </b> <span th:text="${materiasFaltantes}"></span>
+        <b>Materias faltantes: </b> <span th:text="${materiasFaltantes}"></span><br>
+        <b>Número de semestre actual: </b> <span th:text="${semestreActual}"></span>
     </p>
 
     <div>
@@ -464,18 +465,10 @@
                         <strong>Semestre a proyectar:</strong> <span th:text="${semestreProyeccion}"></span>
                     </div>
                     <div>
-                        <strong>Cantidad de créditos:</strong> <span th:text="${creditosProyeccion}"></span>
+                        <strong>Cantidad de créditos máximo:</strong> <span th:text="${creditosProyeccion}"></span>
                     </div>
                     <div>
-                        <strong>Cantidad de materias:</strong> <span th:text="${materiasProyeccion}"></span>
-                    </div>
-                    <div>
-                        <strong>Tipo Matrícula:</strong> 
-                        <span th:text="${tipoMatriculaProyeccion == 1 ? 'Completa' : 'Media'}"></span>
-                    </div>
-                    <div>
-                        <strong>Doble Programa:</strong> 
-                        <span th:text="${dobleProgramaProyeccion == 1 ? 'Sí' : 'No'}"></span>
+                        <strong>Cantidad de materias máxima:</strong> <span th:text="${materiasProyeccion}"></span>
                     </div>
                 </div>
             </div>

@@ -148,27 +148,30 @@ public class lecturaController {
             model.addAttribute("faltanComplementaria", progreso.getFaltanComplementaria());
             model.addAttribute("faltanEnfasis", progreso.getFaltanEnfasis());
             model.addAttribute("faltanElectivaBasicas", progreso.getFaltanElectivaBasicas());
+            model.addAttribute("semestreActual", progreso.getSemestre());
 
             Proyeccion proyeccion = proyeccionService.generarProyeccion(
                     8,
                     20,
-                    10,
-                    1,
-                    0);
+                    10);
 
             model.addAttribute("semestreProyeccion", proyeccion.getSemestre());
             model.addAttribute("creditosProyeccion", proyeccion.getCreditos());
             model.addAttribute("materiasProyeccion", proyeccion.getMaterias());
-            model.addAttribute("tipoMatriculaProyeccion", proyeccion.getTipoMatricula());
-            model.addAttribute("dobleProgramaProyeccion", proyeccion.getDoblePrograma());
+            // model.addAttribute("tipoMatriculaProyeccion", proyeccion.getTipoMatricula());
+            // model.addAttribute("dobleProgramaProyeccion", proyeccion.getDoblePrograma());
 
             List<MateriaJson> materiasPensum = pensumService.obtenerPensum();
             model.addAttribute("materiasPensum", materiasPensum);
 
-            /*Simulacion simulacion = simulacionService.generarSimulacion(progreso, proyeccion, materiasPensum);
-            model.addAttribute("simulacion", simulacion);*/
+            /*
+             * Simulacion simulacion = simulacionService.generarSimulacion(progreso,
+             * proyeccion, materiasPensum);
+             * model.addAttribute("simulacion", simulacion);
+             */
 
-            Simulacion simulacionCombinatorias = simulacionService.generarSimulacionCombinatorias(progreso, proyeccion, materiasPensum);
+            Simulacion simulacionCombinatorias = simulacionService.generarSimulacionCombinatorias(progreso, proyeccion,
+                    materiasPensum);
             model.addAttribute("simulacion", simulacionCombinatorias);
         }
 
