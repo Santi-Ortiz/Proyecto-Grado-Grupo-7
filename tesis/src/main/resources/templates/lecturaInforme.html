@@ -426,6 +426,32 @@
 </div>
 
 <div th:if="${promedio != null}">
+  <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+    <h4 style="margin-top: 0; color: #007bff;">Detalle de Créditos</h4>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <p><strong>Progreso del Pensum:</strong></p>
+        <p style="font-size: 18px; margin: 5px 0;">
+          <span th:text="${creditosPensum}"></span> / 138 créditos
+        </p>
+      </div>
+      <div>
+        <p><strong>Créditos Extra:</strong></p>
+        <p style="font-size: 18px; margin: 5px 0; color: #28a745;">
+          +<span th:text="${creditosExtra}"></span> créditos adicionales
+        </p>
+      </div>
+    </div>
+    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #dee2e6;">
+      <p><strong>Total Créditos Realizados:</strong> 
+        <span style="font-size: 18px; font-weight: bold; color: #6f42c1;" th:text="${totalCreditosCursados}"></span> créditos
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<div th:if="${promedio != null}">
     <h2>Promedio: <span th:text="${#numbers.formatDecimal(promedio, 1, 2)}"></span></h2>
     <p>
         <b>Materias cursadas: </b> <span th:text="${materiasCursadas}"></span><br>
