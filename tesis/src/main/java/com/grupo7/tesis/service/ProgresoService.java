@@ -63,15 +63,19 @@ public class ProgresoService {
         int faltanComplementaria = 0;
         int faltanEnfasis = 0;
         int faltanElectivaBasicas = 0;
+        int creditosComplementariaValidados = 0;
+        int extraEnfasis = 0;
+        int creditosPerdidos = 0;
 
         Set<String> codigosCursados = new HashSet<>();
         Set<String> codigosCursando = new HashSet<>();
+        Set<String> codigosPerdidos = new HashSet<>();
         List<Materia> materiasRealmenteCursadas = new ArrayList<>();
         Set<String> codigosAgregados = new HashSet<>();
+        Set<String> codigosPerdidosAgregados = new HashSet<>();
         List<MateriaJson> materiasFaltantes = new ArrayList<>();
 
         int numeroSemestre = calcularNumeroSemestre(materiasCursadas);
-        System.out.println("Número de semestre calculado: " + numeroSemestre);
 
         for (Materia m : materiasCursadas) {
             String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
@@ -84,11 +88,18 @@ public class ProgresoService {
             }
             if (cred != null && esNumero(cred) && calif != null && esNumero(calif)) {
                 double califNum = Double.parseDouble(calif);
-                if (califNum > 0 && !codigosAgregados.contains(codigoSinCeros)) {
+                int creditos = (int) Double.parseDouble(cred);
+                
+                if (califNum >= 3.0 && !codigosAgregados.contains(codigoSinCeros)) {
                     codigosCursados.add(codigoSinCeros);
                     materiasRealmenteCursadas.add(m);
                     codigosAgregados.add(codigoSinCeros);
-                    totalCreditos += (int) Double.parseDouble(cred);
+                    totalCreditos += creditos;
+                } else if ( califNum < 3.0 && !codigosPerdidosAgregados.contains(codigoSinCeros)) {
+                    codigosPerdidos.add(codigoSinCeros);
+                    codigosPerdidosAgregados.add(codigoSinCeros);
+                    creditosPerdidos += creditos;
+                    totalCreditos += creditos;
                 }
             }
         }
@@ -120,14 +131,12 @@ public class ProgresoService {
             InputStream is = getClass().getResourceAsStream("/plan_estudios_INGSIS.json");
             List<MateriaJson> todasLasMaterias = mapper.readValue(is, new TypeReference<List<MateriaJson>>() {});
 
-            // Crear un Set con todos los códigos del pensum para facilitar la búsqueda
             Set<String> codigosPensum = new HashSet<>();
             for (MateriaJson m : todasLasMaterias) {
                 String codigo = m.getCodigo().replaceFirst("^0+(?!$)", "");
                 codigosPensum.add(codigo);
             }
 
-            // Calcular créditos del pensum vs. créditos extra
             for (Materia m : materiasRealmenteCursadas) {
                 String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
                 String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
@@ -139,12 +148,6 @@ public class ProgresoService {
                     }
                 }
             }
-
-            // Agregar créditos de electivas, complementarias, etc. (limitados a los requeridos)
-            creditosPensum += Math.min(creditosElectiva, REQ_ELECTIVA);
-            creditosPensum += Math.min(creditosComplementaria, REQ_COMPLEMENTARIA);
-            creditosPensum += Math.min(creditosEnfasis, REQ_ENFASIS);
-            creditosPensum += Math.min(creditosElectivaBasicas, REQ_ELECTIVA_BASICAS);
 
             for (MateriaJson m : todasLasMaterias) {
                 String nombre = m.getNombre().toLowerCase();
@@ -163,25 +166,29 @@ public class ProgresoService {
             totalFaltantes = materiasFaltantes.size();
             totalCursando = codigosCursando.size();
 
-            int extraEnfasis = Math.max(creditosEnfasis - REQ_ENFASIS, 0);
-            int creditosComplementariaValidados = creditosComplementaria + extraEnfasis;
+            extraEnfasis = Math.max(creditosEnfasis - REQ_ENFASIS, 0);
+            creditosComplementariaValidados = creditosComplementaria + extraEnfasis;
 
             faltanElectiva = Math.max(REQ_ELECTIVA - creditosElectiva, 0);
             faltanComplementaria = Math.max(REQ_COMPLEMENTARIA - creditosComplementariaValidados, 0);
             faltanEnfasis = Math.max(REQ_ENFASIS - creditosEnfasis, 0);
             faltanElectivaBasicas = Math.max(REQ_ELECTIVA_BASICAS - creditosElectivaBasicas, 0);
 
+            creditosPensum += Math.min(creditosElectiva, REQ_ELECTIVA);
+            creditosPensum += Math.min(creditosComplementariaValidados, REQ_COMPLEMENTARIA);
+            creditosPensum += Math.min(creditosEnfasis - extraEnfasis, REQ_ENFASIS);
+            creditosPensum += Math.min(creditosElectivaBasicas, REQ_ELECTIVA_BASICAS);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Calcular créditos extra correctamente
         int creditosElectivaExtra = Math.max(creditosElectiva - REQ_ELECTIVA, 0);
-        int creditosComplementariaExtra = Math.max(creditosComplementaria - REQ_COMPLEMENTARIA, 0);        
-        int creditosEnfasisExtra = Math.max(creditosEnfasis - REQ_ENFASIS, 0);
+        int creditosComplementariaExtra = Math.max(creditosComplementariaValidados - REQ_COMPLEMENTARIA, 0);        
+        int creditosEnfasisExtra = Math.max(creditosEnfasis - REQ_ENFASIS - extraEnfasis, 0);
         int creditosElectivaBasicasExtra = Math.max(creditosElectivaBasicas - REQ_ELECTIVA_BASICAS, 0);
         
-        int creditosExtra = creditosElectivaExtra + creditosComplementariaExtra + creditosEnfasisExtra + creditosElectivaBasicasExtra;
+        int creditosExtra = creditosElectivaExtra + creditosComplementariaExtra + creditosEnfasisExtra + creditosElectivaBasicasExtra + creditosPerdidos;
 
         return new Progreso(
             promedio,
