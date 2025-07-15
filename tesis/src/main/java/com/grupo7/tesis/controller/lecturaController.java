@@ -183,11 +183,11 @@ public class lecturaController {
 
             model.addAttribute("simulacion", simulacionMultiSemestre);
 
-            int totalCreditosMulti = 0;
-            int totalMateriasMulti = 0;
+            int totalCreditos = 0;
+            int totalMaterias = 0;
 
-            model.addAttribute("totalCreditosMulti", totalCreditosMulti);
-            model.addAttribute("totalMateriasMulti", totalMateriasMulti);
+            model.addAttribute("totalCreditosMulti", totalCreditos);
+            model.addAttribute("totalMateriasMulti", totalMaterias);
 
         }
         return "lecturaInforme";

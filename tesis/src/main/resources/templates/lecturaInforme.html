@@ -506,6 +506,12 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div style="margin-top: 10px;">
+                        <strong>Materias para semestre <span th:text="${entry.key}"></span>:</strong> <span th:text="${entry.value.materias.size}"></span>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <strong>Créditos para semestre <span th:text="${entry.key}"></span>:</strong> <span th:text="${#aggregates.sum(entry.value.materias.![creditos])}"></span>
+                    </div>
                 </div>
             </div>
         </div>
