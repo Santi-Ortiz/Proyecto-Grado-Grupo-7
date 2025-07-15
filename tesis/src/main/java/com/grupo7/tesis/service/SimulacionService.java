@@ -282,7 +282,8 @@ public class SimulacionService {
 
     public Simulacion generarSimulacionCombinatorias(Progreso progreso, Proyeccion proyeccion,
             List<MateriaJson> materiasPensum) {
-        System.out.println("------------------ INICIO DE SIMULACIÓN CON COMBINATORIAS ------------------");
+        // System.out.println("------------------ INICIO DE SIMULACIÓN CON COMBINATORIAS
+        // ------------------");
         System.out.println("Créditos disponibles: " + proyeccion.getCreditos());
         System.out.println("Materias máximas: " + proyeccion.getMaterias());
         System.out.println("Semestre a proyectar: " + proyeccion.getSemestre());

@@ -178,13 +178,18 @@ public class lecturaController {
              * model.addAttribute("simulacion", simulacionCombinatorias);
              */
 
-            Map<Integer, Simulacion> simulacionMultiSemestre = simulacionService.generarSimulacionMultiSemestre(
-                    progreso,
-                    proyeccion, proyeccion.getSemestre(), materiasPensum);
-            model.addAttribute("simulacionMultiSemestre", simulacionMultiSemestre);
-        }
+            Map<Integer, Simulacion> simulacionMultiSemestre = simulacionService
+                    .generarSimulacionMultiSemestre(progreso, proyeccion, proyeccion.getSemestre(), materiasPensum);
 
+            model.addAttribute("simulacion", simulacionMultiSemestre);
+
+            int totalCreditosMulti = 0;
+            int totalMateriasMulti = 0;
+
+            model.addAttribute("totalCreditosMulti", totalCreditosMulti);
+            model.addAttribute("totalMateriasMulti", totalMateriasMulti);
+
+        }
         return "lecturaInforme";
     }
-
 }
