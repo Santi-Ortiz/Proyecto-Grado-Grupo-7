@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class lecturaController {
@@ -170,9 +171,17 @@ public class lecturaController {
              * model.addAttribute("simulacion", simulacion);
              */
 
-            Simulacion simulacionCombinatorias = simulacionService.generarSimulacionCombinatorias(progreso, proyeccion,
-                    materiasPensum);
-            model.addAttribute("simulacion", simulacionCombinatorias);
+            /*
+             * Simulacion simulacionCombinatorias =
+             * simulacionService.generarSimulacionCombinatorias(progreso, proyeccion,
+             * materiasPensum);
+             * model.addAttribute("simulacion", simulacionCombinatorias);
+             */
+
+            Map<Integer, Simulacion> simulacionMultiSemestre = simulacionService.generarSimulacionMultiSemestre(
+                    progreso,
+                    proyeccion, proyeccion.getSemestre(), materiasPensum);
+            model.addAttribute("simulacionMultiSemestre", simulacionMultiSemestre);
         }
 
         return "lecturaInforme";

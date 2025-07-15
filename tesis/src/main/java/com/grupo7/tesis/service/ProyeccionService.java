@@ -12,8 +12,6 @@ public class ProyeccionService {
         proyeccion.setSemestre(semestre);
         proyeccion.setCreditos(creditos);
         proyeccion.setMaterias(materias);
-        // proyeccion.setTipoMatricula(tipoMatricula);
-        // proyeccion.setDoblePrograma(doblePrograma);
 
         return proyeccion;
     }

@@ -1,7 +1,9 @@
 package com.grupo7.tesis.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -584,5 +586,130 @@ public class SimulacionService {
         if (combinaciones.isEmpty()) {
             System.out.println("\nNo se encontraron combinaciones válidas");
         }
+    }
+
+    /*
+     * ---------- Acá va el código para simulaciones de más de un semestre
+     */
+
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestre(
+            Progreso progreso,
+            Proyeccion proyeccionBase,
+            int semestreObjetivo,
+            List<MateriaJson> materiasPensum) {
+
+        System.out.println("================ INICIO SIMULACIÓN MULTI SEMESTRE ================");
+        System.out.println("Semestre actual: " + progreso.getSemestre());
+        System.out.println("Semestre objetivo: " + semestreObjetivo);
+        System.out.println("Créditos por semestre: " + proyeccionBase.getCreditos());
+        System.out.println("Materias por semestre: " + proyeccionBase.getMaterias());
+
+        Map<Integer, Simulacion> simulacionesPorSemestre = new HashMap<>();
+
+        Progreso progresoTemporal = progreso;
+
+        // Se itera desde el semestre actual hasta el semestre objetivo
+        for (int i = progreso.getSemestre() + 1; i <= semestreObjetivo; i++) {
+            System.out.println("\n--- SIMULACIÓN SEMESTRE " + i + " ---");
+
+            // Se crea una proyección para este semestre específico usando los parámetros
+            // iniciales
+            Proyeccion proyeccionSemestre = new Proyeccion();
+            proyeccionSemestre.setSemestre(i);
+            proyeccionSemestre.setCreditos(proyeccionBase.getCreditos());
+            proyeccionSemestre.setMaterias(proyeccionBase.getMaterias());
+
+            // Se genera la simulación para este semestre usando el progreso temporal
+            // actualizado
+            Simulacion simulacionSemestre = generarSimulacionCombinatorias(
+                    progresoTemporal, proyeccionSemestre, materiasPensum);
+
+            // Se agrega la simulación al mapa de las simulaciones
+            simulacionesPorSemestre.put(i, simulacionSemestre);
+
+            // Se actualiza el progreso temporal, es decir, las materias simuladas ahora se
+            // consideran "vistas"
+            progresoTemporal = actualizarProgresoTemporal(progresoTemporal, simulacionSemestre, i);
+
+            System.out.println("Materias simuladas para semestre " + i + ": " +
+                    simulacionSemestre.getMaterias().size());
+            System.out.println("Créditos simulados: " + simulacionSemestre.getMaterias()
+                    .stream().mapToInt(MateriaJson::getCreditos).sum());
+        }
+
+        return simulacionesPorSemestre;
+    }
+
+    /**
+     * Actualiza el progreso temporal eliminando las materias que fueron simuladas
+     * y actualizando los contadores
+     */
+    private Progreso actualizarProgresoTemporal(Progreso progreso, Simulacion simulacion, int semestreSimulado) {
+        System.out.println("Se actualizó el progreso temporal para semestre " + semestreSimulado);
+
+        // Se eliminan las materias de núcleo que fueron simuladas (códigos que NO son
+        // 0, 1, 5, 6)
+        List<MateriaJson> materiasARemover = new ArrayList<>();
+        for (MateriaJson materiaSimulada : simulacion.getMaterias()) {
+            // Solo elimina las materias de núcleo
+            if (!materiaSimulada.getCodigo().equals("0") &&
+                    !materiaSimulada.getCodigo().equals("1") &&
+                    !materiaSimulada.getCodigo().equals("5") &&
+                    !materiaSimulada.getCodigo().equals("6")) {
+
+                for (MateriaJson materiaFaltante : progreso.getListaMateriasFaltantes()) {
+                    if (materiaFaltante.getCodigo().equals(materiaSimulada.getCodigo()) ||
+                            (materiaFaltante.getNombre().equals(materiaSimulada.getNombre()) &&
+                                    materiaFaltante.getSemestre() == materiaSimulada.getSemestre())) {
+                        materiasARemover.add(materiaFaltante);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Eliminar el resto de las materias
+        progreso.getListaMateriasFaltantes().removeAll(materiasARemover);
+
+        // Actualiza los contadores de materias específicas
+        for (MateriaJson materia : simulacion.getMaterias()) {
+            switch (materia.getCodigo()) {
+                case "0": // Electivas
+                    int creditosElectiva = materia.getCreditos();
+                    progreso.setFaltanElectiva(Math.max(0, progreso.getFaltanElectiva() - creditosElectiva));
+                    break;
+                case "1": // Complementarias
+                    progreso.setFaltanComplementaria(Math.max(0, progreso.getFaltanComplementaria() - 3));
+                    break;
+                case "5": // Énfasis
+                    progreso.setFaltanEnfasis(Math.max(0, progreso.getFaltanEnfasis() - 3));
+                    break;
+                case "6": // Electivas Ciencias Básicas
+                    progreso.setFaltanElectivaBasicas(Math.max(0, progreso.getFaltanElectivaBasicas() - 3));
+                    break;
+            }
+        }
+
+        // Actualiza los contadores generales de las materias faltantes en el progreso
+        progreso.setMateriasCursadas(progreso.getMateriasCursadas() + materiasARemover.size());
+        progreso.setMateriasFaltantes(progreso.getMateriasFaltantes() - materiasARemover.size());
+        progreso.setTotalFaltantes(progreso.getListaMateriasFaltantes().size());
+
+        // Actualiza créditos de las materias de núcleo eliminadas
+        int creditosNucleoSimulados = 0;
+        for (MateriaJson materia : materiasARemover) {
+            creditosNucleoSimulados += materia.getCreditos();
+        }
+        progreso.setCreditosPensum(progreso.getCreditosPensum() + creditosNucleoSimulados);
+        progreso.setTotalCreditos(progreso.getTotalCreditos() + creditosNucleoSimulados);
+
+        // Avanzar en la iteración de los semestres
+        progreso.setSemestre(semestreSimulado);
+
+        System.out.println("Materias núcleo agregadas al progreso temporal: " + materiasARemover.size());
+        System.out.println("Créditos núcleo agregados al progreso temporal: " + creditosNucleoSimulados);
+        System.out.println("Nuevo semestre: " + progreso.getSemestre());
+
+        return progreso;
     }
 }

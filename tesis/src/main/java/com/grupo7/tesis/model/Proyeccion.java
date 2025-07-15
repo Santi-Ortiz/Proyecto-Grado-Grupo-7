@@ -5,8 +5,6 @@ public class Proyeccion {
     private int semestre;
     private int creditos;
     private int materias;
-    // private int tipoMatricula;
-    // private int doblePrograma;
 
     public Proyeccion() {
     }
@@ -15,8 +13,6 @@ public class Proyeccion {
         this.semestre = semestre;
         this.creditos = creditos;
         this.materias = materias;
-        // this.tipoMatricula = tipoMatricula;
-        // this.doblePrograma = doblePrograma;
     }
 
     public int getSemestre() {
@@ -42,22 +38,5 @@ public class Proyeccion {
     public void setMaterias(int materias) {
         this.materias = materias;
     }
-    /*
-     * public int getTipoMatricula() {
-     * return tipoMatricula;
-     * }
-     * 
-     * public void setTipoMatricula(int tipoMatricula) {
-     * this.tipoMatricula = tipoMatricula;
-     * }
-     * 
-     * public int getDoblePrograma() {
-     * return doblePrograma;
-     * }
-     * 
-     * public void setDoblePrograma(int doblePrograma) {
-     * this.doblePrograma = doblePrograma;
-     * }
-     */
 
 }
