@@ -152,3 +152,7 @@ tr:nth-child(even) {
       white-space: nowrap;
       z-index: 1000;
   }
+
+  .respuesta {
+    white-space: pre-wrap;
+}

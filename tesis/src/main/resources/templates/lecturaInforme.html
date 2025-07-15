@@ -562,5 +562,21 @@
         </ul>
     </div>
 </div>
+<!-- Sección de Consulta de Dudas RAG -->
+<section style="margin-top: 40px;">
+    <h2 style="text-align: center; color: #2a5885;">Consulta tus dudas con IA sobre el Reglamento</h2>
+    <p class="description">Ingresa una pregunta relacionada con el reglamento estudiantil y obtén una respuesta inmediata usando nuestro asistente IA local.</p>
+
+    <div style="text-align: center;">
+        <textarea id="preguntaRAG" placeholder="Ej: ¿Cuál es la calificación mínima aprobatoria?" 
+                  style="width: 90%; max-width: 500px; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;"></textarea>
+        <br>
+        <button id="consultarRAGBtn">Consultar</button>
+    </div>
+
+    <div id="respuestaRAG" class="respuesta" 
+         style="max-width: 600px; margin: 20px auto; background-color: #e3f2fd; padding: 15px; border-radius: 6px; display: none; font-size: 16px;">
+    </div>
+</section>
 </body>
 </html>

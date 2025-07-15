@@ -1,0 +1,67 @@
+# === OS ===
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+Icon?
+
+# === General ===
+*.swp
+*~
+.env
+
+# === Java / Spring Boot ===
+/target/
+*.class
+*.jar
+*.war
+*.log
+spring.log
+
+# === IDEs ===
+.idea/
+*.iws
+*.iml
+*.ipr
+.project
+.classpath
+.settings/
+.vscode/
+.history/
+
+# === Python (rag_service) ===
+rag_service/.venv/
+rag_service/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+rag_service/faiss_index/
+rag_service/.mypy_cache/
+rag_service/.pytest_cache/
+
+# === Node (si aplica en futuro) ===
+node_modules/
+
+# === Jupyter (si se utiliza) ===
+*.ipynb
+
+# === Maven wrapper ===
+.mvn/wrapper/maven-wrapper.jar
+
+# === STS / Eclipse ===
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+
+# === NetBeans (si se utiliza) ===
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/

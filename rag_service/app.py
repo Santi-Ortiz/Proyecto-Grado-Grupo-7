@@ -20,7 +20,7 @@ global qa
 @app.on_event("startup")
 def load_rag():
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vectorstore = FAISS.load_local("faiss_index", embeddings)
+    vectorstore = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     llm = Ollama(model="llama3")
     global qa
     qa = RetrievalQA.from_chain_type(llm=llm, retriever=vectorstore.as_retriever())
