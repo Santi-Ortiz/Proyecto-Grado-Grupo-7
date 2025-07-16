@@ -1,6 +1,7 @@
 package com.grupo7.tesis.model;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class Progreso {
     private double promedio;
@@ -158,6 +159,42 @@ public class Progreso {
 
     public void setSemestre(int semestre) {
         this.semestre = semestre;
+    }
+
+    public Progreso copy() {
+
+        List<MateriaJson> nuevaListaMateriasFaltantes = new ArrayList<>();
+        if (this.listaMateriasFaltantes != null) {
+            for (MateriaJson materia : this.listaMateriasFaltantes) {
+                MateriaJson nuevaMateria = new MateriaJson();
+                nuevaMateria.setCodigo(materia.getCodigo());
+                nuevaMateria.setNombre(materia.getNombre());
+                nuevaMateria.setCreditos(materia.getCreditos());
+                nuevaMateria.setSemestre(materia.getSemestre());
+                if (materia.getRequisitos() != null) {
+                    nuevaMateria.setRequisitos(new ArrayList<>(materia.getRequisitos()));
+                }
+                nuevaListaMateriasFaltantes.add(nuevaMateria);
+            }
+        }
+
+        return new Progreso(
+                this.promedio,
+                this.materiasCursadas,
+                this.materiasFaltantes,
+                nuevaListaMateriasFaltantes,
+                this.totalMaterias,
+                this.totalFaltantes,
+                this.totalCursando,
+                this.totalCreditos,
+                this.creditosPensum,
+                this.creditosExtra,
+                this.faltanElectiva,
+                this.faltanComplementaria,
+                this.faltanEnfasis,
+                this.faltanElectivaBasicas,
+                this.semestre
+        );
     }
 
 }

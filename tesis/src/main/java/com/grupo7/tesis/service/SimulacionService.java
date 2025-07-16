@@ -336,49 +336,76 @@ public class SimulacionService {
     }
 
     // Agrega electivas, complementarias y de énfasis a las materias disponibles
-    public void agregarMateriasAdicionalesDisponibles(List<MateriaJson> materiasDisponibles, Progreso progreso,
-            List<MateriaJson> materiasPensum, Proyeccion proyeccion) {
+    public void agregarMateriasAdicionalesDisponibles(List<MateriaJson> materiasDisponibles, Progreso progreso, List<MateriaJson> materiasPensum, Proyeccion proyeccion) {
 
         int creditosDisponibles = proyeccion.getCreditos();
         int materiasDisponiblesNum = proyeccion.getMaterias();
+        int semestre = proyeccion.getSemestre();
 
-        int creditosElectivas = validarElectivas(progreso, materiasPensum, proyeccion.getSemestre() + 1);
-        MateriaJson electiva = verificarMateria(creditosElectivas, creditosDisponibles, materiasDisponiblesNum, "0",
-                "Electiva", proyeccion.getSemestre());
-        if (electiva != null) {
-            materiasDisponibles.add(electiva);
-        }
+        // ELECTIVAS
+        int usadosElectivas = 0;
+        usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles, validarElectivas(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, semestre - 1, "Electiva Atrasada");
+        usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles, validarElectivas(progreso, materiasPensum, semestre) - usadosElectivas, creditosDisponibles, materiasDisponiblesNum, semestre, "Electiva Actual");
+        agregarElectivasPorSemestre(materiasDisponibles, validarElectivas(progreso, materiasPensum, semestre + 1) - usadosElectivas, creditosDisponibles, materiasDisponiblesNum, semestre + 1, "Electiva Futura");
 
-        int creditosComplementarias = validarComplementarias(progreso, materiasPensum, proyeccion.getSemestre() + 1);
-        MateriaJson complementaria = verificarMateria(creditosComplementarias, creditosDisponibles,
-                materiasDisponiblesNum, "1", "Complementaria", proyeccion.getSemestre());
-        if (complementaria != null) {
-            materiasDisponibles.add(complementaria);
-        }
+        // COMPLEMENTARIAS
+        int usadosComp = 0;
+        usadosComp += agregarMateriasGenericas(materiasDisponibles, validarComplementarias(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, "1", "Complementaria Atrasada", semestre - 1);
+        usadosComp += agregarMateriasGenericas(materiasDisponibles, validarComplementarias(progreso, materiasPensum, semestre) - usadosComp, creditosDisponibles, materiasDisponiblesNum, "1", "Complementaria Actual", semestre);
+        agregarMateriasGenericas(materiasDisponibles, validarComplementarias(progreso, materiasPensum, semestre + 1) - usadosComp, creditosDisponibles, materiasDisponiblesNum, "1", "Complementaria Futura", semestre + 1);
 
-        int creditosEnfasis = validarEnfasis(progreso, materiasPensum, proyeccion.getSemestre() + 1);
-        if (creditosEnfasis > 0) {
-            MateriaJson enfasis1 = verificarMateria(3, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis",
-                    proyeccion.getSemestre());
-            if (enfasis1 != null) {
-                materiasDisponibles.add(enfasis1);
-            }
+        // ÉNFASIS
+        int usadosEnf = 0;
+        usadosEnf += agregarMateriasGenericas(materiasDisponibles, validarEnfasis(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis Atrasado", semestre - 1);
+        usadosEnf += agregarMateriasGenericas(materiasDisponibles, validarEnfasis(progreso, materiasPensum, semestre) - usadosEnf, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis Actual", semestre);
+        agregarMateriasGenericas(materiasDisponibles, validarEnfasis(progreso, materiasPensum, semestre + 1) - usadosEnf, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis Futuro", semestre + 1);
 
-            if (creditosEnfasis >= 6) {
-                MateriaJson enfasis2 = verificarMateria(3, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis",
-                        proyeccion.getSemestre());
-                if (enfasis2 != null) {
-                    materiasDisponibles.add(enfasis2);
+        // ELECTIVAS CIENCIAS BÁSICAS
+        int usadosCB = 0;
+        usadosCB += agregarMateriasGenericas(materiasDisponibles, validarElectivasCB(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, "6", "Electiva CB Atrasada", semestre - 1);
+        usadosCB += agregarMateriasGenericas(materiasDisponibles, validarElectivasCB(progreso, materiasPensum, semestre) - usadosCB, creditosDisponibles, materiasDisponiblesNum, "6", "Electiva CB Actual", semestre);
+        agregarMateriasGenericas(materiasDisponibles, validarElectivasCB(progreso, materiasPensum, semestre + 1) - usadosCB, creditosDisponibles, materiasDisponiblesNum, "6", "Electiva CB Futura", semestre + 1);
+    }
+
+    private int agregarElectivasPorSemestre(List<MateriaJson> materiasDisponibles, int creditosRequeridos, int creditosDisponibles, int materiasDisponiblesNum, int semestre, String descripcionBase) {
+
+        int usados = 0;
+        for (int credito = 3; credito >= 1; credito--) {
+            while (creditosRequeridos >= credito) {
+                MateriaJson electiva = verificarMateria(
+                    credito, creditosDisponibles, materiasDisponiblesNum, "0",
+                    descripcionBase + " " + credito + "C", semestre
+                );
+                if (electiva != null) {
+                    materiasDisponibles.add(electiva);
+                    creditosRequeridos -= credito;
+                    usados += credito;
+                } else {
+                    break;
                 }
             }
         }
+        return usados;
+    }
 
-        int creditosElectivasCB = validarElectivasCB(progreso, materiasPensum, proyeccion.getSemestre() + 1);
-        MateriaJson electivaCB = verificarMateria(creditosElectivasCB, creditosDisponibles, materiasDisponiblesNum, "6",
-                "Electiva Ciencias Básicas", proyeccion.getSemestre());
-        if (electivaCB != null) {
-            materiasDisponibles.add(electivaCB);
+    private int agregarMateriasGenericas(List<MateriaJson> materiasDisponibles, int creditosRequeridos, int creditosDisponibles, int materiasDisponiblesNum, String codigo, String descripcion, int semestre) {
+
+        int usados = 0;
+        MateriaJson m1 = verificarMateria(creditosRequeridos, creditosDisponibles, materiasDisponiblesNum, codigo, descripcion, semestre);
+        if (m1 != null) {
+            materiasDisponibles.add(m1);
+            usados += m1.getCreditos();
         }
+
+        if (creditosRequeridos >= 6) {
+            MateriaJson m2 = verificarMateria(3, creditosDisponibles, materiasDisponiblesNum, codigo, descripcion + " 2", semestre);
+            if (m2 != null) {
+                materiasDisponibles.add(m2);
+                usados += m2.getCreditos();
+            }
+        }
+
+        return usados;
     }
 
     // Darle valor a las materias
@@ -553,7 +580,7 @@ public class SimulacionService {
     // Materias con puntajes
     public void mostrarMateriasPuntajes(List<MateriaConPuntaje> materiasConPuntaje) {
         System.out.println("\nMATERIAS DISPONIBLES CON PUNTAJES");
-        for (int i = 0; i < Math.min(materiasConPuntaje.size(), 10); i++) {
+        for (int i = 0; i < materiasConPuntaje.size(); i++) {
             MateriaConPuntaje mp = materiasConPuntaje.get(i);
             System.out.printf("%d. %s (%s) - %d créditos - Puntaje: %.1f%n",
                     i + 1,
@@ -607,7 +634,7 @@ public class SimulacionService {
 
         Map<Integer, Simulacion> simulacionesPorSemestre = new HashMap<>();
 
-        Progreso progresoTemporal = progreso;
+        Progreso progresoTemporal = progreso.copy();
 
         // Se itera desde el semestre actual hasta el semestre objetivo
         for (int i = progreso.getSemestre() + 1; i <= semestreObjetivo; i++) {
