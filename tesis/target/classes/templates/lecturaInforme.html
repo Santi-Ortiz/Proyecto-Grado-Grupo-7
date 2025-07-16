@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Cursos</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/JavaScript/script.js" defer></script>
+</head>
+<body>
+
+<h1 id="historial">Historial de Cursos</h1>
+<p class="description">Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el historial de cursos registrados en el informe
+    de avance a lo largo de tu programa académico.</p>
+
+<form method="post" enctype="multipart/form-data" th:action="@{/subir-pdf}">
+    <input type="file" name="archivo" accept="application/pdf" required />
+    <button type="submit">Cargar PDF</button>
+</form>
+
+<p th:if="${error}" th:text="${error}" style="color: red; text-align: center;"></p>
+
+<table th:if="${materias != null}">
+    <thead>
+    <tr>
+        <th>Ciclo</th>
+        <th>Materia</th>
+        <th>N° Cat</th>
+        <th>Curso</th>
+        <th>Título</th>
+        <th>Calif</th>
+        <th>Cred</th>
+        <th>Tipo</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="materia : ${materias}">
+        <td th:text="${materia.cicloLectivo}"></td>
+        <td th:text="${materia.materia}"></td>
+        <td th:text="${materia.numeroCat}"></td>
+        <td th:text="${materia.curso}"></td>
+        <td th:text="${materia.titulo}"></td>
+        <td th:if="${materia.calif == 'SIN CALIFICACIÓN'}" 
+            style="background-color: #fff3cd; color: #856404; font-weight: bold; text-align: center;">
+            ⚠️
+        </td>
+        <td th:if="${materia.calif != 'SIN CALIFICACIÓN'}" th:text="${materia.calif}"></td>
+        <td th:text="${materia.cred}"></td>
+        <td th:text="${materia.tipo}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<p th:if="${materias != null}" style="text-align: right; font-size: 13px; color: #666; margin-top: 10px;">
+    <span style="background-color: #fff3cd; padding: 2px 6px; border-radius: 3px;">⚠️</span>
+    Indica que la asignatura aún no tiene calificación registrada.
+</p>
+
+<div th:if="${cursosElectivas != null and !#lists.isEmpty(cursosElectivas)}">
+    <h2 id="electivas-universidad">Electivas Universidad</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosElectivas}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosEnfasis != null and !#lists.isEmpty(cursosEnfasis)}">
+    <h2>Énfasis</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosEnfasis}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosSeguridad != null and !#lists.isEmpty(cursosSeguridad)}">
+    <h2>Énfasis</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosSeguridad}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div th:if="${cursosComplementariaLenguas != null and !#lists.isEmpty(cursosComplementariaLenguas)}">
+    <h2>Complementaria Lenguas</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosComplementariaLenguas}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosComplementariaInformacion != null and !#lists.isEmpty(cursosComplementariaInformacion)}">
+    <h2>Complementaria Información</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosComplementariaInformacion}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosIA != null and !#lists.isEmpty(cursosIA)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosIA}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosDesarrolloComputacion != null and !#lists.isEmpty(cursosDesarrolloComputacion)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosDesarrolloComputacion}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosDesarrolloGestion != null and !#lists.isEmpty(cursosDesarrolloGestion)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosDesarrolloGestion}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosComputacionVisual != null and !#lists.isEmpty(cursosComputacionVisual)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosComputacionVisual}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosCVtoIA != null and !#lists.isEmpty(cursosCVtoIA)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosCVtoIA}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosSIGtoIA != null and !#lists.isEmpty(cursosSIGtoIA)}">
+    <h2>Énfasis validado como Complementaria</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosSIGtoIA}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${cursosElectivaBasicas != null and !#lists.isEmpty(cursosElectivaBasicas)}">
+    <h2>Electiva de Ciencias Básicas</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ciclo</th>
+            <th>Materia</th>
+            <th>N° Cat</th>
+            <th>Curso</th>
+            <th>Título</th>
+            <th>Calif</th>
+            <th>Cred</th>
+            <th>Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${cursosElectivaBasicas}">
+            <td th:text="${m.cicloLectivo}"></td>
+            <td th:text="${m.materia}"></td>
+            <td th:text="${m.numeroCat}"></td>
+            <td th:text="${m.curso}"></td>
+            <td th:text="${m.titulo}"></td>
+            <td th:text="${m.calif}"></td>
+            <td th:text="${m.cred}"></td>
+            <td th:text="${m.tipo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${promedio != null}">
+  <h3>Progreso de la carrera</h3>
+  <div class="progress-container">
+    <div class="progress-bar" th:style="'width:' + ${porcentaje} + '%'">
+      <span th:text="${#numbers.formatDecimal(porcentaje, 1, 2)} + '%'"></span>
+    </div>
+  </div>
+</div>
+
+<div th:if="${promedio != null}">
+    <h2>Promedio: <span th:text="${#numbers.formatDecimal(promedio, 1, 2)}"></span></h2>
+    <p>
+        <b>Materias cursadas: </b> <span th:text="${materiasCursadas}"></span><br>
+        <b>Materias que se estan cursando: </b> <span th:text="${materiasCursando}"></span><br>
+        <b>Materias faltantes: </b> <span th:text="${materiasFaltantes}"></span>
+    </p>
+
+    <div>
+        <h3>Créditos faltantes por tipo:</h3>
+        <ul>
+            <li><b>Electivas:</b> <span th:text="${faltanElectiva}"></span> créditos</li>
+            <li><b>Complementarias:</b> <span th:text="${faltanComplementaria}"></span> créditos</li>
+            <li><b>Énfasis:</b> <span th:text="${faltanEnfasis}"></span> créditos</li>
+            <li><b>Electiva de Ciencias Básicas:</b> <span th:text="${faltanElectivaBasicas}"></span> créditos</li>
+        </ul>
+    </div>
+
+    <div th:if="${listaMateriasFaltantes != null}">
+        <h3>Materias que te faltan:</h3>
+        <ul>
+            <li th:each="mat : ${listaMateriasFaltantes}">
+                <span th:text="${mat.nombre}"></span> (Código: <span th:text="${mat.codigo}"></span> - Creditos: <span th:text="${mat.creditos}"></span>)
+            </li>
+        </ul>
+    </div>
+
+    <!-- Sección de Simulación Académica -->
+    <div th:if="${simulacion != null}">
+        <h2>Simulación Académica</h2>
+        <div>
+            
+            <div >
+                <h3>Configuración de la proyección</h3>
+                <div>
+                    <div>
+                        <strong>Semestre a proyectar:</strong> <span th:text="${semestreProyeccion}"></span>
+                    </div>
+                    <div>
+                        <strong>Cantidad de créditos:</strong> <span th:text="${creditosProyeccion}"></span>
+                    </div>
+                    <div>
+                        <strong>Cantidad de materias:</strong> <span th:text="${materiasProyeccion}"></span>
+                    </div>
+                    <div>
+                        <strong>Tipo Matrícula:</strong> 
+                        <span th:text="${tipoMatriculaProyeccion == 1 ? 'Completa' : 'Media'}"></span>
+                    </div>
+                    <div>
+                        <strong>Doble Programa:</strong> 
+                        <span th:text="${dobleProgramaProyeccion == 1 ? 'Sí' : 'No'}"></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div th:if="${simulacion.materias != null and !#lists.isEmpty(simulacion.materias)}">
+                <h3 >Materias Sugeridas para el Próximo Semestre</h3>
+                
+                <div style="background-color: #e8f5e8; border: 1px solid #c8e6c9; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: #2e7d32;" th:text="${#lists.size(simulacion.materias)}"></div>
+                            <div style="font-size: 12px; color: #666;">Materias</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: #2e7d32;" 
+                                 th:text="${#aggregates.sum(simulacion.materias.![creditos])}"></div>
+                            <div style="font-size: 12px; color: #666;">Créditos Totales</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Materias de la Simulación -->
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead>
+                        <tr style="background-color: #4caf50; color: white;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Código</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Nombre Materia</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Créditos</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Semestre</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="materia, iterStat : ${simulacion.materias}" 
+                            th:style="${iterStat.even} ? 'background-color: #f9f9f9;' : 'background-color: white;'">
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #1976d2;">
+                                <span th:if="${materia.codigo != '0' and materia.codigo != '1' and materia.codigo != '5' and materia.codigo != '6'}" th:text="${materia.codigo}"></span>
+                                <span th:if="${materia.codigo == '0' or materia.codigo == '1' or materia.codigo == '5' or materia.codigo == '6'}">-</span>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;" th:text="${materia.nombre}"></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;" 
+                                th:text="${materia.creditos}"></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;" 
+                                th:text="${materia.semestre}"></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                                <span th:switch="${materia.codigo}">
+                                    <span th:case="'0'" style="background-color: #ff9800; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Electiva</span>
+                                    <span th:case="'1'" style="background-color: #9c27b0; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Complementaria</span>
+                                    <span th:case="'5'" style="background-color: #f44336; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Énfasis</span>
+                                    <span th:case="'6'" style="background-color: #607d8b; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Electiva CB</span>
+                                    <span th:case="*" style="background-color: #4caf50; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Nucleo</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div th:if="${simulacion.materias == null or #lists.isEmpty(simulacion.materias)}" 
+                 style="text-align: center; padding: 30px; color: #666;">
+                <h3>No se generaron materias para la simulación</h3>
+                <ul style="text-align: left; display: inline-block; margin: 15px 0;">
+                    <li>Ya se completaron todas las materias disponibles</li>
+                    <li>No hay materias que cumplan los prerrequisitos</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:if="${lineasRequisitosGrado != null and !#lists.isEmpty(lineasRequisitosGrado)}">
+    <h2 style="margin-bottom: 4px;">Requisitos de Grado</h2>
+
+    <div style="padding: 0;">
+        <p th:text="${lineasRequisitosGrado.get(0)}"
+           style="margin: 0 0 10px 0; font-family: Arial, sans-serif; font-size: 16px;"></p>
+
+        <ul style="list-style-type: disc; padding-left: 20px;">
+            <li th:each="linea, iterStat : ${lineasRequisitosGrado}"
+                th:if="${iterStat.index > 0}"
+                th:text="${#strings.replace(linea, ' / ', ' ➔ ')}"
+                style="margin: 8px 0; font-family: Arial, sans-serif; font-size: 16px;"></li>
+        </ul>
+    </div>
+</div>
+<!-- Sección de Consulta de Dudas RAG -->
+<section style="margin-top: 40px;">
+    <h2 style="text-align: center; color: #2a5885;">Consulta tus dudas con IA sobre el Reglamento</h2>
+    <p class="description">Ingresa una pregunta relacionada con el reglamento estudiantil y obtén una respuesta inmediata usando nuestro asistente IA local.</p>
+
+    <div style="text-align: center;">
+        <textarea id="preguntaRAG" placeholder="Ej: ¿Cuál es la calificación mínima aprobatoria?" 
+                  style="width: 90%; max-width: 500px; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;"></textarea>
+        <br>
+        <button id="consultarRAGBtn">Consultar</button>
+    </div>
+
+    <div id="respuestaRAG" class="respuesta" 
+         style="max-width: 600px; margin: 20px auto; background-color: #e3f2fd; padding: 15px; border-radius: 6px; display: none; font-size: 16px;">
+    </div>
+</section>
+</body>
+</html>
