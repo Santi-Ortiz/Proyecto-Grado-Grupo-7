@@ -18,6 +18,10 @@ public class Progreso {
     private int faltanEnfasis;
     private int faltanElectivaBasicas;
     private int semestre;
+    private double porcentaje;
+    private List<Materia> materias;
+    private List<String> lineasRequisitosGrado;
+
 
     public Progreso(double promedio, int materiasCursadas, int materiasFaltantes, List<MateriaJson> listaMateriasFaltantes, int totalMaterias, int totalFaltantes, int totalCursantes, int totalCreditos, int creditosPensum, int creditosExtra, int faltanElectiva, int faltanComplementaria, int faltanEnfasis, int faltanElectivaBasicas, int semestre) {
         this.promedio = promedio;
@@ -36,7 +40,10 @@ public class Progreso {
         this.faltanElectivaBasicas = faltanElectivaBasicas;
         this.semestre = semestre;
     }
-
+    public List<Materia> getMaterias() { return materias; }
+    public void setMaterias(List<Materia> materias) {
+        this.materias = materias;
+    }
     public double getPromedio() { return promedio; }
     public int getMateriasCursadas() { return materiasCursadas; }
     public int getMateriasFaltantes() { return materiasFaltantes; }
@@ -52,4 +59,8 @@ public class Progreso {
     public int getFaltanEnfasis() { return faltanEnfasis; }
     public int getFaltanElectivaBasicas() { return faltanElectivaBasicas; }
     public int getSemestre() { return semestre;}
+    public double getPorcentaje() { return porcentaje; }
+    public void setPorcentaje(double porcentaje) { this.porcentaje = porcentaje; }
+    public List<String> getlineasRequisitosGrado() { return lineasRequisitosGrado;}
+    public void setLineasRequisitosGrado(List<String> lineasRequisitosGrado) { this.lineasRequisitosGrado = lineasRequisitosGrado;}
 }

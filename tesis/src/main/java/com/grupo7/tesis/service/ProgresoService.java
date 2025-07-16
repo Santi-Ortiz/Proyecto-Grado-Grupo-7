@@ -190,7 +190,7 @@ public class ProgresoService {
         
         int creditosExtra = creditosElectivaExtra + creditosComplementariaExtra + creditosEnfasisExtra + creditosElectivaBasicasExtra + creditosPerdidos;
 
-        return new Progreso(
+        Progreso progreso = new  Progreso(
             promedio,
             materiasRealmenteCursadas.size(),
             materiasFaltantes.size(),
@@ -207,6 +207,10 @@ public class ProgresoService {
             faltanElectivaBasicas,
             numeroSemestre
         );
+        progreso.setMaterias(materiasCursadas); 
+        double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
+        progreso.setPorcentaje(porcentaje);
+        return progreso;
     }
 
     public int calcularNumeroSemestre(List<Materia> materias) {
