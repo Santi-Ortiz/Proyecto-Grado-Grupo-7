@@ -336,7 +336,8 @@ public class SimulacionService {
     }
 
     // Agrega electivas, complementarias y de énfasis a las materias disponibles
-    public void agregarMateriasAdicionalesDisponibles(List<MateriaJson> materiasDisponibles, Progreso progreso, List<MateriaJson> materiasPensum, Proyeccion proyeccion) {
+    public void agregarMateriasAdicionalesDisponibles(List<MateriaJson> materiasDisponibles, Progreso progreso,
+            List<MateriaJson> materiasPensum, Proyeccion proyeccion) {
 
         int creditosDisponibles = proyeccion.getCreditos();
         int materiasDisponiblesNum = proyeccion.getMaterias();
@@ -428,89 +429,48 @@ public class SimulacionService {
     // prioridad
     public double calcularPuntajeMateria(MateriaJson materia, Progreso progreso, Proyeccion proyeccion) {
         double puntaje = 0;
+        int distanciaSemestral = 0;
+        double coeficienteMateria = 0;
+        double coeficienteDistancia = 0;
         String codigo = materia.getCodigo();
 
-        // Para un futuro estos valores se ajustarán a las preferencias del estudiante
-        // para que logre elegir qué materias desea priorizar
-
-        // Materias de semestres ANTERIORES que no ha visto
-        if (materia.getSemestre() < proyeccion.getSemestre()) {
-            switch (codigo) {
-                case "0": // Materia electiva atrasada
-                    puntaje += 120;
-                    break;
-                case "1": // Materia complementaria atrasada
-                    puntaje += 150;
-                    break;
-                case "5": // Materia énfasis atrasada
-                    puntaje += 150;
-                    break;
-                case "6": // Materia electivaCB atrasada
-                    puntaje += 120;
-                    break;
-                default: // Materia núcleo atrasada
-                    puntaje += 200;
-                    break;
-            }
-        } else if (materia.getSemestre() == proyeccion.getSemestre()) {
-            // Materias del semestre ACTUAL que no ha visto
-            switch (codigo) {
-                case "0": // Materia electiva
-                    puntaje += 100;
-                    break;
-                case "1": // Materia complementaria
-                    puntaje += 130;
-                    break;
-                case "5": // Materia énfasis
-                    puntaje += 130;
-                    break;
-                case "6": // Materia electivaCB
-                    puntaje += 100;
-                    break;
-                default: // Materia núcleo
-                    puntaje += 180;
-                    break;
-            }
-
-        } else if (materia.getSemestre() == proyeccion.getSemestre() + 1) {
-            // Materias del SIGUIENTE semestre que no ha visto
-            switch (codigo) {
-                case "0": // Materia electiva
-                    puntaje += 80;
-                    break;
-                case "1": // Materia complementaria
-                    puntaje += 110;
-                    break;
-                case "5": // Materia énfasis
-                    puntaje += 110;
-                    break;
-                case "6": // Materia electivaCB
-                    puntaje += 80;
-                    break;
-                default: // Materia núcleo
-                    puntaje += 160;
-                    break;
-            }
-        } else if (materia.getSemestre() > proyeccion.getSemestre() + 1) {
-            // Materias de semestres FUTUROS que no ha visto
-            switch (codigo) {
-                case "0": // Materia electiva
-                    puntaje += 30;
-                    break;
-                case "1": // Materia complementaria
-                    puntaje += 50;
-                    break;
-                case "5": // Materia énfasis
-                    puntaje += 50;
-                    break;
-                case "6": // Materia electivaCB
-                    puntaje += 30;
-                    break;
-                default: // Materia núcleo
-                    puntaje += 70;
-                    break;
-            }
+        // Dependiendo del tipo de materia se asigna un coeficiente a la materia para
+        // priorizarla
+        switch (codigo) {
+            case "0": // Electiva
+                coeficienteMateria = 100;
+            case "1": // Complementaria
+                coeficienteMateria = 130;
+            case "5": // Énfasis
+                coeficienteMateria = 130;
+            case "6": // ElectivaCB
+                coeficienteMateria = 100;
+            default: // Núcleo
+                coeficienteMateria = 180;
         }
+
+        // Distancia semestral: Es el número de semestres que separan el semestre de la
+        // materia con respecto a la proyección
+        distanciaSemestral = materia.getSemestre() - proyeccion.getSemestre();
+
+        // Dependiendo de la distancia semestral el valor del coeficiente de distancia
+        // será mayor o menor
+        if (distanciaSemestral > 1) {
+            coeficienteDistancia = 0.3; // Materia de semestres posteriores
+        } else if (distanciaSemestral == 1) {
+            coeficienteDistancia = 0.7; // Materia de un semestre adelante
+        } else if (distanciaSemestral == 0) {
+            coeficienteDistancia = 1.0; // Materia del semestre actual
+        } else {
+            coeficienteDistancia = 1.4; // Materia de semestres anteriores
+        }
+
+        System.out.println("Materia: " + materia.getNombre() + " | Distancia: "
+                + distanciaSemestral + " | Semestre proyeccion: " + proyeccion.getSemestre() + " | Semestre Materia: "
+                + materia.getSemestre() + " | Coeficiente Materia: "
+                + coeficienteMateria + " | Coeficiente Distancia: " + coeficienteDistancia);
+
+        puntaje = coeficienteMateria * coeficienteDistancia;
 
         return Math.max(puntaje, 1);
     }
