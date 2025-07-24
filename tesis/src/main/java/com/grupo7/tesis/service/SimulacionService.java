@@ -2,6 +2,7 @@ package com.grupo7.tesis.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -673,8 +674,6 @@ public class SimulacionService {
      * y actualizando los contadores
      */
     private Progreso actualizarProgresoTemporal(Progreso progreso, Simulacion simulacion, int semestreSimulado) {
-        System.out.println("Se actualizó el progreso temporal para semestre " + semestreSimulado);
-
         // Se eliminan las materias de núcleo que fueron simuladas (códigos que NO son
         // 0, 1, 5, 6)
         List<MateriaJson> materiasARemover = new ArrayList<>();
@@ -734,10 +733,164 @@ public class SimulacionService {
         // Avanzar en la iteración de los semestres
         progreso.setSemestre(semestreSimulado);
 
-        System.out.println("Materias núcleo agregadas al progreso temporal: " + materiasARemover.size());
+        /*System.out.println("Materias núcleo agregadas al progreso temporal: " + materiasARemover.size());
         System.out.println("Créditos núcleo agregados al progreso temporal: " + creditosNucleoSimulados);
-        System.out.println("Nuevo semestre: " + progreso.getSemestre());
+        System.out.println("Nuevo semestre: " + progreso.getSemestre());*/
 
         return progreso;
     }
+    
+    // COMBINACIONES TENIENDO EN CUENTA TODOS LOS CASOS POSIBLES
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreOptimizada(Progreso progreso,Proyeccion proyeccionBase,int semestreObjetivo,List<MateriaJson> materiasPensum) {
+        System.out.println("================ INICIO SIMULACION MULTI SEMESTRE ================");
+        System.out.println("Semestre actual: " + progreso.getSemestre());
+        System.out.println("Semestre objetivo: " + semestreObjetivo);
+        System.out.println("Créditos por semestre: " + proyeccionBase.getCreditos());
+        System.out.println("Materias por semestre: " + proyeccionBase.getMaterias());
+
+        List<Map<Integer, Simulacion>> rutasActuales = new ArrayList<>();
+        
+        Map<Integer, Simulacion> rutaInicial = new HashMap<>();
+        rutasActuales.add(rutaInicial);
+        
+        for (int semestre = progreso.getSemestre() + 1; semestre <= semestreObjetivo; semestre++) {
+            System.out.println("\n--- EXPANDIENDO RUTAS PARA SEMESTRE " + semestre + " ---");
+            
+            List<Map<Integer, Simulacion>> nuevasRutas = new ArrayList<>();
+            
+            for (Map<Integer, Simulacion> rutaActual : rutasActuales) {
+                Progreso progresoTemporal = calcularProgreso(progreso, rutaActual, semestre - 1);
+                
+                Proyeccion proyeccionSemestre = crearProyeccionParaSemestre(proyeccionBase, semestre);
+                
+                List<Combinacion> combinaciones = generarCombinaciones(progresoTemporal, proyeccionSemestre, materiasPensum, 3);
+                
+                // Crear una nueva ruta por cada combinación
+                for (Combinacion comb : combinaciones) {
+                    Map<Integer, Simulacion> nuevaRuta = new HashMap<>(rutaActual);
+                    
+                    Simulacion simulacionSemestre = new Simulacion();
+                    for (MateriaJson materia : comb.getMaterias()) {
+                        simulacionSemestre.agregarMateria(materia);
+                    }
+                    
+                    nuevaRuta.put(semestre, simulacionSemestre);
+                    nuevasRutas.add(nuevaRuta);
+                }
+            }
+            
+            rutasActuales = seleccionarMejoresRutas(nuevasRutas, progreso, 3);
+
+        }
+        
+        Map<Integer, Simulacion> mejorRuta = obtenerMejorRuta(rutasActuales, progreso);
+
+        System.out.println("\n--- MEJOR RUTA ENCONTRADA ---");
+        
+        Map<Integer, Simulacion> rutaOrdenada = mejorRuta.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (oldValue, newValue) -> oldValue,
+                LinkedHashMap::new
+            ));
+
+        double puntajeTotal = calcularPuntajeRuta(rutaOrdenada, progreso);
+        mostrarResultados(rutaOrdenada, puntajeTotal);
+
+        return rutaOrdenada;
+    }
+    
+    public Progreso calcularProgreso(Progreso progresoInicial, Map<Integer, Simulacion> ruta, int semestreHasta) {
+        Progreso progresoTemporal = progresoInicial.copy();
+        
+        for (int sem = progresoInicial.getSemestre() + 1; sem <= semestreHasta; sem++) {
+            Simulacion simulacion = ruta.get(sem);
+            if (simulacion != null) {
+                progresoTemporal = actualizarProgresoTemporal(progresoTemporal, simulacion, sem);
+            }
+        }
+        
+        return progresoTemporal;
+    }
+    
+    public List<Combinacion> generarCombinaciones(Progreso progreso, Proyeccion proyeccion, List<MateriaJson> materiasPensum, int numCombinaciones) {
+        List<MateriaJson> materiasDisponibles = filtrarMateriasDisponibles(progreso, materiasPensum, proyeccion);
+        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion);
+        mostrarMateriasPuntajes(materiasConPuntaje);
+        List<Combinacion> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje, proyeccion.getCreditos(), proyeccion.getMaterias()).stream().limit(numCombinaciones).collect(Collectors.toList());
+        mostrarResultadosCombinaciones(mejoresCombinaciones);
+
+        return mejoresCombinaciones;
+    }
+    
+    public double calcularPuntajeRuta(Map<Integer, Simulacion> ruta, Progreso progresoInicial) {
+        double puntajeTotal = 0.0;
+        Progreso progresoTemporal = progresoInicial.copy();
+        
+        List<Integer> semestresOrdenados = ruta.keySet().stream()
+            .sorted()
+            .collect(Collectors.toList());
+        
+        for (Integer semestre : semestresOrdenados) {
+            Simulacion sim = ruta.get(semestre);
+            
+            Proyeccion proyTemp = crearProyeccionParaSemestre(new Proyeccion(), semestre);
+            
+            for (MateriaJson materia : sim.getMaterias()) {
+                puntajeTotal += calcularPuntajeMateria(materia, progresoTemporal, proyTemp);
+            }
+            
+            progresoTemporal = actualizarProgresoTemporal(progresoTemporal, sim, semestre);
+        }
+        
+        return puntajeTotal;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public List<Map<Integer, Simulacion>> seleccionarMejoresRutas(List<Map<Integer, Simulacion>> rutas, Progreso progresoInicial, int maxRutas) {
+        return rutas.stream()
+            .map(ruta -> {
+                double puntaje = calcularPuntajeRuta(ruta, progresoInicial);
+                return Map.of("ruta", ruta, "puntaje", puntaje);
+            })
+            .sorted((a, b) -> Double.compare((Double)b.get("puntaje"), (Double)a.get("puntaje")))
+            .limit(maxRutas)
+            .map(r -> (Map<Integer, Simulacion>)r.get("ruta"))
+            .collect(Collectors.toList());
+    }
+    
+    public Map<Integer, Simulacion> obtenerMejorRuta(List<Map<Integer, Simulacion>> rutas, Progreso progresoInicial) {
+        List<Map<Integer, Simulacion>> mejores = seleccionarMejoresRutas(rutas, progresoInicial, 1);
+        return mejores.isEmpty() ? new HashMap<>() : mejores.get(0);
+    }
+    
+    public void mostrarResultados(Map<Integer, Simulacion> ruta, double puntajeTotal) {
+        for (Map.Entry<Integer, Simulacion> entry : ruta.entrySet()) {
+            int semestre = entry.getKey();
+            Simulacion sim = entry.getValue();
+            
+            System.out.println("\n--- SEMESTRE " + semestre + " ---");
+            System.out.println("Materias: " + sim.getMaterias().size());
+            int creditosSemestre = sim.getMaterias().stream().mapToInt(MateriaJson::getCreditos).sum();
+            System.out.println("Créditos: " + creditosSemestre);
+            
+            for (int i = 0; i < sim.getMaterias().size(); i++) {
+                MateriaJson materia = sim.getMaterias().get(i);
+                System.out.printf("  %d. %s (%s) - %d créditos%n", 
+                    i + 1, materia.getNombre(), materia.getCodigo(), materia.getCreditos());
+            }
+        }
+        System.out.println("\nPuntaje total de la ruta: " + puntajeTotal);
+    }
+
+    public Proyeccion crearProyeccionParaSemestre(Proyeccion base, int semestre) {
+        Proyeccion proyeccion = new Proyeccion();
+        proyeccion.setSemestre(semestre);
+        proyeccion.setCreditos(base.getCreditos());
+        proyeccion.setMaterias(base.getMaterias());
+        return proyeccion;
+    }
+
 }

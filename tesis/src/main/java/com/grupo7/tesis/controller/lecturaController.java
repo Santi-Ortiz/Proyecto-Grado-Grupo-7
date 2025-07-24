@@ -179,7 +179,7 @@ public class lecturaController {
              */
 
             Map<Integer, Simulacion> simulacionMultiSemestre = simulacionService
-                    .generarSimulacionMultiSemestre(progreso, proyeccion, proyeccion.getSemestre(), materiasPensum);
+                    .generarSimulacionMultiSemestreOptimizada(progreso, proyeccion, proyeccion.getSemestre(), materiasPensum);
 
             model.addAttribute("simulacion", simulacionMultiSemestre);
 
