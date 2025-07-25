@@ -47,9 +47,9 @@ public class SimulacionController {
     @Autowired
     private pensumService pensumService;
 
-    @PostMapping("/mostrar")
+    @PostMapping("/generar")
     @ResponseBody
-    public Map<Integer, Simulacion> mostrarSimulacion(@RequestBody SimulacionDTO simulacionDTO) throws Exception {
+    public Map<Integer, Simulacion> generarSimulacion(@RequestBody SimulacionDTO simulacionDTO) throws Exception {
 
         Map<Integer, Simulacion> simulacion = new HashMap<>();
 
