@@ -127,4 +127,103 @@ public class Progreso {
     public void setLineasRequisitosGrado(List<String> lineasRequisitosGrado) {
         this.lineasRequisitosGrado = lineasRequisitosGrado;
     }
+
+    public void setPromedio(double promedio) {
+        this.promedio = promedio;
+    }
+
+    public void setMateriasCursadas(int materiasCursadas) {
+        this.materiasCursadas = materiasCursadas;
+    }
+
+    public void setMateriasFaltantes(int materiasFaltantes) {
+        this.materiasFaltantes = materiasFaltantes;
+    }
+
+    public void setListaMateriasFaltantes(List<MateriaJson> listaMateriasFaltantes) {
+        this.listaMateriasFaltantes = listaMateriasFaltantes;
+    }
+
+    public void setTotalMaterias(int totalMaterias) {
+        this.totalMaterias = totalMaterias;
+    }
+
+    public void setTotalFaltantes(int totalFaltantes) {
+        this.totalFaltantes = totalFaltantes;
+    }
+
+    public void setTotalCursando(int totalCursando) {
+        this.totalCursando = totalCursando;
+    }
+
+    public void setTotalCreditos(int totalCreditos) {
+        this.totalCreditos = totalCreditos;
+    }
+
+    public void setCreditosPensum(int creditosPensum) {
+        this.creditosPensum = creditosPensum;
+    }
+
+    public void setCreditosExtra(int creditosExtra) {
+        this.creditosExtra = creditosExtra;
+    }
+
+    public void setFaltanElectiva(int faltanElectiva) {
+        this.faltanElectiva = faltanElectiva;
+    }
+
+    public void setFaltanComplementaria(int faltanComplementaria) {
+        this.faltanComplementaria = faltanComplementaria;
+    }
+
+    public void setFaltanEnfasis(int faltanEnfasis) {
+        this.faltanEnfasis = faltanEnfasis;
+    }
+
+    public void setFaltanElectivaBasicas(int faltanElectivaBasicas) {
+        this.faltanElectivaBasicas = faltanElectivaBasicas;
+    }
+
+    public void setSemestre(int semestre) {
+        this.semestre = semestre;
+    }
+
+    public List<String> getLineasRequisitosGrado() {
+        return lineasRequisitosGrado;
+    }
+
+    public Progreso copy() {
+
+        List<MateriaJson> nuevaListaMateriasFaltantes = new ArrayList<>();
+        if (this.listaMateriasFaltantes != null) {
+            for (MateriaJson materia : this.listaMateriasFaltantes) {
+                MateriaJson nuevaMateria = new MateriaJson();
+                nuevaMateria.setCodigo(materia.getCodigo());
+                nuevaMateria.setNombre(materia.getNombre());
+                nuevaMateria.setCreditos(materia.getCreditos());
+                nuevaMateria.setSemestre(materia.getSemestre());
+                if (materia.getRequisitos() != null) {
+                    nuevaMateria.setRequisitos(new ArrayList<>(materia.getRequisitos()));
+                }
+                nuevaListaMateriasFaltantes.add(nuevaMateria);
+            }
+        }
+
+        return new Progreso(
+                this.promedio,
+                this.materiasCursadas,
+                this.materiasFaltantes,
+                nuevaListaMateriasFaltantes,
+                this.totalMaterias,
+                this.totalFaltantes,
+                this.totalCursando,
+                this.totalCreditos,
+                this.creditosPensum,
+                this.creditosExtra,
+                this.faltanElectiva,
+                this.faltanComplementaria,
+                this.faltanEnfasis,
+                this.faltanElectivaBasicas,
+                this.semestre);
+    }
 }
