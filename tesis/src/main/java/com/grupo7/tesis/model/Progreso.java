@@ -1,6 +1,7 @@
 package com.grupo7.tesis.model;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class Progreso {
     private double promedio;
@@ -11,7 +12,7 @@ public class Progreso {
     private int totalFaltantes;
     private int totalCursando;
     private int totalCreditos;
-    private int creditosPensum; 
+    private int creditosPensum;
     private int creditosExtra;
     private int faltanElectiva;
     private int faltanComplementaria;
@@ -22,8 +23,10 @@ public class Progreso {
     private List<Materia> materias;
     private List<String> lineasRequisitosGrado;
 
-
-    public Progreso(double promedio, int materiasCursadas, int materiasFaltantes, List<MateriaJson> listaMateriasFaltantes, int totalMaterias, int totalFaltantes, int totalCursantes, int totalCreditos, int creditosPensum, int creditosExtra, int faltanElectiva, int faltanComplementaria, int faltanEnfasis, int faltanElectivaBasicas, int semestre) {
+    public Progreso(double promedio, int materiasCursadas, int materiasFaltantes,
+            List<MateriaJson> listaMateriasFaltantes, int totalMaterias, int totalFaltantes, int totalCursantes,
+            int totalCreditos, int creditosPensum, int creditosExtra, int faltanElectiva, int faltanComplementaria,
+            int faltanEnfasis, int faltanElectivaBasicas, int semestre) {
         this.promedio = promedio;
         this.materiasCursadas = materiasCursadas;
         this.materiasFaltantes = materiasFaltantes;
@@ -40,27 +43,88 @@ public class Progreso {
         this.faltanElectivaBasicas = faltanElectivaBasicas;
         this.semestre = semestre;
     }
-    public List<Materia> getMaterias() { return materias; }
+
+    public List<Materia> getMaterias() {
+        return materias;
+    }
+
     public void setMaterias(List<Materia> materias) {
         this.materias = materias;
     }
-    public double getPromedio() { return promedio; }
-    public int getMateriasCursadas() { return materiasCursadas; }
-    public int getMateriasFaltantes() { return materiasFaltantes; }
-    public List<MateriaJson> getListaMateriasFaltantes() { return listaMateriasFaltantes; }
-    public int getTotalMaterias() { return totalMaterias; }
-    public int getTotalFaltantes() { return totalFaltantes;};
-    public int getTotalCursando() { return totalCursando; }
-    public int getTotalCreditos() { return totalCreditos; }
-    public int getCreditosPensum() { return creditosPensum; }
-    public int getCreditosExtra() { return creditosExtra; }
-    public int getFaltanElectiva() { return faltanElectiva; }
-    public int getFaltanComplementaria() { return faltanComplementaria; }
-    public int getFaltanEnfasis() { return faltanEnfasis; }
-    public int getFaltanElectivaBasicas() { return faltanElectivaBasicas; }
-    public int getSemestre() { return semestre;}
-    public double getPorcentaje() { return porcentaje; }
-    public void setPorcentaje(double porcentaje) { this.porcentaje = porcentaje; }
-    public List<String> getlineasRequisitosGrado() { return lineasRequisitosGrado;}
-    public void setLineasRequisitosGrado(List<String> lineasRequisitosGrado) { this.lineasRequisitosGrado = lineasRequisitosGrado;}
+
+    public double getPromedio() {
+        return promedio;
+    }
+
+    public int getMateriasCursadas() {
+        return materiasCursadas;
+    }
+
+    public int getMateriasFaltantes() {
+        return materiasFaltantes;
+    }
+
+    public List<MateriaJson> getListaMateriasFaltantes() {
+        return listaMateriasFaltantes;
+    }
+
+    public int getTotalMaterias() {
+        return totalMaterias;
+    }
+
+    public int getTotalFaltantes() {
+        return totalFaltantes;
+    };
+
+    public int getTotalCursando() {
+        return totalCursando;
+    }
+
+    public int getTotalCreditos() {
+        return totalCreditos;
+    }
+
+    public int getCreditosPensum() {
+        return creditosPensum;
+    }
+
+    public int getCreditosExtra() {
+        return creditosExtra;
+    }
+
+    public int getFaltanElectiva() {
+        return faltanElectiva;
+    }
+
+    public int getFaltanComplementaria() {
+        return faltanComplementaria;
+    }
+
+    public int getFaltanEnfasis() {
+        return faltanEnfasis;
+    }
+
+    public int getFaltanElectivaBasicas() {
+        return faltanElectivaBasicas;
+    }
+
+    public int getSemestre() {
+        return semestre;
+    }
+
+    public double getPorcentaje() {
+        return porcentaje;
+    }
+
+    public void setPorcentaje(double porcentaje) {
+        this.porcentaje = porcentaje;
+    }
+
+    public List<String> getlineasRequisitosGrado() {
+        return lineasRequisitosGrado;
+    }
+
+    public void setLineasRequisitosGrado(List<String> lineasRequisitosGrado) {
+        this.lineasRequisitosGrado = lineasRequisitosGrado;
+    }
 }

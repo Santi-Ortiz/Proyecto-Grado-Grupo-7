@@ -456,7 +456,8 @@
     <p>
         <b>Materias cursadas: </b> <span th:text="${materiasCursadas}"></span><br>
         <b>Materias que se estan cursando: </b> <span th:text="${materiasCursando}"></span><br>
-        <b>Materias faltantes: </b> <span th:text="${materiasFaltantes}"></span>
+        <b>Materias faltantes: </b> <span th:text="${materiasFaltantes}"></span><br>
+        <b>Número de semestre actual: </b> <span th:text="${semestreActual}"></span>
     </p>
 
     <div>
@@ -483,92 +484,61 @@
         <h2>Simulación Académica</h2>
         <div>
             
-            <div >
+            <div>
                 <h3>Configuración de la proyección</h3>
                 <div>
                     <div>
                         <strong>Semestre a proyectar:</strong> <span th:text="${semestreProyeccion}"></span>
                     </div>
                     <div>
-                        <strong>Cantidad de créditos:</strong> <span th:text="${creditosProyeccion}"></span>
+                        <strong>Cantidad de créditos máximo:</strong> <span th:text="${creditosProyeccion}"></span>
                     </div>
                     <div>
-                        <strong>Cantidad de materias:</strong> <span th:text="${materiasProyeccion}"></span>
-                    </div>
-                    <div>
-                        <strong>Tipo Matrícula:</strong> 
-                        <span th:text="${tipoMatriculaProyeccion == 1 ? 'Completa' : 'Media'}"></span>
-                    </div>
-                    <div>
-                        <strong>Doble Programa:</strong> 
-                        <span th:text="${dobleProgramaProyeccion == 1 ? 'Sí' : 'No'}"></span>
+                        <strong>Cantidad de materias máxima:</strong> <span th:text="${materiasProyeccion}"></span>
                     </div>
                 </div>
             </div>
 
 
-            <div th:if="${simulacion.materias != null and !#lists.isEmpty(simulacion.materias)}">
-                <h3 >Materias Sugeridas para el Próximo Semestre</h3>
+            <!-- Sección de Simulación Multi-Semestre -->
+            <div th:if="${simulacion != null and !simulacion.empty}">
+                <h2>Simulación Multi-Semestre</h2>
                 
-                <div style="background-color: #e8f5e8; border: 1px solid #c8e6c9; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 24px; font-weight: bold; color: #2e7d32;" th:text="${#lists.size(simulacion.materias)}"></div>
-                            <div style="font-size: 12px; color: #666;">Materias</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 24px; font-weight: bold; color: #2e7d32;" 
-                                 th:text="${#aggregates.sum(simulacion.materias.![creditos])}"></div>
-                            <div style="font-size: 12px; color: #666;">Créditos Totales</div>
-                        </div>
+                <div th:each="entry : ${simulacion}" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c5aa0; margin-bottom: 10px;">Semestre <span th:text="${entry.key}"></span></h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Materia</th>
+                                <th>Código</th>
+                                <th>Créditos</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="materia : ${entry.value.materias}">
+                                <td th:text="${materia.nombre}"></td>
+                                <td th:text="${materia.codigo}"></td>
+                                <td th:text="${materia.creditos}"></td>
+                                <td>
+                                    <span th:switch="${materia.codigo}">
+                                        <span th:case="'0'" style="background-color: #d1ecf1; color: #0c5460; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Electiva</span>
+                                        <span th:case="'1'" style="background-color: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Complementaria</span>
+                                        <span th:case="'5'" style="background-color: #d4edda; color: #155724; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Énfasis</span>
+                                        <span th:case="'6'" style="background-color: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Electiva CB</span>
+                                        <span th:case="*" style="background-color: #cce5ff; color: #004085; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Núcleo</span>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 10px;">
+                        <strong>Materias para semestre <span th:text="${entry.key}"></span>:</strong> <span th:text="${entry.value.materias.size}"></span>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <strong>Créditos para semestre <span th:text="${entry.key}"></span>:</strong> <span th:text="${#aggregates.sum(entry.value.materias.![creditos])}"></span>
                     </div>
                 </div>
-
-                <!-- Tabla de Materias de la Simulación -->
-                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                    <thead>
-                        <tr style="background-color: #4caf50; color: white;">
-                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Código</th>
-                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Nombre Materia</th>
-                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Créditos</th>
-                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Semestre</th>
-                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Tipo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="materia, iterStat : ${simulacion.materias}" 
-                            th:style="${iterStat.even} ? 'background-color: #f9f9f9;' : 'background-color: white;'">
-                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #1976d2;">
-                                <span th:if="${materia.codigo != '0' and materia.codigo != '1' and materia.codigo != '5' and materia.codigo != '6'}" th:text="${materia.codigo}"></span>
-                                <span th:if="${materia.codigo == '0' or materia.codigo == '1' or materia.codigo == '5' or materia.codigo == '6'}">-</span>
-                            </td>
-                            <td style="padding: 10px; border: 1px solid #ddd;" th:text="${materia.nombre}"></td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;" 
-                                th:text="${materia.creditos}"></td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;" 
-                                th:text="${materia.semestre}"></td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                                <span th:switch="${materia.codigo}">
-                                    <span th:case="'0'" style="background-color: #ff9800; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Electiva</span>
-                                    <span th:case="'1'" style="background-color: #9c27b0; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Complementaria</span>
-                                    <span th:case="'5'" style="background-color: #f44336; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Énfasis</span>
-                                    <span th:case="'6'" style="background-color: #607d8b; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Electiva CB</span>
-                                    <span th:case="*" style="background-color: #4caf50; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Nucleo</span>
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-            </div>
-
-            <div th:if="${simulacion.materias == null or #lists.isEmpty(simulacion.materias)}" 
-                 style="text-align: center; padding: 30px; color: #666;">
-                <h3>No se generaron materias para la simulación</h3>
-                <ul style="text-align: left; display: inline-block; margin: 15px 0;">
-                    <li>Ya se completaron todas las materias disponibles</li>
-                    <li>No hay materias que cumplan los prerrequisitos</li>
-                </ul>
             </div>
         </div>
     </div>

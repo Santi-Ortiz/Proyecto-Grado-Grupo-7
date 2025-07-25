@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class lecturaController {
@@ -100,8 +101,7 @@ public class lecturaController {
                 tablaDesarrolloGestion,
                 tablaComputacionVisual,
                 tablaCVtoIA,
-                tablaSIGtoIA
-        );
+                tablaSIGtoIA);
 
         progreso.setMaterias(materias);
         progreso.setLineasRequisitosGrado(lineasRequisitosGrado);
@@ -109,26 +109,29 @@ public class lecturaController {
         double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
         progreso.setPorcentaje(porcentaje);
 
-                /*Proyeccion proyeccion = proyeccionService.generarProyeccion(
-                        8,
-                        20,
-                        10,
-                        1,
-                        0);
+        /*
+         * Proyeccion proyeccion = proyeccionService.generarProyeccion(
+         * 8,
+         * 20,
+         * 10,
+         * 1,
+         * 0);
+         * 
+         * model.addAttribute("semestreProyeccion", proyeccion.getSemestre());
+         * model.addAttribute("creditosProyeccion", proyeccion.getCreditos());
+         * model.addAttribute("materiasProyeccion", proyeccion.getMaterias());
+         * model.addAttribute("tipoMatriculaProyeccion", proyeccion.getTipoMatricula());
+         * model.addAttribute("dobleProgramaProyeccion", proyeccion.getDoblePrograma());
+         * 
+         * List<MateriaJson> materiasPensum = pensumService.obtenerPensum();
+         * model.addAttribute("materiasPensum", materiasPensum);
+         * 
+         * Simulacion simulacion = simulacionService.generarSimulacion(progreso,
+         * proyeccion, materiasPensum);
+         * model.addAttribute("simulacion", simulacion);
+         */
 
-                model.addAttribute("semestreProyeccion", proyeccion.getSemestre());
-                model.addAttribute("creditosProyeccion", proyeccion.getCreditos());
-                model.addAttribute("materiasProyeccion", proyeccion.getMaterias());
-                model.addAttribute("tipoMatriculaProyeccion", proyeccion.getTipoMatricula());
-                model.addAttribute("dobleProgramaProyeccion", proyeccion.getDoblePrograma());
-
-                List<MateriaJson> materiasPensum = pensumService.obtenerPensum();
-                model.addAttribute("materiasPensum", materiasPensum);
-
-                Simulacion simulacion = simulacionService.generarSimulacion(progreso, proyeccion, materiasPensum);
-                model.addAttribute("simulacion", simulacion);*/
-
-            return progreso;
-        }
-
+        return progreso;
     }
+
+}

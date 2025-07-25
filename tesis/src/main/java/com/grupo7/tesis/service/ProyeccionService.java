@@ -6,15 +6,12 @@ import com.grupo7.tesis.model.Proyeccion;
 @Service
 public class ProyeccionService {
 
-    public Proyeccion generarProyeccion(int semestre, int creditos, int materias, int tipoMatricula,
-            int doblePrograma) {
+    public Proyeccion generarProyeccion(int semestre, int creditos, int materias) {
 
         Proyeccion proyeccion = new Proyeccion();
         proyeccion.setSemestre(semestre);
         proyeccion.setCreditos(creditos);
         proyeccion.setMaterias(materias);
-        proyeccion.setTipoMatricula(tipoMatricula);
-        proyeccion.setDoblePrograma(doblePrograma);
 
         return proyeccion;
     }
