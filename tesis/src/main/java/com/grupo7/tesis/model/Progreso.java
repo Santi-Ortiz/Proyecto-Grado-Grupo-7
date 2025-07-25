@@ -120,7 +120,7 @@ public class Progreso {
         this.porcentaje = porcentaje;
     }
 
-    public List<String> getlineasRequisitosGrado() {
+    public List<String> getLineasRequisitosGrado() {
         return lineasRequisitosGrado;
     }
 
@@ -186,10 +186,6 @@ public class Progreso {
 
     public void setSemestre(int semestre) {
         this.semestre = semestre;
-    }
-
-    public List<String> getLineasRequisitosGrado() {
-        return lineasRequisitosGrado;
     }
 
     public Progreso copy() {
