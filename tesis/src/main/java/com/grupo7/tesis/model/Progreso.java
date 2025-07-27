@@ -222,4 +222,17 @@ public class Progreso {
                 this.faltanElectivaBasicas,
                 this.semestre);
     }
+
+    @Override
+    public String toString() {
+        return "Progreso [promedio: " + promedio + ", materiasCursadas: " + materiasCursadas + ", materiasFaltantes="
+                + materiasFaltantes + ", listaMateriasFaltantes: " + listaMateriasFaltantes + ", totalMaterias: "
+                + totalMaterias + ", totalFaltantes: " + totalFaltantes + ", totalCursando: " + totalCursando
+                + ", totalCreditos: " + totalCreditos + ", creditosPensum: " + creditosPensum + ", creditosExtra: "
+                + creditosExtra + ", faltanElectiva: " + faltanElectiva + ", faltanComplementaria: "
+                + faltanComplementaria + ", faltanEnfasis: " + faltanEnfasis + ", faltanElectivaBasicas: "
+                + faltanElectivaBasicas + ", semestre=" + semestre + ", porcentaje=" + porcentaje + ", materias="
+                + materias + ", lineasRequisitosGrado=" + lineasRequisitosGrado + "]";
+    }
+
 }
