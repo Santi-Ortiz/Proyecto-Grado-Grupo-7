@@ -54,6 +54,14 @@ public class SimulacionController {
         Map<Integer, Simulacion> simulacion = new HashMap<>();
 
         List<MateriaJson> materiasPensum = pensumService.obtenerPensum();
+        /*
+         * System.out.println("\n==========================");
+         * System.out.println("Progreso desde simulacionDTO: " +
+         * simulacionDTO.getProgreso());
+         * System.out.println("Proyeccion desde simulacionDTO: " +
+         * simulacionDTO.getProyeccion());
+         * System.out.println("==========================\n");
+         */
 
         simulacion = simulacionService.generarSimulacionMultiSemestre(simulacionDTO.getProgreso(),
                 simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum);

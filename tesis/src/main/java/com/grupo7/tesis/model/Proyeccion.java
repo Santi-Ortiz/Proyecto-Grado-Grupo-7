@@ -39,4 +39,9 @@ public class Proyeccion {
         this.materias = materias;
     }
 
+    @Override
+    public String toString() {
+        return "Proyeccion [semestre: " + semestre + ", creditos: " + creditos + ", materias: " + materias + "]";
+    }
+
 }

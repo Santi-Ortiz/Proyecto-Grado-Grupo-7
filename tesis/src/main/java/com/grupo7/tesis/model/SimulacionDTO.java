@@ -5,7 +5,7 @@ public class SimulacionDTO {
     private Proyeccion proyeccion;
 
     public Progreso getProgreso() {
-        return progreso;
+        return this.progreso;
     }
 
     public void setProgreso(Progreso progreso) {
@@ -13,7 +13,7 @@ public class SimulacionDTO {
     }
 
     public Proyeccion getProyeccion() {
-        return proyeccion;
+        return this.proyeccion;
     }
 
     public void setProyeccion(Proyeccion proyeccion) {
