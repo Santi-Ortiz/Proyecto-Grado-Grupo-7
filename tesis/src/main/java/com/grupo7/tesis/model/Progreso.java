@@ -22,27 +22,73 @@ public class Progreso {
     private double porcentaje;
     private List<Materia> materias;
     private List<String> lineasRequisitosGrado;
+    private List<Materia> cursosElectivas;
+    private List<Materia> cursosEnfasis;
+    private List<Materia> cursosComplementariaLenguas;
+    private List<Materia> cursosComplementariaInformacion;
+    private List<Materia> cursosIA;
+    private List<Materia> cursosDesarrolloComputacion;
+    private List<Materia> cursosDesarrolloGestion;
+    private List<Materia> cursosComputacionVisual;
+    private List<Materia> cursosCVtoIA;
+    private List<Materia> cursosSIGtoIA;
+    private List<Materia> cursosElectivaBasicas;
 
-    public Progreso(double promedio, int materiasCursadas, int materiasFaltantes,
-            List<MateriaJson> listaMateriasFaltantes, int totalMaterias, int totalFaltantes, int totalCursantes,
-            int totalCreditos, int creditosPensum, int creditosExtra, int faltanElectiva, int faltanComplementaria,
-            int faltanEnfasis, int faltanElectivaBasicas, int semestre) {
-        this.promedio = promedio;
-        this.materiasCursadas = materiasCursadas;
-        this.materiasFaltantes = materiasFaltantes;
-        this.listaMateriasFaltantes = listaMateriasFaltantes;
-        this.totalMaterias = totalMaterias;
-        this.totalFaltantes = totalFaltantes;
-        this.totalCursando = totalCursantes;
-        this.totalCreditos = totalCreditos;
-        this.creditosPensum = creditosPensum;
-        this.creditosExtra = creditosExtra;
-        this.faltanElectiva = faltanElectiva;
-        this.faltanComplementaria = faltanComplementaria;
-        this.faltanEnfasis = faltanEnfasis;
-        this.faltanElectivaBasicas = faltanElectivaBasicas;
-        this.semestre = semestre;
-    }
+
+    public Progreso(double promedio,
+                int materiasCursadas,
+                int materiasFaltantes,
+                List<MateriaJson> listaMateriasFaltantes,
+                int totalMaterias,
+                int totalFaltantes,
+                int totalCursantes,
+                int totalCreditos,
+                int creditosPensum,
+                int creditosExtra,
+                int faltanElectiva,
+                int faltanComplementaria,
+                int faltanEnfasis,
+                int faltanElectivaBasicas,
+                int semestre,
+                List<Materia> cursosElectivas,
+                List<Materia> cursosEnfasis,
+                List<Materia> cursosComplementariaLenguas,
+                List<Materia> cursosComplementariaInformacion,
+                List<Materia> cursosIA,
+                List<Materia> cursosDesarrolloComputacion,
+                List<Materia> cursosDesarrolloGestion,
+                List<Materia> cursosComputacionVisual,
+                List<Materia> cursosCVtoIA,
+                List<Materia> cursosSIGtoIA,
+                List<Materia> cursosElectivaBasicas) {
+    this.promedio = promedio;
+    this.materiasCursadas = materiasCursadas;
+    this.materiasFaltantes = materiasFaltantes;
+    this.listaMateriasFaltantes = listaMateriasFaltantes;
+    this.totalMaterias = totalMaterias;
+    this.totalFaltantes = totalFaltantes;
+    this.totalCursando = totalCursantes;
+    this.totalCreditos = totalCreditos;
+    this.creditosPensum = creditosPensum;
+    this.creditosExtra = creditosExtra;
+    this.faltanElectiva = faltanElectiva;
+    this.faltanComplementaria = faltanComplementaria;
+    this.faltanEnfasis = faltanEnfasis;
+    this.faltanElectivaBasicas = faltanElectivaBasicas;
+    this.semestre = semestre;
+    this.cursosElectivas = cursosElectivas;
+    this.cursosEnfasis = cursosEnfasis;
+    this.cursosComplementariaLenguas = cursosComplementariaLenguas;
+    this.cursosComplementariaInformacion = cursosComplementariaInformacion;
+    this.cursosIA = cursosIA;
+    this.cursosDesarrolloComputacion = cursosDesarrolloComputacion;
+    this.cursosDesarrolloGestion = cursosDesarrolloGestion;
+    this.cursosComputacionVisual = cursosComputacionVisual;
+    this.cursosCVtoIA = cursosCVtoIA;
+    this.cursosSIGtoIA = cursosSIGtoIA;
+    this.cursosElectivaBasicas = cursosElectivaBasicas;
+}
+
 
     public List<Materia> getMaterias() {
         return materias;
@@ -188,6 +234,94 @@ public class Progreso {
         this.semestre = semestre;
     }
 
+    public List<Materia> getCursosElectivas() {
+        return cursosElectivas;
+    }
+
+    public void setCursosElectivas(List<Materia> cursosElectivas) {
+        this.cursosElectivas = cursosElectivas;
+    }
+
+    public List<Materia> getCursosEnfasis() {
+        return cursosEnfasis;
+    }
+
+    public void setCursosEnfasis(List<Materia> cursosEnfasis) {
+        this.cursosEnfasis = cursosEnfasis;
+    }
+
+    public List<Materia> getCursosComplementariaLenguas() {
+        return cursosComplementariaLenguas;
+    }
+
+    public void setCursosComplementariaLenguas(List<Materia> cursosComplementariaLenguas) {
+        this.cursosComplementariaLenguas = cursosComplementariaLenguas;
+    }
+
+    public List<Materia> getCursosComplementariaInformacion() {
+        return cursosComplementariaInformacion;
+    }
+
+    public void setCursosComplementariaInformacion(List<Materia> cursosComplementariaInformacion) {
+        this.cursosComplementariaInformacion = cursosComplementariaInformacion;
+    }
+
+    public List<Materia> getCursosIA() {
+        return cursosIA;
+    }
+
+    public void setCursosIA(List<Materia> cursosIA) {
+        this.cursosIA = cursosIA;
+    }
+
+    public List<Materia> getCursosDesarrolloComputacion() {
+        return cursosDesarrolloComputacion;
+    }
+
+    public void setCursosDesarrolloComputacion(List<Materia> cursosDesarrolloComputacion) {
+        this.cursosDesarrolloComputacion = cursosDesarrolloComputacion;
+    }
+
+    public List<Materia> getCursosDesarrolloGestion() {
+        return cursosDesarrolloGestion;
+    }
+
+    public void setCursosDesarrolloGestion(List<Materia> cursosDesarrolloGestion) {
+        this.cursosDesarrolloGestion = cursosDesarrolloGestion;
+    }
+
+    public List<Materia> getCursosComputacionVisual() {
+        return cursosComputacionVisual;
+    }
+
+    public void setCursosComputacionVisual(List<Materia> cursosComputacionVisual) {
+        this.cursosComputacionVisual = cursosComputacionVisual;
+    }
+
+    public List<Materia> getCursosCVtoIA() {
+        return cursosCVtoIA;
+    }
+
+    public void setCursosCVtoIA(List<Materia> cursosCVtoIA) {
+        this.cursosCVtoIA = cursosCVtoIA;
+    }
+
+    public List<Materia> getCursosSIGtoIA() {
+        return cursosSIGtoIA;
+    }
+
+    public void setCursosSIGtoIA(List<Materia> cursosSIGtoIA) {
+        this.cursosSIGtoIA = cursosSIGtoIA;
+    }
+
+    public List<Materia> getCursosElectivaBasicas() {
+        return cursosElectivaBasicas;
+    }
+
+    public void setCursosElectivaBasicas(List<Materia> cursosElectivaBasicas) {
+        this.cursosElectivaBasicas = cursosElectivaBasicas;
+    }
+
     public Progreso copy() {
 
         List<MateriaJson> nuevaListaMateriasFaltantes = new ArrayList<>();
@@ -220,19 +354,37 @@ public class Progreso {
                 this.faltanComplementaria,
                 this.faltanEnfasis,
                 this.faltanElectivaBasicas,
-                this.semestre);
+                this.semestre,
+                this.cursosElectivas,
+                this.cursosEnfasis,
+                this.cursosComplementariaLenguas,
+                this.cursosComplementariaInformacion,
+                this.cursosIA,
+                this.cursosDesarrolloComputacion,
+                this.cursosDesarrolloGestion,
+                this.cursosComputacionVisual,
+                this.cursosCVtoIA,
+                this.cursosSIGtoIA,
+                this.cursosElectivaBasicas);
     }
 
     @Override
     public String toString() {
-        return "Progreso [promedio: " + promedio + ", materiasCursadas: " + materiasCursadas + ", materiasFaltantes="
-                + materiasFaltantes + ", listaMateriasFaltantes: " + listaMateriasFaltantes + ", totalMaterias: "
-                + totalMaterias + ", totalFaltantes: " + totalFaltantes + ", totalCursando: " + totalCursando
-                + ", totalCreditos: " + totalCreditos + ", creditosPensum: " + creditosPensum + ", creditosExtra: "
-                + creditosExtra + ", faltanElectiva: " + faltanElectiva + ", faltanComplementaria: "
-                + faltanComplementaria + ", faltanEnfasis: " + faltanEnfasis + ", faltanElectivaBasicas: "
-                + faltanElectivaBasicas + ", semestre=" + semestre + ", porcentaje=" + porcentaje + ", materias="
-                + materias + ", lineasRequisitosGrado=" + lineasRequisitosGrado + "]";
+        return "Progreso [promedio=" + promedio + ", materiasCursadas=" + materiasCursadas + ", materiasFaltantes="
+                + materiasFaltantes + ", listaMateriasFaltantes=" + listaMateriasFaltantes + ", totalMaterias="
+                + totalMaterias + ", totalFaltantes=" + totalFaltantes + ", totalCursando=" + totalCursando
+                + ", totalCreditos=" + totalCreditos + ", creditosPensum=" + creditosPensum + ", creditosExtra="
+                + creditosExtra + ", faltanElectiva=" + faltanElectiva + ", faltanComplementaria="
+                + faltanComplementaria + ", faltanEnfasis=" + faltanEnfasis + ", faltanElectivaBasicas="
+                + faltanElectivaBasicas + ", semestre=" + semestre + ", porcentaje=" + porcentaje
+                + ", materias=" + materias + ", lineasRequisitosGrado=" + lineasRequisitosGrado
+                + ", cursosElectivas=" + cursosElectivas + ", cursosEnfasis=" + cursosEnfasis
+                + ", cursosComplementariaLenguas=" + cursosComplementariaLenguas
+                + ", cursosComplementariaInformacion=" + cursosComplementariaInformacion
+                + ", cursosIA=" + cursosIA + ", cursosDesarrolloComputacion=" + cursosDesarrolloComputacion
+                + ", cursosDesarrolloGestion=" + cursosDesarrolloGestion + ", cursosComputacionVisual=" + cursosComputacionVisual
+                + ", cursosCVtoIA=" + cursosCVtoIA + ", cursosSIGtoIA=" + cursosSIGtoIA
+                + ", cursosElectivaBasicas=" + cursosElectivaBasicas + "]";
     }
 
 }

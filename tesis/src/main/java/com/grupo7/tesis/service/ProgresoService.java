@@ -205,7 +205,18 @@ public class ProgresoService {
             faltanComplementaria,
             faltanEnfasis,
             faltanElectivaBasicas,
-            numeroSemestre
+            numeroSemestre,
+            cursosElectivas,
+            cursosEnfasis,
+            cursosComplementariaLenguas,
+            cursosComplementariaInformacion,
+            cursosIA,
+            tablaDesarrolloComputacion,
+            tablaDesarrolloGestion,
+            tablaComputacionVisual,
+            tablaCVtoIA,
+            tablaSIGtoIA,
+            cursosElectivaBasicas
         );
         progreso.setMaterias(materiasCursadas); 
         double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
