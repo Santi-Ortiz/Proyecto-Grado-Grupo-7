@@ -189,8 +189,50 @@ public class ProgresoService {
         int creditosElectivaBasicasExtra = Math.max(creditosElectivaBasicas - REQ_ELECTIVA_BASICAS, 0);
         
         int creditosExtra = creditosElectivaExtra + creditosComplementariaExtra + creditosEnfasisExtra + creditosElectivaBasicasExtra + creditosPerdidos;
+        int creditosCursados = 0;
+        int creditosCursando = 0;
+        int creditosFaltantes = 0;
 
-        Progreso progreso = new  Progreso(
+        for (Materia m : materiasCursadas) {
+            String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
+            String calif = m.getCalif() != null ? m.getCalif().replace(",", ".") : null;
+
+            if (m.getTipo() != null && m.getTipo().equalsIgnoreCase("Si") && esNumero(cred)) {
+                creditosCursando += (int) Double.parseDouble(cred);
+            } else if (esNumero(cred) && esNumero(calif)) {
+                double califNum = Double.parseDouble(calif);
+                if (califNum >= 3.0) {
+                    creditosCursados += (int) Double.parseDouble(cred);
+                }
+            }
+        }
+
+        for (MateriaJson m : materiasFaltantes) {
+            if (m.getCreditos() != null) {
+                creditosFaltantes += m.getCreditos();
+            }
+        }
+
+        // Calcular creditos cursados
+        creditosCursados = materiasRealmenteCursadas.stream()
+        .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
+        .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
+        .sum();
+
+        
+        creditosCursando = materiasCursadas.stream()
+        .filter(m -> "Si".equalsIgnoreCase(m.getTipo()))
+        .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
+        .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
+        .sum();
+
+        
+        creditosFaltantes = materiasFaltantes.stream()
+        .filter(m -> m.getCreditos() != null)
+        .mapToInt(MateriaJson::getCreditos)
+        .sum();
+
+        Progreso progreso = new Progreso(
             promedio,
             materiasRealmenteCursadas.size(),
             materiasFaltantes.size(),
@@ -199,6 +241,9 @@ public class ProgresoService {
             totalFaltantes,
             totalCursando,
             totalCreditos,
+            creditosCursando,
+            creditosCursados,
+            creditosFaltantes,
             creditosPensum,
             creditosExtra,
             faltanElectiva,
@@ -218,12 +263,16 @@ public class ProgresoService {
             tablaSIGtoIA,
             cursosElectivaBasicas
         );
+
+        
         progreso.setMaterias(materiasCursadas); 
         double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
         progreso.setPorcentaje(porcentaje);
+
         return progreso;
     }
 
+    
     public int calcularNumeroSemestre(List<Materia> materias) {
         if (materias == null || materias.isEmpty()) {
             return 1;

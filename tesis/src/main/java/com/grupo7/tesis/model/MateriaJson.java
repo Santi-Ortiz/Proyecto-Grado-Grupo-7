@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class MateriaJson {
     private String codigo;
     private String nombre;
-    private int creditos;
+    private Integer creditos;
     private int semestre;
     private List<String> requisitos;
     private String requisitosJson;
@@ -21,7 +21,7 @@ public class MateriaJson {
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public int getCreditos() { return creditos; }
+    public Integer getCreditos() { return creditos; }
     public void setCreditos(int creditos) { this.creditos = creditos; }
 
     public int getSemestre() { return semestre; }

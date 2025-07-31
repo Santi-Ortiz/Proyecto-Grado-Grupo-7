@@ -12,6 +12,9 @@ public class Progreso {
     private int totalFaltantes;
     private int totalCursando;
     private int totalCreditos;
+    private int creditosCursados;
+    private int creditosCursando;
+    private int creditosFaltantes;
     private int creditosPensum;
     private int creditosExtra;
     private int faltanElectiva;
@@ -43,6 +46,9 @@ public class Progreso {
                 int totalFaltantes,
                 int totalCursantes,
                 int totalCreditos,
+                int creditosCursados,
+                int creditosCursando,
+                int creditosFaltantes,
                 int creditosPensum,
                 int creditosExtra,
                 int faltanElectiva,
@@ -69,6 +75,9 @@ public class Progreso {
     this.totalFaltantes = totalFaltantes;
     this.totalCursando = totalCursantes;
     this.totalCreditos = totalCreditos;
+    this.creditosCursados = creditosCursados;
+    this.creditosCursando = creditosCursando;
+    this.creditosFaltantes = creditosFaltantes;
     this.creditosPensum = creditosPensum;
     this.creditosExtra = creditosExtra;
     this.faltanElectiva = faltanElectiva;
@@ -122,12 +131,24 @@ public class Progreso {
         return totalFaltantes;
     };
 
-    public int getTotalCursando() {
+    public int getMateriasCursando() {
         return totalCursando;
     }
 
     public int getTotalCreditos() {
         return totalCreditos;
+    }
+
+    public int getCreditosCursados() {
+        return creditosCursados;
+    }
+
+    public int getCreditosCursando() {
+        return creditosCursando;
+    }
+
+    public int getCreditosFaltantes() {
+        return creditosFaltantes;
     }
 
     public int getCreditosPensum() {
@@ -204,6 +225,18 @@ public class Progreso {
 
     public void setTotalCreditos(int totalCreditos) {
         this.totalCreditos = totalCreditos;
+    }
+
+    public void setCreditosCursados(int creditosCursados) {
+        this.creditosCursados = creditosCursados;
+    }
+
+    public void setCreditosCursando(int creditosCursando) {
+        this.creditosCursando = creditosCursando;
+    }
+
+    public void setCreditosFaltantes(int creditosFaltantes) {
+        this.creditosFaltantes = creditosFaltantes;
     }
 
     public void setCreditosPensum(int creditosPensum) {
@@ -348,6 +381,9 @@ public class Progreso {
                 this.totalFaltantes,
                 this.totalCursando,
                 this.totalCreditos,
+                this.creditosCursados,
+                this.creditosCursando,
+                this.creditosFaltantes,
                 this.creditosPensum,
                 this.creditosExtra,
                 this.faltanElectiva,
@@ -373,7 +409,7 @@ public class Progreso {
         return "Progreso [promedio=" + promedio + ", materiasCursadas=" + materiasCursadas + ", materiasFaltantes="
                 + materiasFaltantes + ", listaMateriasFaltantes=" + listaMateriasFaltantes + ", totalMaterias="
                 + totalMaterias + ", totalFaltantes=" + totalFaltantes + ", totalCursando=" + totalCursando
-                + ", totalCreditos=" + totalCreditos + ", creditosPensum=" + creditosPensum + ", creditosExtra="
+                + ", totalCreditos=" + totalCreditos +", creditosCursados=" + creditosCursados +", creditosCursando=" + creditosCursando +", creditosFaltantes=" + creditosFaltantes + ", creditosPensum=" + creditosPensum + ", creditosExtra="
                 + creditosExtra + ", faltanElectiva=" + faltanElectiva + ", faltanComplementaria="
                 + faltanComplementaria + ", faltanEnfasis=" + faltanEnfasis + ", faltanElectivaBasicas="
                 + faltanElectivaBasicas + ", semestre=" + semestre + ", porcentaje=" + porcentaje
