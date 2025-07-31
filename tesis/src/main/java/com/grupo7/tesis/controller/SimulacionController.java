@@ -63,7 +63,7 @@ public class SimulacionController {
          * System.out.println("==========================\n");
          */
 
-        simulacion = simulacionService.generarSimulacionMultiSemestre(simulacionDTO.getProgreso(),
+        simulacion = simulacionService.generarSimulacionMultiSemestreAStar(simulacionDTO.getProgreso(),
                 simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum);
 
         return simulacion;
