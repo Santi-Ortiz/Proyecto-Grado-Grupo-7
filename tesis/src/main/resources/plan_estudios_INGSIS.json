@@ -4,42 +4,48 @@
     "nombre": "Cálculo Diferencial",
     "creditos": 3,
     "semestre": 1,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "33518",
     "nombre": "Logica y Matemáticas Discretas",
     "creditos": 3,
     "semestre": 1,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "33698",
     "nombre": "Introducción a la Programación",
     "creditos": 3,
     "semestre": 1,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "4075",
     "nombre": "Pensamiento Sistémico",
     "creditos": 3,
     "semestre": 1,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "33763",
     "nombre": "Introducción a la Ingeniería",
     "creditos": 2,
     "semestre": 1,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34809",
     "nombre": "Fundamentos Seguridad de la Información",
     "creditos": 2,
     "semestre": 1,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "1297",
@@ -48,14 +54,16 @@
     "semestre": 2,
     "requisitos": [
       "1295"
-    ]
+    ],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "1290",
     "nombre": "Álgebra Lineal",
     "creditos": 3,
     "semestre": 2,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "33699",
@@ -64,35 +72,40 @@
     "semestre": 2,
     "requisitos": [
       "33698"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34816",
     "nombre": "Gestión Financiera de Proyectos de TI",
     "creditos": 2,
     "semestre": 2,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "33733",
     "nombre": "Proyecto de Diseño en Ingeniería",
     "creditos": 2,
     "semestre": 2,
-    "requisitos": ["33763"]
+    "requisitos": ["33763"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34580",
     "nombre": "Arquitectura y Organización del Computador",
     "creditos": 2,
     "semestre": 2,
-    "requisitos": ["33698"]
+    "requisitos": ["33698"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "0",
     "nombre": "Electiva",
     "creditos": 3,
     "semestre": 2,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "electiva"
   },
   {
     "codigo": "1299",
@@ -101,7 +114,8 @@
     "semestre": 3,
     "requisitos": [
       "1297"
-    ]
+    ],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "33700",
@@ -110,35 +124,40 @@
     "semestre": 3,
     "requisitos": [
       "33699" , "33518"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34805",
     "nombre": "Análisis y Diseño de Software",
     "creditos": 3,
     "semestre": 3,
-    "requisitos": ["33699"]
+    "requisitos": ["33699"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "4190",
     "nombre": "Comunicaciones y Redes",
     "creditos": 4,
     "semestre": 3,
-    "requisitos": ["33698"]
+    "requisitos": ["33698"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "2544",
     "nombre": "Significación Teológica",
     "creditos": 2,
     "semestre": 3,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoSociohumanisticas"
   },
   {
     "codigo": "0",
     "nombre": "Electiva",
     "creditos": 2,
     "semestre": 3,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "electiva"
   },
   
   {
@@ -146,7 +165,8 @@
     "nombre": "Física Mecánica",
     "creditos": 3,
     "semestre": 4,
-    "requisitos": ["1295"]
+    "requisitos": ["1295"],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "4196",
@@ -155,21 +175,24 @@
     "semestre": 4,
     "requisitos": [
       "33699" , "33518"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "4082",
     "nombre": "Sistemas de Información",
     "creditos": 3,
     "semestre": 4,
-    "requisitos": ["4075"]
+    "requisitos": ["4075"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34803",
     "nombre": "Gestión de Proyectos de Innovación y Emprendimiento en TI",
     "creditos": 3,
     "semestre": 4,
-    "requisitos": ["34816"]
+    "requisitos": ["34816"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34806",
@@ -178,7 +201,8 @@
     "semestre": 4,
     "requisitos": [
       "34805"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "4085",
@@ -187,14 +211,16 @@
     "semestre": 4,
     "requisitos": [
       "34580"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "33732",
     "nombre": "Probabilidad y Estadística",
     "creditos": 3,
     "semestre": 5,
-    "requisitos": ["1297"]
+    "requisitos": ["1297"],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "34801",
@@ -203,14 +229,16 @@
     "semestre": 5,
     "requisitos": [
       "33518", "33699"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34810",
     "nombre": "Proyecto de Innovación y Emprendimiento",
     "creditos": 3,
     "semestre": 5,
-    "requisitos": ["4082", "34803", "33733", "34806"]
+    "requisitos": ["4082", "34803", "33733", "34806"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "22586",
@@ -219,28 +247,32 @@
     "semestre": 5,
     "requisitos": [
       "34805", "4190", "34809","4085"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "16143",
     "nombre": "Constitución y Derecho Civil",
     "creditos": 2,
     "semestre": 5,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoSociohumanisticas"
   },
   {
     "codigo": "1",
     "nombre": "Complementaria*",
     "creditos": 3,
     "semestre": 5,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "complementaria"
   },
   {
     "codigo": "0",
     "nombre": "Electiva",
     "creditos": 3,
     "semestre": 5,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "electiva"
   },
   {
     "codigo": "1300",
@@ -249,14 +281,16 @@
     "semestre": 6,
     "requisitos": [
       "1297", "1290"
-    ]
+    ],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "34866",
     "nombre": "Optimización y Simulación",
     "creditos": 2,
     "semestre": 6,
-    "requisitos": ["1290", "33732"]
+    "requisitos": ["1290", "33732"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "3194",
@@ -265,7 +299,8 @@
     "semestre": 6,
     "requisitos": [
       "34801", "4196"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34807",
@@ -274,7 +309,8 @@
     "semestre": 6,
     "requisitos": [
       "34801", "33700", "34806", "4190"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34808",
@@ -283,21 +319,24 @@
     "semestre": 6,
     "requisitos": [
       "34805", "4190", "34806"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "2476",
     "nombre": "Fe y compromiso del Ingeniero",
     "creditos": 2,
     "semestre": 6,
-    "requisitos": ["34810"]
+    "requisitos": ["34810"],
+    "tipo": "nucleoSociohumanisticas"
   },
   {
     "codigo": "1",
     "nombre": "Complementaria*",
     "creditos": 3,
     "semestre": 6,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "complementaria"
   },
   {
     "codigo": "1291",
@@ -306,7 +345,8 @@
     "semestre": 7,
     "requisitos": [
       "1300"
-    ]
+    ],
+    "tipo": "nucleoCienciasBasicas"
   },
   {
     "codigo": "4084",
@@ -315,14 +355,16 @@
     "semestre": 7,
     "requisitos": [
       "4196"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "31339",
     "nombre": "Planeación de Proyecto Final",
     "creditos": 2,
     "semestre": 7,
-    "requisitos": ["4082", "34803"]
+    "requisitos": ["4082", "34803"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "4185",
@@ -331,35 +373,40 @@
     "semestre": 7,
     "requisitos": [
       "34807", "34808", "22586"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "5100",
     "nombre": "Proyecto Social Universitario",
     "creditos": 2,
     "semestre": 7,
-    "requisitos": ["34803", "34806", "2544"]
+    "requisitos": ["34803", "34806", "2544"],
+    "tipo": "nucleoSociohumanisticas"
   },
   {
     "codigo": "34863",
     "nombre": "Ética en la Era de la Información",
     "creditos": 2,
     "semestre": 7,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoSociohumanisticas"
   },
   {
     "codigo": "5",
     "nombre": "Énfasis",
     "creditos": 3,
     "semestre": 7,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "enfasis"
   },
   {
     "codigo": "34802",
     "nombre": "Tecnologías Digitales Emergentes",
     "creditos": 2,
     "semestre": 8,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoIngenieria"
   },
   
   {
@@ -369,34 +416,39 @@
     "semestre": 8,
     "requisitos": [
       "31339", "34810"
-    ]
+    ],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "34804",
     "nombre": "Gerencia Estratégica",
     "creditos": 2,
     "semestre": 8,
-    "requisitos": ["34810"]
+    "requisitos": ["34810"],
+    "tipo": "nucleoIngenieria"
   },
   {
     "codigo": "2356",
     "nombre": "Epistemología de la ingeniería",
     "creditos": 2,
     "semestre": 8,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "nucleoSociohumanisticas"
   },
   {
     "codigo": "5",
     "nombre": "Énfasis",
     "creditos": 3,
     "semestre": 8,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "enfasis"
   },
   {
     "codigo": "6",
     "nombre": "Electiva de Ciencias Básicas",
     "creditos": 3,
     "semestre": 8,
-    "requisitos": []
+    "requisitos": [],
+    "tipo": "electivaCB"
   }
 ]
