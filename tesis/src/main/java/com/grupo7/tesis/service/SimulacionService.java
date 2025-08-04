@@ -1073,9 +1073,9 @@ public class SimulacionService {
          * return !codigo.equals("0") && !codigo.equals("1") &&
          * !codigo.equals("5") && !codigo.equals("6");
          */
-        String tipoMateria = materia.getTipo();
-        return tipoMateria.equals("nucleoCienciasBasicas") || tipoMateria.equals("nucleoIngenieria")
-                || tipoMateria.equals("nucleoSociohumanisticas");
+        String tipo = materia.getTipo();
+        return tipo.equals("nucleoCienciasBasicas") || tipo.equals("nucleoIngenieria")
+                || tipo.equals("nucleoSociohumanisticas");
     }
 
     // Generar una clave de estado única para el progreso y semestre
