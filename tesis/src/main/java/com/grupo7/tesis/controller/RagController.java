@@ -21,7 +21,12 @@ public class RagController {
         return ragService.obtenerRespuestaRag(question.getQuestion());
     }
 
-    // Clase estática interna que actúa como DTO para recibir el cuerpo del POST
+    @PostMapping("/recomendar")
+    public String recomendarMaterias(@RequestBody QuestionDTO question) {
+        return ragService.recomendarMaterias(question.getQuestion());
+    }
+
+    // Clase DTO interna
     public static class QuestionDTO {
         private String question;
 
@@ -42,8 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/rag")
-@CrossOrigin(origins = "*") // Permite acceso desde el frontend
+@RequestMapping("/api/rag")
+@CrossOrigin(origins = "*") // Permite el acceso desde cualquier frontend (útil en desarrollo)
 public class RagController {
 
     private final RagService ragService;
@@ -53,8 +58,21 @@ public class RagController {
         this.ragService = ragService;
     }
 
-    @PostMapping("/consulta")
-    public String consultaRag(@RequestBody String pregunta) {
-        return ragService.obtenerRespuestaRag(pregunta);
+    @PostMapping
+    public String consultarRag(@RequestBody QuestionDTO question) {
+        return ragService.obtenerRespuestaRag(question.getQuestion());
+    }
+
+    // Clase estática interna que actúa como DTO para recibir el cuerpo del POST
+    public static class QuestionDTO {
+        private String question;
+
+        public String getQuestion() {
+            return question;
+        }
+
+        public void setQuestion(String question) {
+            this.question = question;
+        }
     }
 }*/
