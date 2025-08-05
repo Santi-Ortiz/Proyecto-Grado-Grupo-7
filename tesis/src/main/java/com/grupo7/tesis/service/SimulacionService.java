@@ -25,7 +25,8 @@ import com.grupo7.tesis.model.NodoA;
 public class SimulacionService {
 
     // ALGORITMO A*
-    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase, int semestreObjetivo, List<MateriaJson> materiasPensum, boolean[] prioridades) {
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
+            int semestreObjetivo, List<MateriaJson> materiasPensum, boolean[] prioridades) {
 
         System.out.println("================ INICIO SIMULACIÓN A*  ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
@@ -184,7 +185,8 @@ public class SimulacionService {
     }
 
     // Heuristica (Lo que falta para llegar al objetivo)
-    public double calcularHeuristica(Progreso progreso, int semestreObjetivo, Proyeccion proyeccionBase, List<MateriaJson> materiasPensum) {
+    public double calcularHeuristica(Progreso progreso, int semestreObjetivo, Proyeccion proyeccionBase,
+            List<MateriaJson> materiasPensum) {
 
         if (haCompletadoTodasLasMaterias(progreso)) {
             System.out.println("HEURISTICA: 0.0");
@@ -194,27 +196,23 @@ public class SimulacionService {
         int semestresRestantes = semestreObjetivo - progreso.getSemestre();
         double heuristica = 0.0;
         double factorPeso;
-        
+
         factorPeso = Math.min(1.0, 0.2 + (semestresRestantes * 0.2));
 
-        double heuristicaCréditos = 0.0;
-
         int materiasNucleoFaltantes = contarCreditosNucleoFaltantes(progreso);
-        heuristicaCréditos += materiasNucleoFaltantes * (180 * factorPeso);
+        heuristica += materiasNucleoFaltantes * (100 * factorPeso);
 
         double electivasFaltantes = progreso.getFaltanElectiva();
-        heuristicaCréditos += electivasFaltantes * (80 * factorPeso);
+        heuristica += electivasFaltantes * (60 * factorPeso);
 
         double complementariasFaltantes = progreso.getFaltanComplementaria();
-        heuristicaCréditos += complementariasFaltantes * (100 * factorPeso);
+        heuristica += complementariasFaltantes * (80 * factorPeso);
 
         double enfasisFaltantes = progreso.getFaltanEnfasis();
-        heuristicaCréditos += enfasisFaltantes * (100 * factorPeso);
+        heuristica += enfasisFaltantes * (80 * factorPeso);
 
         double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
-        heuristicaCréditos += electivasCBFaltantes * (90 * factorPeso);
-
-        heuristica = heuristicaCréditos;
+        heuristica += electivasCBFaltantes * (100 * factorPeso);
 
         System.out.println("HEURISTICA FINAL: " + String.format("%.2f", Math.max(heuristica, 1.0)));
 
@@ -231,8 +229,9 @@ public class SimulacionService {
         return costoBasePorSemestre + costoCalidad;
     }
 
-    //Puntaje de cada materia con prioridades
-    public double calcularPuntajeMateria(MateriaJson materia, Progreso progreso, Proyeccion proyeccion, boolean[] prioridades) {
+    // Puntaje de cada materia con prioridades
+    public double calcularPuntajeMateria(MateriaJson materia, Progreso progreso, Proyeccion proyeccion,
+            boolean[] prioridades) {
         double puntaje = 0;
         int distanciaSemestral = 0;
         double coeficienteMateria = 0;
@@ -253,39 +252,39 @@ public class SimulacionService {
 
         double factorPrioridad = 1.0;
         if (prioridades != null && prioridades.length >= 6) {
-            
+
             if (tipo != null) {
                 switch (tipo) {
                     case "nucleoCienciasBasicas":
-                        if(prioridades[0])
-                            factorPrioridad = 1.5; 
+                        if (prioridades[0])
+                            factorPrioridad = 1.5;
                         break;
                     case "nucleoIngenieria":
-                        if(prioridades[1])
-                            factorPrioridad = 1.5; 
+                        if (prioridades[1])
+                            factorPrioridad = 1.5;
                         break;
                     case "nucleoSociohumanisticas":
-                        if(prioridades[2])
-                            factorPrioridad = 1.5; 
+                        if (prioridades[2])
+                            factorPrioridad = 1.5;
                         break;
                 }
             }
-            
+
             switch (codigo) {
                 case "0": // Electiva
-                    if(prioridades[3])
+                    if (prioridades[3])
                         factorPrioridad = 1.5;
                     break;
                 case "1": // Complementaria
-                    if(prioridades[4])
+                    if (prioridades[4])
                         factorPrioridad = 1.5;
                     break;
                 case "5": // Énfasis
-                    if(prioridades[5])
+                    if (prioridades[5])
                         factorPrioridad = 1.5;
                     break;
                 case "6": // ElectivaCB
-                    if(prioridades[0])
+                    if (prioridades[0])
                         factorPrioridad = 1.5;
                     break;
             }
@@ -293,19 +292,19 @@ public class SimulacionService {
 
         switch (codigo) {
             case "0": // Electiva
-                coeficienteMateria = 80 * factorPeso * factorPrioridad;
+                coeficienteMateria = 60 * factorPeso * factorPrioridad;
                 break;
             case "1": // Complementaria
-                coeficienteMateria = 100 * factorPeso * factorPrioridad;
+                coeficienteMateria = 80 * factorPeso * factorPrioridad;
                 break;
             case "5": // Énfasis
-                coeficienteMateria = 100 * factorPeso * factorPrioridad;
+                coeficienteMateria = 80 * factorPeso * factorPrioridad;
                 break;
             case "6": // ElectivaCB
-                coeficienteMateria = 90 * factorPeso * factorPrioridad;
+                coeficienteMateria = 100 * factorPeso * factorPrioridad;
                 break;
             default: // Núcleo
-                coeficienteMateria = 180 * factorPeso * factorPrioridad;
+                coeficienteMateria = 100 * factorPeso * factorPrioridad;
                 break;
         }
 
@@ -487,7 +486,7 @@ public class SimulacionService {
                 materiaSugerida.setCodigo(codigo);
                 materiaSugerida.setNombre(nombre);
                 materiaSugerida.setSemestre(semestre);
-                
+
                 if (codigo.equals("5") || codigo.equals("6") || codigo.equals("1")) {
                     if (creditosRestantesGeneral >= 3 && creditosRestantes >= 3) {
                         materiaSugerida.setCreditos(3);
@@ -821,7 +820,8 @@ public class SimulacionService {
     public List<PlanSemestre> generarCombinaciones(Progreso progreso, Proyeccion proyeccion,
             List<MateriaJson> materiasPensum, int numCombinaciones, boolean[] prioridades) {
         List<MateriaJson> materiasDisponibles = filtrarMateriasDisponibles(progreso, materiasPensum, proyeccion);
-        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion, prioridades);
+        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion,
+                prioridades);
         mostrarMateriasPuntajes(materiasConPuntaje);
         List<PlanSemestre> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
                 proyeccion.getCreditos(), proyeccion.getMaterias()).stream().limit(numCombinaciones)
