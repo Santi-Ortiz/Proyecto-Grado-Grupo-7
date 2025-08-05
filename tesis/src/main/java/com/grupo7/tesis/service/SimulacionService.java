@@ -239,17 +239,6 @@ public class SimulacionService {
         String codigo = materia.getCodigo();
         String tipo = materia.getTipo();
 
-        int semestresRestantes = Math.max(1, Math.abs(proyeccion.getSemestre() - progreso.getSemestre()));
-        double factorPeso;
-
-        if (semestresRestantes <= 2) {
-            factorPeso = 1.0;
-        } else if (semestresRestantes <= 4) {
-            factorPeso = 0.5;
-        } else {
-            factorPeso = 0.3;
-        }
-
         double factorPrioridad = 1.0;
         if (prioridades != null && prioridades.length >= 6) {
 
@@ -292,19 +281,19 @@ public class SimulacionService {
 
         switch (codigo) {
             case "0": // Electiva
-                coeficienteMateria = 60 * factorPeso * factorPrioridad;
+                coeficienteMateria = 60 * factorPrioridad;
                 break;
             case "1": // Complementaria
-                coeficienteMateria = 80 * factorPeso * factorPrioridad;
+                coeficienteMateria = 80 * factorPrioridad;
                 break;
             case "5": // Énfasis
-                coeficienteMateria = 80 * factorPeso * factorPrioridad;
+                coeficienteMateria = 80 * factorPrioridad;
                 break;
             case "6": // ElectivaCB
-                coeficienteMateria = 100 * factorPeso * factorPrioridad;
+                coeficienteMateria = 100 * factorPrioridad;
                 break;
             default: // Núcleo
-                coeficienteMateria = 100 * factorPeso * factorPrioridad;
+                coeficienteMateria = 100 * factorPrioridad;
                 break;
         }
 
