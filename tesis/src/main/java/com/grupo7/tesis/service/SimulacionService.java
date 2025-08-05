@@ -222,9 +222,9 @@ public class SimulacionService {
     // Calcular G
     public double calcularCostoTransicion(PlanSemestre combinacion) {
 
-        double costoBasePorSemestre = 100.0;
+        double costoBasePorSemestre = 400.0;
         double puntajeTotal = combinacion.getPuntajeTotal();
-        double costoCalidad = 300.0 - 50.0 * Math.log(puntajeTotal + 1);
+        double costoCalidad = 400.0 - 70.0 * Math.log(puntajeTotal + 1);
 
         return costoBasePorSemestre + costoCalidad;
     }
