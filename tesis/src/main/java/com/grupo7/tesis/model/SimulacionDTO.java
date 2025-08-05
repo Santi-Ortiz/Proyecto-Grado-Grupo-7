@@ -3,6 +3,15 @@ package com.grupo7.tesis.model;
 public class SimulacionDTO {
     private Progreso progreso;
     private Proyeccion proyeccion;
+    private boolean[] priorizaciones;
+
+    public boolean[] getPriorizaciones() {
+        return this.priorizaciones;
+    }
+
+    public void setPriorizaciones(boolean[] priorizaciones) {
+        this.priorizaciones = priorizaciones;
+    }
 
     public Progreso getProgreso() {
         return this.progreso;

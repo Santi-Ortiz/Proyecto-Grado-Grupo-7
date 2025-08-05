@@ -37,67 +37,65 @@ public class Progreso {
     private List<Materia> cursosSIGtoIA;
     private List<Materia> cursosElectivaBasicas;
 
-
     public Progreso(double promedio,
-                int materiasCursadas,
-                int materiasFaltantes,
-                List<MateriaJson> listaMateriasFaltantes,
-                int totalMaterias,
-                int totalFaltantes,
-                int totalCursantes,
-                int totalCreditos,
-                int creditosCursados,
-                int creditosCursando,
-                int creditosFaltantes,
-                int creditosPensum,
-                int creditosExtra,
-                int faltanElectiva,
-                int faltanComplementaria,
-                int faltanEnfasis,
-                int faltanElectivaBasicas,
-                int semestre,
-                List<Materia> cursosElectivas,
-                List<Materia> cursosEnfasis,
-                List<Materia> cursosComplementariaLenguas,
-                List<Materia> cursosComplementariaInformacion,
-                List<Materia> cursosIA,
-                List<Materia> cursosDesarrolloComputacion,
-                List<Materia> cursosDesarrolloGestion,
-                List<Materia> cursosComputacionVisual,
-                List<Materia> cursosCVtoIA,
-                List<Materia> cursosSIGtoIA,
-                List<Materia> cursosElectivaBasicas) {
-    this.promedio = promedio;
-    this.materiasCursadas = materiasCursadas;
-    this.materiasFaltantes = materiasFaltantes;
-    this.listaMateriasFaltantes = listaMateriasFaltantes;
-    this.totalMaterias = totalMaterias;
-    this.totalFaltantes = totalFaltantes;
-    this.totalCursando = totalCursantes;
-    this.totalCreditos = totalCreditos;
-    this.creditosCursados = creditosCursados;
-    this.creditosCursando = creditosCursando;
-    this.creditosFaltantes = creditosFaltantes;
-    this.creditosPensum = creditosPensum;
-    this.creditosExtra = creditosExtra;
-    this.faltanElectiva = faltanElectiva;
-    this.faltanComplementaria = faltanComplementaria;
-    this.faltanEnfasis = faltanEnfasis;
-    this.faltanElectivaBasicas = faltanElectivaBasicas;
-    this.semestre = semestre;
-    this.cursosElectivas = cursosElectivas;
-    this.cursosEnfasis = cursosEnfasis;
-    this.cursosComplementariaLenguas = cursosComplementariaLenguas;
-    this.cursosComplementariaInformacion = cursosComplementariaInformacion;
-    this.cursosIA = cursosIA;
-    this.cursosDesarrolloComputacion = cursosDesarrolloComputacion;
-    this.cursosDesarrolloGestion = cursosDesarrolloGestion;
-    this.cursosComputacionVisual = cursosComputacionVisual;
-    this.cursosCVtoIA = cursosCVtoIA;
-    this.cursosSIGtoIA = cursosSIGtoIA;
-    this.cursosElectivaBasicas = cursosElectivaBasicas;
-}
-
+            int materiasCursadas,
+            int materiasFaltantes,
+            List<MateriaJson> listaMateriasFaltantes,
+            int totalMaterias,
+            int totalFaltantes,
+            int totalCursantes,
+            int totalCreditos,
+            int creditosCursados,
+            int creditosCursando,
+            int creditosFaltantes,
+            int creditosPensum,
+            int creditosExtra,
+            int faltanElectiva,
+            int faltanComplementaria,
+            int faltanEnfasis,
+            int faltanElectivaBasicas,
+            int semestre,
+            List<Materia> cursosElectivas,
+            List<Materia> cursosEnfasis,
+            List<Materia> cursosComplementariaLenguas,
+            List<Materia> cursosComplementariaInformacion,
+            List<Materia> cursosIA,
+            List<Materia> cursosDesarrolloComputacion,
+            List<Materia> cursosDesarrolloGestion,
+            List<Materia> cursosComputacionVisual,
+            List<Materia> cursosCVtoIA,
+            List<Materia> cursosSIGtoIA,
+            List<Materia> cursosElectivaBasicas) {
+        this.promedio = promedio;
+        this.materiasCursadas = materiasCursadas;
+        this.materiasFaltantes = materiasFaltantes;
+        this.listaMateriasFaltantes = listaMateriasFaltantes;
+        this.totalMaterias = totalMaterias;
+        this.totalFaltantes = totalFaltantes;
+        this.totalCursando = totalCursantes;
+        this.totalCreditos = totalCreditos;
+        this.creditosCursados = creditosCursados;
+        this.creditosCursando = creditosCursando;
+        this.creditosFaltantes = creditosFaltantes;
+        this.creditosPensum = creditosPensum;
+        this.creditosExtra = creditosExtra;
+        this.faltanElectiva = faltanElectiva;
+        this.faltanComplementaria = faltanComplementaria;
+        this.faltanEnfasis = faltanEnfasis;
+        this.faltanElectivaBasicas = faltanElectivaBasicas;
+        this.semestre = semestre;
+        this.cursosElectivas = cursosElectivas;
+        this.cursosEnfasis = cursosEnfasis;
+        this.cursosComplementariaLenguas = cursosComplementariaLenguas;
+        this.cursosComplementariaInformacion = cursosComplementariaInformacion;
+        this.cursosIA = cursosIA;
+        this.cursosDesarrolloComputacion = cursosDesarrolloComputacion;
+        this.cursosDesarrolloGestion = cursosDesarrolloGestion;
+        this.cursosComputacionVisual = cursosComputacionVisual;
+        this.cursosCVtoIA = cursosCVtoIA;
+        this.cursosSIGtoIA = cursosSIGtoIA;
+        this.cursosElectivaBasicas = cursosElectivaBasicas;
+    }
 
     public List<Materia> getMaterias() {
         return materias;
@@ -365,6 +363,7 @@ public class Progreso {
                 nuevaMateria.setNombre(materia.getNombre());
                 nuevaMateria.setCreditos(materia.getCreditos());
                 nuevaMateria.setSemestre(materia.getSemestre());
+                nuevaMateria.setTipo(materia.getTipo());
                 if (materia.getRequisitos() != null) {
                     nuevaMateria.setRequisitos(new ArrayList<>(materia.getRequisitos()));
                 }
@@ -409,7 +408,9 @@ public class Progreso {
         return "Progreso [promedio=" + promedio + ", materiasCursadas=" + materiasCursadas + ", materiasFaltantes="
                 + materiasFaltantes + ", listaMateriasFaltantes=" + listaMateriasFaltantes + ", totalMaterias="
                 + totalMaterias + ", totalFaltantes=" + totalFaltantes + ", totalCursando=" + totalCursando
-                + ", totalCreditos=" + totalCreditos +", creditosCursados=" + creditosCursados +", creditosCursando=" + creditosCursando +", creditosFaltantes=" + creditosFaltantes + ", creditosPensum=" + creditosPensum + ", creditosExtra="
+                + ", totalCreditos=" + totalCreditos + ", creditosCursados=" + creditosCursados + ", creditosCursando="
+                + creditosCursando + ", creditosFaltantes=" + creditosFaltantes + ", creditosPensum=" + creditosPensum
+                + ", creditosExtra="
                 + creditosExtra + ", faltanElectiva=" + faltanElectiva + ", faltanComplementaria="
                 + faltanComplementaria + ", faltanEnfasis=" + faltanEnfasis + ", faltanElectivaBasicas="
                 + faltanElectivaBasicas + ", semestre=" + semestre + ", porcentaje=" + porcentaje
@@ -418,7 +419,8 @@ public class Progreso {
                 + ", cursosComplementariaLenguas=" + cursosComplementariaLenguas
                 + ", cursosComplementariaInformacion=" + cursosComplementariaInformacion
                 + ", cursosIA=" + cursosIA + ", cursosDesarrolloComputacion=" + cursosDesarrolloComputacion
-                + ", cursosDesarrolloGestion=" + cursosDesarrolloGestion + ", cursosComputacionVisual=" + cursosComputacionVisual
+                + ", cursosDesarrolloGestion=" + cursosDesarrolloGestion + ", cursosComputacionVisual="
+                + cursosComputacionVisual
                 + ", cursosCVtoIA=" + cursosCVtoIA + ", cursosSIGtoIA=" + cursosSIGtoIA
                 + ", cursosElectivaBasicas=" + cursosElectivaBasicas + "]";
     }

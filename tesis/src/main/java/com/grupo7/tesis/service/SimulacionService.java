@@ -18,7 +18,7 @@ import com.grupo7.tesis.model.Progreso;
 import com.grupo7.tesis.model.Proyeccion;
 import com.grupo7.tesis.model.Simulacion;
 import com.grupo7.tesis.model.MateriaConPuntaje;
-import com.grupo7.tesis.model.Combinacion;
+import com.grupo7.tesis.model.PlanSemestre;
 import com.grupo7.tesis.model.NodoA;
 
 @Service
@@ -288,6 +288,11 @@ public class SimulacionService {
 
     public Simulacion generarSimulacionCombinatorias(Progreso progreso, Proyeccion proyeccion,
             List<MateriaJson> materiasPensum) {
+        return generarSimulacionCombinatorias(progreso, proyeccion, materiasPensum, null);
+    }
+
+    public Simulacion generarSimulacionCombinatorias(Progreso progreso, Proyeccion proyeccion,
+            List<MateriaJson> materiasPensum, boolean[] prioridades) {
         // System.out.println("------------------ INICIO DE SIMULACIÓN CON COMBINATORIAS
         // ------------------");
         System.out.println("Créditos disponibles: " + proyeccion.getCreditos());
@@ -298,14 +303,14 @@ public class SimulacionService {
         List<MateriaJson> materiasDisponibles = filtrarMateriasDisponibles(progreso, materiasPensum, proyeccion);
         System.out.println("\nMaterias disponibles encontradas: " + materiasDisponibles.size());
 
-        // Calcular puntajes para cada materia
-        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion);
+        // Calcular puntajes para cada materia con prioridades
+        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion, prioridades);
 
         // Mostrar materias con sus puntajes
         mostrarMateriasPuntajes(materiasConPuntaje);
 
         // Combinaciones
-        List<Combinacion> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
+        List<PlanSemestre> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
                 proyeccion.getCreditos(), proyeccion.getMaterias());
 
         // Resultados
@@ -351,38 +356,62 @@ public class SimulacionService {
 
         // ELECTIVAS
         int usadosElectivas = 0;
-        usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles, validarElectivas(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, semestre - 1, "Electiva Atrasada");
-        usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles, validarElectivas(progreso, materiasPensum, semestre) - usadosElectivas, creditosDisponibles, materiasDisponiblesNum, semestre, "Electiva Actual");
-        agregarElectivasPorSemestre(materiasDisponibles, validarElectivas(progreso, materiasPensum, semestre + 1) - usadosElectivas, creditosDisponibles, materiasDisponiblesNum, semestre + 1, "Electiva Futura");
+        usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles,
+                validarElectivas(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum,
+                semestre - 1, "Electiva Atrasada");
+        usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles,
+                validarElectivas(progreso, materiasPensum, semestre) - usadosElectivas, creditosDisponibles,
+                materiasDisponiblesNum, semestre, "Electiva Actual");
+        agregarElectivasPorSemestre(materiasDisponibles,
+                validarElectivas(progreso, materiasPensum, semestre + 1) - usadosElectivas, creditosDisponibles,
+                materiasDisponiblesNum, semestre + 1, "Electiva Futura");
 
         // COMPLEMENTARIAS
         int usadosComp = 0;
-        usadosComp += agregarMateriasGenericas(materiasDisponibles, validarComplementarias(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, "1", "Complementaria Atrasada", semestre - 1);
-        usadosComp += agregarMateriasGenericas(materiasDisponibles, validarComplementarias(progreso, materiasPensum, semestre) - usadosComp, creditosDisponibles, materiasDisponiblesNum, "1", "Complementaria Actual", semestre);
-        agregarMateriasGenericas(materiasDisponibles, validarComplementarias(progreso, materiasPensum, semestre + 1) - usadosComp, creditosDisponibles, materiasDisponiblesNum, "1", "Complementaria Futura", semestre + 1);
+        usadosComp += agregarMateriasGenericas(materiasDisponibles,
+                validarComplementarias(progreso, materiasPensum, semestre - 1), creditosDisponibles,
+                materiasDisponiblesNum, "1", "Complementaria Atrasada", semestre - 1);
+        usadosComp += agregarMateriasGenericas(materiasDisponibles,
+                validarComplementarias(progreso, materiasPensum, semestre) - usadosComp, creditosDisponibles,
+                materiasDisponiblesNum, "1", "Complementaria Actual", semestre);
+        agregarMateriasGenericas(materiasDisponibles,
+                validarComplementarias(progreso, materiasPensum, semestre + 1) - usadosComp, creditosDisponibles,
+                materiasDisponiblesNum, "1", "Complementaria Futura", semestre + 1);
 
         // ÉNFASIS
         int usadosEnf = 0;
-        usadosEnf += agregarMateriasGenericas(materiasDisponibles, validarEnfasis(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis Atrasado", semestre - 1);
-        usadosEnf += agregarMateriasGenericas(materiasDisponibles, validarEnfasis(progreso, materiasPensum, semestre) - usadosEnf, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis Actual", semestre);
-        agregarMateriasGenericas(materiasDisponibles, validarEnfasis(progreso, materiasPensum, semestre + 1) - usadosEnf, creditosDisponibles, materiasDisponiblesNum, "5", "Énfasis Futuro", semestre + 1);
+        usadosEnf += agregarMateriasGenericas(materiasDisponibles,
+                validarEnfasis(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum,
+                "5", "Énfasis Atrasado", semestre - 1);
+        usadosEnf += agregarMateriasGenericas(materiasDisponibles,
+                validarEnfasis(progreso, materiasPensum, semestre) - usadosEnf, creditosDisponibles,
+                materiasDisponiblesNum, "5", "Énfasis Actual", semestre);
+        agregarMateriasGenericas(materiasDisponibles,
+                validarEnfasis(progreso, materiasPensum, semestre + 1) - usadosEnf, creditosDisponibles,
+                materiasDisponiblesNum, "5", "Énfasis Futuro", semestre + 1);
 
         // ELECTIVAS CIENCIAS BÁSICAS
         int usadosCB = 0;
-        usadosCB += agregarMateriasGenericas(materiasDisponibles, validarElectivasCB(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum, "6", "Electiva CB Atrasada", semestre - 1);
-        usadosCB += agregarMateriasGenericas(materiasDisponibles, validarElectivasCB(progreso, materiasPensum, semestre) - usadosCB, creditosDisponibles, materiasDisponiblesNum, "6", "Electiva CB Actual", semestre);
-        agregarMateriasGenericas(materiasDisponibles, validarElectivasCB(progreso, materiasPensum, semestre + 1) - usadosCB, creditosDisponibles, materiasDisponiblesNum, "6", "Electiva CB Futura", semestre + 1);
+        usadosCB += agregarMateriasGenericas(materiasDisponibles,
+                validarElectivasCB(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum,
+                "6", "Electiva CB Atrasada", semestre - 1);
+        usadosCB += agregarMateriasGenericas(materiasDisponibles,
+                validarElectivasCB(progreso, materiasPensum, semestre) - usadosCB, creditosDisponibles,
+                materiasDisponiblesNum, "6", "Electiva CB Actual", semestre);
+        agregarMateriasGenericas(materiasDisponibles,
+                validarElectivasCB(progreso, materiasPensum, semestre + 1) - usadosCB, creditosDisponibles,
+                materiasDisponiblesNum, "6", "Electiva CB Futura", semestre + 1);
     }
 
-    public int agregarElectivasPorSemestre(List<MateriaJson> materiasDisponibles, int creditosRequeridos, int creditosDisponibles, int materiasDisponiblesNum, int semestre, String descripcionBase) {
+    public int agregarElectivasPorSemestre(List<MateriaJson> materiasDisponibles, int creditosRequeridos,
+            int creditosDisponibles, int materiasDisponiblesNum, int semestre, String descripcionBase) {
 
         int usados = 0;
         for (int credito = 3; credito >= 1; credito--) {
             while (creditosRequeridos >= credito) {
                 MateriaJson electiva = verificarMateria(
-                    credito, creditosDisponibles, materiasDisponiblesNum, "0",
-                    descripcionBase + " " + credito + "C", semestre
-                );
+                        credito, creditosDisponibles, materiasDisponiblesNum, "0",
+                        descripcionBase + " " + credito + "C", semestre);
                 if (electiva != null) {
                     materiasDisponibles.add(electiva);
                     creditosRequeridos -= credito;
@@ -395,17 +424,20 @@ public class SimulacionService {
         return usados;
     }
 
-    public int agregarMateriasGenericas(List<MateriaJson> materiasDisponibles, int creditosRequeridos, int creditosDisponibles, int materiasDisponiblesNum, String codigo, String descripcion, int semestre) {
+    public int agregarMateriasGenericas(List<MateriaJson> materiasDisponibles, int creditosRequeridos,
+            int creditosDisponibles, int materiasDisponiblesNum, String codigo, String descripcion, int semestre) {
 
         int usados = 0;
-        MateriaJson m1 = verificarMateria(creditosRequeridos, creditosDisponibles, materiasDisponiblesNum, codigo, descripcion, semestre);
+        MateriaJson m1 = verificarMateria(creditosRequeridos, creditosDisponibles, materiasDisponiblesNum, codigo,
+                descripcion, semestre);
         if (m1 != null) {
             materiasDisponibles.add(m1);
             usados += m1.getCreditos();
         }
 
         if (creditosRequeridos >= 6) {
-            MateriaJson m2 = verificarMateria(3, creditosDisponibles, materiasDisponiblesNum, codigo, descripcion + " 2", semestre);
+            MateriaJson m2 = verificarMateria(3, creditosDisponibles, materiasDisponiblesNum, codigo,
+                    descripcion + " 2", semestre);
             if (m2 != null) {
                 materiasDisponibles.add(m2);
                 usados += m2.getCreditos();
@@ -418,10 +450,16 @@ public class SimulacionService {
     // Darle valor a las materias
     public List<MateriaConPuntaje> calcularPuntajes(List<MateriaJson> materias, Progreso progreso,
             Proyeccion proyeccion) {
+        return calcularPuntajes(materias, progreso, proyeccion, null);
+    }
+
+    // Darle valor a las materias con prioridades
+    public List<MateriaConPuntaje> calcularPuntajes(List<MateriaJson> materias, Progreso progreso,
+            Proyeccion proyeccion, boolean[] prioridades) {
         List<MateriaConPuntaje> materiasConPuntaje = new ArrayList<>();
 
         for (MateriaJson materia : materias) {
-            double puntaje = calcularPuntajeMateria(materia, progreso, proyeccion);
+            double puntaje = calcularPuntajeMateria(materia, progreso, proyeccion, prioridades);
             materiasConPuntaje.add(new MateriaConPuntaje(materia, puntaje));
         }
 
@@ -431,65 +469,10 @@ public class SimulacionService {
         return materiasConPuntaje;
     }
 
-    // Se le asigna un puntaje(la heurística) de cada materia dependiendo de su
-    // prioridad
-    public double calcularPuntajeMateria(MateriaJson materia, Progreso progreso, Proyeccion proyeccion) {
-        double puntaje = 0;
-        int distanciaSemestral = 0;
-        double coeficienteMateria = 0;
-        double coeficienteDistancia = 0;
-        String codigo = materia.getCodigo();
-
-        int semestresRestantes = Math.max(1, Math.abs(proyeccion.getSemestre() - progreso.getSemestre()));
-        double factorPeso;
-
-        if (semestresRestantes <= 2) {
-            factorPeso = 1.0; 
-        } else if (semestresRestantes <= 4) {
-            factorPeso = 0.5;
-        } else {
-            factorPeso = 0.3;
-        }
-
-        switch (codigo) {
-            case "0": // Electiva
-                coeficienteMateria = 80 * factorPeso;
-                break;
-            case "1": // Complementaria
-                coeficienteMateria = 100 * factorPeso;
-                break;
-            case "5": // Énfasis
-                coeficienteMateria = 100 * factorPeso;
-                break;
-            case "6": // ElectivaCB
-                coeficienteMateria = 90 * factorPeso;
-                break;
-            default: // Núcleo
-                coeficienteMateria = 180 * factorPeso;
-                break;
-        }
-
-        distanciaSemestral = materia.getSemestre() - proyeccion.getSemestre();
-
-        if (distanciaSemestral > 1) {
-            coeficienteDistancia = 0.3; // Materia de semestres posteriores
-        } else if (distanciaSemestral == 1) {
-            coeficienteDistancia = 0.7; // Materia de un semestre adelante
-        } else if (distanciaSemestral == 0) {
-            coeficienteDistancia = 1.0; // Materia del semestre actual
-        } else {
-            coeficienteDistancia = 1.4; // Materia de semestres anteriores
-        }
-
-        puntaje = coeficienteMateria * coeficienteDistancia;
-
-        return Math.max(puntaje, 1);
-    }
-
     // Combinaciones
-    public List<Combinacion> generarMejoresCombinaciones(List<MateriaConPuntaje> materiasConPuntaje, int creditosMax,
+    public List<PlanSemestre> generarMejoresCombinaciones(List<MateriaConPuntaje> materiasConPuntaje, int creditosMax,
             int materiasMax) {
-        List<Combinacion> todasLasCombinaciones = new ArrayList<>();
+        List<PlanSemestre> todasLasCombinaciones = new ArrayList<>();
         List<MateriaJson> combinacionActual = new ArrayList<>();
 
         backtrackCombinaciones(materiasConPuntaje, combinacionActual, todasLasCombinaciones, 0, creditosMax,
@@ -503,14 +486,14 @@ public class SimulacionService {
 
     // Backtracking para generar combinaciones de materias
     public void backtrackCombinaciones(List<MateriaConPuntaje> materias, List<MateriaJson> combinacionActual,
-            List<Combinacion> resultado, int indice, int creditosMax, int materiasMax, int creditosActuales,
+            List<PlanSemestre> resultado, int indice, int creditosMax, int materiasMax, int creditosActuales,
             int materiasActuales) {
 
         // Si se alcanzan los límites se guarda la combinación actual
         if (indice == materias.size() || materiasActuales == materiasMax || creditosActuales >= creditosMax) {
             if (!combinacionActual.isEmpty()) {
                 double puntajeTotal = calcularPuntajeCombinacion(combinacionActual, materias);
-                resultado.add(new Combinacion(combinacionActual, puntajeTotal, creditosActuales));
+                resultado.add(new PlanSemestre(combinacionActual, puntajeTotal, creditosActuales));
             }
             return;
         }
@@ -563,11 +546,11 @@ public class SimulacionService {
     }
 
     // Resultados
-    public void mostrarResultadosCombinaciones(List<Combinacion> combinaciones) {
+    public void mostrarResultadosCombinaciones(List<PlanSemestre> combinaciones) {
         System.out.println("\nMEJORES COMBINACIONES ENCONTRADAS");
 
         for (int i = 0; i < combinaciones.size(); i++) {
-            Combinacion comb = combinaciones.get(i);
+            PlanSemestre comb = combinaciones.get(i);
             System.out.printf("\n--- COMBINACIÓN %d (Puntaje: %.1f, Créditos: %d) ---%n",
                     i + 1, comb.getPuntajeTotal(), comb.getCreditosTotales());
 
@@ -638,9 +621,15 @@ public class SimulacionService {
 
         return simulacionesPorSemestre;
     }
- 
-    // COMBINACIONES TENIENDO EN CUENTA TODOS LOS CASOS POSIBLES
-    public Map<Integer, Simulacion> generarSimulacionMultiSemestreOptimizada(Progreso progreso,Proyeccion proyeccionBase,int semestreObjetivo,List<MateriaJson> materiasPensum) {
+
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreOptimizada(Progreso progreso,
+            Proyeccion proyeccionBase, int semestreObjetivo, List<MateriaJson> materiasPensum) {
+        return generarSimulacionMultiSemestreOptimizada(progreso, proyeccionBase, semestreObjetivo, materiasPensum, null);
+    }
+
+    // COMBINACIONES TENIENDO EN CUENTA TODOS LOS CASOS POSIBLES CON PRIORIDADES
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreOptimizada(Progreso progreso,
+            Proyeccion proyeccionBase, int semestreObjetivo, List<MateriaJson> materiasPensum, boolean[] prioridades) {
         System.out.println("================ INICIO SIMULACION MULTI SEMESTRE ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
         System.out.println("Semestre objetivo: " + semestreObjetivo);
@@ -648,137 +637,159 @@ public class SimulacionService {
         System.out.println("Materias por semestre: " + proyeccionBase.getMaterias());
 
         List<Map<Integer, Simulacion>> rutasActuales = new ArrayList<>();
-        
+
         Map<Integer, Simulacion> rutaInicial = new HashMap<>();
         rutasActuales.add(rutaInicial);
-        
+
         for (int semestre = progreso.getSemestre() + 1; semestre <= semestreObjetivo; semestre++) {
             System.out.println("\n--- EXPANDIENDO RUTAS PARA SEMESTRE " + semestre + " ---");
-            
+
             List<Map<Integer, Simulacion>> nuevasRutas = new ArrayList<>();
-            
+
             for (Map<Integer, Simulacion> rutaActual : rutasActuales) {
                 Progreso progresoTemporal = calcularProgreso(progreso, rutaActual, semestre - 1);
-                
+
                 Proyeccion proyeccionSemestre = crearProyeccionParaSemestre(proyeccionBase, semestre);
-                
-                List<Combinacion> combinaciones = generarCombinaciones(progresoTemporal, proyeccionSemestre, materiasPensum, 3);
-                
+
+                List<PlanSemestre> combinaciones = generarCombinaciones(progresoTemporal, proyeccionSemestre,
+                        materiasPensum, 3, prioridades);
+
                 // Crear una nueva ruta por cada combinación
-                for (Combinacion comb : combinaciones) {
+                for (PlanSemestre comb : combinaciones) {
                     Map<Integer, Simulacion> nuevaRuta = new HashMap<>(rutaActual);
-                    
+
                     Simulacion simulacionSemestre = new Simulacion();
                     for (MateriaJson materia : comb.getMaterias()) {
                         simulacionSemestre.agregarMateria(materia);
                     }
-                    
+
                     nuevaRuta.put(semestre, simulacionSemestre);
                     nuevasRutas.add(nuevaRuta);
                 }
             }
-            
-            rutasActuales = seleccionarMejoresRutas(nuevasRutas, progreso, 3);
+
+            rutasActuales = seleccionarMejoresRutas(nuevasRutas, progreso, 3, prioridades);
 
         }
-        
-        Map<Integer, Simulacion> mejorRuta = obtenerMejorRuta(rutasActuales, progreso);
+
+        Map<Integer, Simulacion> mejorRuta = obtenerMejorRuta(rutasActuales, progreso, prioridades);
 
         System.out.println("\n--- MEJOR RUTA ENCONTRADA ---");
-        
-        Map<Integer, Simulacion> rutaOrdenada = mejorRuta.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue,
-                (oldValue, newValue) -> oldValue,
-                LinkedHashMap::new
-            ));
 
-        double puntajeTotal = calcularPuntajeRuta(rutaOrdenada, progreso);
+        Map<Integer, Simulacion> rutaOrdenada = mejorRuta.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
+
+        double puntajeTotal = calcularPuntajeRuta(rutaOrdenada, progreso, prioridades);
         mostrarResultados(rutaOrdenada, puntajeTotal);
 
         return rutaOrdenada;
     }
-    
+
     public Progreso calcularProgreso(Progreso progresoInicial, Map<Integer, Simulacion> ruta, int semestreHasta) {
         Progreso progresoTemporal = progresoInicial.copy();
-        
+
         for (int sem = progresoInicial.getSemestre() + 1; sem <= semestreHasta; sem++) {
             Simulacion simulacion = ruta.get(sem);
             if (simulacion != null) {
                 progresoTemporal = actualizarProgresoTemporal(progresoTemporal, simulacion, sem);
             }
         }
-        
+
         return progresoTemporal;
     }
-    
-    public List<Combinacion> generarCombinaciones(Progreso progreso, Proyeccion proyeccion, List<MateriaJson> materiasPensum, int numCombinaciones) {
+
+    public List<PlanSemestre> generarCombinaciones(Progreso progreso, Proyeccion proyeccion,
+            List<MateriaJson> materiasPensum, int numCombinaciones) {
+        return generarCombinaciones(progreso, proyeccion, materiasPensum, numCombinaciones, null);
+    }
+
+    public List<PlanSemestre> generarCombinaciones(Progreso progreso, Proyeccion proyeccion,
+            List<MateriaJson> materiasPensum, int numCombinaciones, boolean[] prioridades) {
         List<MateriaJson> materiasDisponibles = filtrarMateriasDisponibles(progreso, materiasPensum, proyeccion);
-        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion);
+        List<MateriaConPuntaje> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion, prioridades);
         mostrarMateriasPuntajes(materiasConPuntaje);
-        List<Combinacion> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje, proyeccion.getCreditos(), proyeccion.getMaterias()).stream().limit(numCombinaciones).collect(Collectors.toList());
+        List<PlanSemestre> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
+                proyeccion.getCreditos(), proyeccion.getMaterias()).stream().limit(numCombinaciones)
+                .collect(Collectors.toList());
         mostrarResultadosCombinaciones(mejoresCombinaciones);
 
         return mejoresCombinaciones;
     }
-    
+
     public double calcularPuntajeRuta(Map<Integer, Simulacion> ruta, Progreso progresoInicial) {
+        return calcularPuntajeRuta(ruta, progresoInicial, null);
+    }
+
+    public double calcularPuntajeRuta(Map<Integer, Simulacion> ruta, Progreso progresoInicial, boolean[] prioridades) {
         double puntajeTotal = 0.0;
         Progreso progresoTemporal = progresoInicial.copy();
-        
+
         List<Integer> semestresOrdenados = ruta.keySet().stream()
-            .sorted()
-            .collect(Collectors.toList());
-        
+                .sorted()
+                .collect(Collectors.toList());
+
         for (Integer semestre : semestresOrdenados) {
             Simulacion sim = ruta.get(semestre);
-            
+
             Proyeccion proyTemp = crearProyeccionParaSemestre(new Proyeccion(), semestre);
-            
+
             for (MateriaJson materia : sim.getMaterias()) {
-                puntajeTotal += calcularPuntajeMateria(materia, progresoTemporal, proyTemp);
+                puntajeTotal += calcularPuntajeMateria(materia, progresoTemporal, proyTemp, prioridades);
             }
-            
+
             progresoTemporal = actualizarProgresoTemporal(progresoTemporal, sim, semestre);
         }
-        
+
         return puntajeTotal;
     }
-    
-    @SuppressWarnings("unchecked")
-    public List<Map<Integer, Simulacion>> seleccionarMejoresRutas(List<Map<Integer, Simulacion>> rutas, Progreso progresoInicial, int maxRutas) {
-        return rutas.stream()
-            .map(ruta -> {
-                double puntaje = calcularPuntajeRuta(ruta, progresoInicial);
-                return Map.of("ruta", ruta, "puntaje", puntaje);
-            })
-            .sorted((a, b) -> Double.compare((Double)b.get("puntaje"), (Double)a.get("puntaje")))
-            .limit(maxRutas)
-            .map(r -> (Map<Integer, Simulacion>)r.get("ruta"))
-            .collect(Collectors.toList());
+
+    public List<Map<Integer, Simulacion>> seleccionarMejoresRutas(List<Map<Integer, Simulacion>> rutas,
+            Progreso progresoInicial, int maxRutas) {
+        return seleccionarMejoresRutas(rutas, progresoInicial, maxRutas, null);
     }
-    
+
+    @SuppressWarnings("unchecked")
+    public List<Map<Integer, Simulacion>> seleccionarMejoresRutas(List<Map<Integer, Simulacion>> rutas,
+            Progreso progresoInicial, int maxRutas, boolean[] prioridades) {
+        return rutas.stream()
+                .map(ruta -> {
+                    double puntaje = calcularPuntajeRuta(ruta, progresoInicial, prioridades);
+                    return Map.of("ruta", ruta, "puntaje", puntaje);
+                })
+                .sorted((a, b) -> Double.compare((Double) b.get("puntaje"), (Double) a.get("puntaje")))
+                .limit(maxRutas)
+                .map(r -> (Map<Integer, Simulacion>) r.get("ruta"))
+                .collect(Collectors.toList());
+    }
+
     public Map<Integer, Simulacion> obtenerMejorRuta(List<Map<Integer, Simulacion>> rutas, Progreso progresoInicial) {
-        List<Map<Integer, Simulacion>> mejores = seleccionarMejoresRutas(rutas, progresoInicial, 1);
+        return obtenerMejorRuta(rutas, progresoInicial, null);
+    }
+
+    public Map<Integer, Simulacion> obtenerMejorRuta(List<Map<Integer, Simulacion>> rutas, Progreso progresoInicial, boolean[] prioridades) {
+        List<Map<Integer, Simulacion>> mejores = seleccionarMejoresRutas(rutas, progresoInicial, 1, prioridades);
         return mejores.isEmpty() ? new HashMap<>() : mejores.get(0);
     }
-    
+
     public void mostrarResultados(Map<Integer, Simulacion> ruta, double puntajeTotal) {
         for (Map.Entry<Integer, Simulacion> entry : ruta.entrySet()) {
             int semestre = entry.getKey();
             Simulacion sim = entry.getValue();
-            
+
             System.out.println("\n--- SEMESTRE " + semestre + " ---");
             System.out.println("Materias: " + sim.getMaterias().size());
             int creditosSemestre = sim.getMaterias().stream().mapToInt(MateriaJson::getCreditos).sum();
             System.out.println("Créditos: " + creditosSemestre);
-            
+
             for (int i = 0; i < sim.getMaterias().size(); i++) {
                 MateriaJson materia = sim.getMaterias().get(i);
-                System.out.printf("  %d. %s (%s) - %d créditos%n", 
-                    i + 1, materia.getNombre(), materia.getCodigo(), materia.getCreditos());
+                System.out.printf("  %d. %s (%s) - %d créditos%n",
+                        i + 1, materia.getNombre(), materia.getCodigo(), materia.getCreditos());
             }
         }
         System.out.println("\nPuntaje total de la ruta: " + puntajeTotal);
@@ -792,50 +803,41 @@ public class SimulacionService {
         return proyeccion;
     }
 
-    //ALGORITMO A*
-    
+    // ALGORITMO A*
+
     // Genera una simulación multi semestre utilizando el algoritmo A*
-    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso,Proyeccion proyeccionBase,int semestreObjetivo,List<MateriaJson> materiasPensum) {
-        
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase, int semestreObjetivo, List<MateriaJson> materiasPensum) {
+        return generarSimulacionMultiSemestreAStar(progreso, proyeccionBase, semestreObjetivo, materiasPensum, null);
+    }
+
+    // Genera una simulación multi semestre utilizando el algoritmo A* con prioridades
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase, int semestreObjetivo, List<MateriaJson> materiasPensum, boolean[] prioridades) {
+
         System.out.println("================ INICIO SIMULACIÓN A* PURO ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
         System.out.println("Semestre objetivo: " + semestreObjetivo);
-        
-        int semestresTotal = semestreObjetivo - progreso.getSemestre();
-        int maxNodos;
-        int maxCombinacionesPorNodo;
-        
-        if (semestresTotal <= 2) {
-            maxNodos = 50000; 
-            maxCombinacionesPorNodo = 10; 
-        } else if (semestresTotal <= 4) {
-            maxNodos = 25000; 
-            maxCombinacionesPorNodo = 5; 
-        } else {
-            maxNodos = 10000; 
-            maxCombinacionesPorNodo = 3;
-        }
-        
-        PriorityQueue<NodoA> frontera = new PriorityQueue<>(
-            Comparator.comparingDouble(NodoA::getCostoTotal)
-        );
-        
+
+        int maxNodos = 25000;
+        int maxCombinacionesPorNodo = 4;
+
+        PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
+
         Set<String> visitados = new HashSet<>();
-        
+
         Map<Integer, Simulacion> rutaInicial = new HashMap<>();
         double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum);
 
         NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), 0.0, heuristicaInicial, progreso);
-        
+
         frontera.offer(nodoInicial);
-        
+
         int nodosExplorados = 0;
         long tiempoInicio = System.currentTimeMillis();
-        
+
         while (!frontera.isEmpty() && nodosExplorados < maxNodos) {
             NodoA nodoActual = frontera.poll();
             nodosExplorados++;
-            
+
             if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
                 long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
                 System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Termino antes)");
@@ -844,167 +846,277 @@ public class SimulacionService {
                 System.out.println("Semestres ahorrados: " + (semestreObjetivo - nodoActual.getSemestreActual()));
                 System.out.println("Nodos explorados: " + nodosExplorados);
                 System.out.println("Tiempo total: " + tiempoTotal + "ms");
-                
+                System.out.println("Heurística inicial: " + heuristicaInicial);
+
                 Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso);
+                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
                 mostrarResultados(rutaCompleta, puntajeTotal);
                 return rutaCompleta;
             }
 
-            if (nodoActual.getSemestreActual() >= semestreObjetivo) {
+            if (nodoActual.getSemestreActual() == semestreObjetivo) {
                 long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
                 System.out.println("SOLUCION A* ENCONTRADA");
                 System.out.println("Nodos explorados: " + nodosExplorados);
                 System.out.println("Tiempo total: " + tiempoTotal + "ms");
-                
+                System.out.println("Heurística inicial: " + heuristicaInicial);
+
                 Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso);
+                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
                 mostrarResultados(rutaCompleta, puntajeTotal);
                 return rutaCompleta;
             }
-            
+
             String claveEstado = generarClaveEstado(nodoActual.getProgresoActual(), nodoActual.getSemestreActual());
-            if (visitados.contains(claveEstado)) continue;
+            if (visitados.contains(claveEstado))
+                continue;
             visitados.add(claveEstado);
-            
-            expandirNodo(nodoActual, frontera, semestreObjetivo, proyeccionBase, materiasPensum, maxCombinacionesPorNodo);
+
+            expandirNodo(nodoActual, frontera, semestreObjetivo, proyeccionBase, materiasPensum,
+                    maxCombinacionesPorNodo, prioridades);
         }
-        
+
         long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
         System.out.println("A* alcanzó límite de nodos: " + maxNodos);
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
         System.out.println("A* no pudo encontrar ninguna solución completa");
         return new HashMap<>();
     }
-    
-    // Genera una clave única para el estado del nodo basado en el progreso y semestre
-    public void expandirNodo(NodoA nodoActual, PriorityQueue<NodoA> frontera,int semestreObjetivo, Proyeccion proyeccionBase,List<MateriaJson> materiasPensum, int maxCombinaciones) {
-        
+
+    // Genera una clave única para el estado del nodo basado en el progreso y
+    // semestre
+    public void expandirNodo(NodoA nodoActual, PriorityQueue<NodoA> frontera, int semestreObjetivo,
+            Proyeccion proyeccionBase, List<MateriaJson> materiasPensum, int maxCombinaciones) {
+        expandirNodo(nodoActual, frontera, semestreObjetivo, proyeccionBase, materiasPensum, maxCombinaciones, null);
+    }
+
+    public void expandirNodo(NodoA nodoActual, PriorityQueue<NodoA> frontera, int semestreObjetivo,
+            Proyeccion proyeccionBase, List<MateriaJson> materiasPensum, int maxCombinaciones, boolean[] prioridades) {
+
         int siguienteSemestre = nodoActual.getSemestreActual() + 1;
-        if (siguienteSemestre > semestreObjetivo) return;
-        
+        if (siguienteSemestre > semestreObjetivo)
+            return;
+
         Proyeccion proyeccionSemestre = crearProyeccionParaSemestre(proyeccionBase, siguienteSemestre);
-        
-        List<Combinacion> combinaciones = generarCombinaciones(nodoActual.getProgresoActual(), proyeccionSemestre, materiasPensum, maxCombinaciones);
-        
-        for (Combinacion combinacion : combinaciones) {
+
+        List<PlanSemestre> combinaciones = generarCombinaciones(nodoActual.getProgresoActual(), proyeccionSemestre,
+                materiasPensum, maxCombinaciones, prioridades);
+
+        for (PlanSemestre combinacion : combinaciones) {
             Map<Integer, Simulacion> nuevaRuta = new HashMap<>(nodoActual.getRutaParcial());
-            
+
             Simulacion simulacionSemestre = new Simulacion();
             for (MateriaJson materia : combinacion.getMaterias()) {
                 simulacionSemestre.agregarMateria(materia);
             }
             nuevaRuta.put(siguienteSemestre, simulacionSemestre);
-            
+
             Progreso nuevoProgreso = nodoActual.getProgresoActual().copy();
             nuevoProgreso = actualizarProgresoTemporal(nuevoProgreso, simulacionSemestre, siguienteSemestre);
-            
+
             double nuevoCosto = nodoActual.getCostoAcumulado() + calcularCostoTransicion(combinacion);
-            double nuevaHeuristica = calcularHeuristica(nuevoProgreso, semestreObjetivo, proyeccionBase, materiasPensum);
-            
+            double nuevaHeuristica = calcularHeuristica(nuevoProgreso, semestreObjetivo, proyeccionBase,
+                    materiasPensum);
+
             NodoA nuevoNodo = new NodoA(nuevaRuta, siguienteSemestre, nuevoCosto, nuevaHeuristica, nuevoProgreso);
             frontera.offer(nuevoNodo);
         }
     }
-    
+
     // Nueva versión de actualizar progreso temporal para que sirva con A*
     public Progreso actualizarProgresoTemporal(Progreso progreso, Simulacion simulacion, int semestreSimulado) {
-        
+
         List<MateriaJson> materiasARemover = new ArrayList<>();
         for (MateriaJson materiaSimulada : simulacion.getMaterias()) {
-            
-            if (!materiaSimulada.getCodigo().equals("0") &&!materiaSimulada.getCodigo().equals("1") && !materiaSimulada.getCodigo().equals("5") && !materiaSimulada.getCodigo().equals("6")) {
-    
+
+            if (!materiaSimulada.getCodigo().equals("0") && !materiaSimulada.getCodigo().equals("1")
+                    && !materiaSimulada.getCodigo().equals("5") && !materiaSimulada.getCodigo().equals("6")) {
+
                 for (MateriaJson materiaFaltante : progreso.getListaMateriasFaltantes()) {
-                    if (materiaFaltante.getCodigo().equals(materiaSimulada.getCodigo()) || (materiaFaltante.getNombre().equals(materiaSimulada.getNombre()) && materiaFaltante.getSemestre() == materiaSimulada.getSemestre())) {
+                    if (materiaFaltante.getCodigo().equals(materiaSimulada.getCodigo())
+                            || (materiaFaltante.getNombre().equals(materiaSimulada.getNombre())
+                                    && materiaFaltante.getSemestre() == materiaSimulada.getSemestre())) {
                         materiasARemover.add(materiaFaltante);
                         break;
                     }
                 }
             }
         }
-    
+
         progreso.getListaMateriasFaltantes().removeAll(materiasARemover);
-    
+
         for (MateriaJson materia : simulacion.getMaterias()) {
             switch (materia.getCodigo()) {
-                case "0": 
+                case "0":
                     int creditosElectiva = materia.getCreditos();
                     progreso.setFaltanElectiva(Math.max(0, progreso.getFaltanElectiva() - creditosElectiva));
                     break;
-                case "1": 
+                case "1":
                     progreso.setFaltanComplementaria(Math.max(0, progreso.getFaltanComplementaria() - 3));
                     break;
-                case "5": 
+                case "5":
                     progreso.setFaltanEnfasis(Math.max(0, progreso.getFaltanEnfasis() - 3));
                     break;
-                case "6": 
+                case "6":
                     progreso.setFaltanElectivaBasicas(Math.max(0, progreso.getFaltanElectivaBasicas() - 3));
                     break;
             }
         }
-    
+
         progreso.setMateriasCursadas(progreso.getMateriasCursadas() + materiasARemover.size());
         progreso.setMateriasFaltantes(progreso.getMateriasFaltantes() - materiasARemover.size());
         progreso.setTotalFaltantes(progreso.getListaMateriasFaltantes().size());
-    
+
         int creditosNucleoSimulados = materiasARemover.stream().mapToInt(MateriaJson::getCreditos).sum();
         progreso.setCreditosPensum(progreso.getCreditosPensum() + creditosNucleoSimulados);
         progreso.setTotalCreditos(progreso.getTotalCreditos() + creditosNucleoSimulados);
-    
+
         progreso.setSemestre(semestreSimulado);
-    
+
         return progreso;
     }
-    
-    // Calcular la heurística para A* que se enfoca en el progreso actual y el semestre objetivo
+
+    // Heuristica (Lo que falta para llegar al objetivo)
     public double calcularHeuristica(Progreso progreso, int semestreObjetivo, Proyeccion proyeccionBase, List<MateriaJson> materiasPensum) {
-        
+
+        if (haCompletadoTodasLasMaterias(progreso)) {
+            System.out.println("HEURISTICA: 0.0");
+            return 0.0;
+        }
+
         int semestresRestantes = semestreObjetivo - progreso.getSemestre();
         double heuristica = 0.0;
-        
         double factorPeso;
+        
+        factorPeso = Math.min(1.0, 0.2 + (semestresRestantes * 0.2));
+
+        double heuristicaCréditos = 0.0;
+
+        int materiasNucleoFaltantes = contarCreditosNucleoFaltantes(progreso);
+        heuristicaCréditos += materiasNucleoFaltantes * (180 * factorPeso);
+
+        double electivasFaltantes = progreso.getFaltanElectiva();
+        heuristicaCréditos += electivasFaltantes * (80 * factorPeso);
+
+        double complementariasFaltantes = progreso.getFaltanComplementaria();
+        heuristicaCréditos += complementariasFaltantes * (100 * factorPeso);
+
+        double enfasisFaltantes = progreso.getFaltanEnfasis();
+        heuristicaCréditos += enfasisFaltantes * (100 * factorPeso);
+
+        double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
+        heuristicaCréditos += electivasCBFaltantes * (90 * factorPeso);
+
+        heuristica = heuristicaCréditos;
+
+        System.out.println("HEURISTICA FINAL: " + String.format("%.2f", Math.max(heuristica, 1.0)));
+
+        return Math.max(heuristica, 1.0);
+    }
+
+    // Calcular G
+    public double calcularCostoTransicion(PlanSemestre combinacion) {
+
+        double costoBasePorSemestre = 100.0;
+        double puntajeTotal = combinacion.getPuntajeTotal();
+        double costoCalidad = 300.0 - 50.0 * Math.log(puntajeTotal + 1);
+
+        return costoBasePorSemestre + costoCalidad;
+    }
+
+    //Puntaje de cada materia con prioridades
+    public double calcularPuntajeMateria(MateriaJson materia, Progreso progreso, Proyeccion proyeccion, boolean[] prioridades) {
+        double puntaje = 0;
+        int distanciaSemestral = 0;
+        double coeficienteMateria = 0;
+        double coeficienteDistancia = 0;
+        String codigo = materia.getCodigo();
+        String tipo = materia.getTipo();
+
+        int semestresRestantes = Math.max(1, Math.abs(proyeccion.getSemestre() - progreso.getSemestre()));
+        double factorPeso;
+
         if (semestresRestantes <= 2) {
-            factorPeso = 1.0; 
+            factorPeso = 1.0;
         } else if (semestresRestantes <= 4) {
             factorPeso = 0.5;
         } else {
             factorPeso = 0.3;
         }
-        
-        double heuristicaMaterias = 0.0;
-        
-        int materiasNucleoFaltantes = contarMateriasNucleoFaltantes(progreso);
-        heuristicaMaterias += materiasNucleoFaltantes * (180 * factorPeso);
-        
-        double electivasFaltantes = progreso.getFaltanElectiva() / 3.0;
-        heuristicaMaterias += electivasFaltantes * (80 * factorPeso);
-        
-        double complementariasFaltantes = progreso.getFaltanComplementaria() / 3.0;
-        heuristicaMaterias += complementariasFaltantes * (100 * factorPeso);
-        
-        double enfasisFaltantes = progreso.getFaltanEnfasis() / 3.0;
-        heuristicaMaterias += enfasisFaltantes * (100 * factorPeso);
-        
-        double electivasCBFaltantes = progreso.getFaltanElectivaBasicas() / 3.0;
-        heuristicaMaterias += electivasCBFaltantes * (90 * factorPeso);
-       
-        heuristica = heuristicaMaterias;
-        
-        double penalizacionDistancia = semestresRestantes * 25;
-        heuristica += penalizacionDistancia;
-        
-        double factorProgreso = (double) progreso.getMateriasCursadas() / (progreso.getMateriasCursadas() + progreso.getTotalFaltantes());
-        double factorReduccion = (1.0 - factorProgreso * 0.3);
-        heuristica *= factorReduccion;
-        System.out.println("HEURISTICA FINAL: " + String.format("%.2f", Math.max(heuristica, 1.0)));
-        
-        return Math.max(heuristica, 1.0);
-    }
 
-    // Calcular el costo de transición entre combinaciones
-    public double calcularCostoTransicion(Combinacion combinacion) {
-        return Math.max(1000 - combinacion.getPuntajeTotal(), 100);
+        double factorPrioridad = 1.0;
+        if (prioridades != null && prioridades.length >= 6) {
+            
+            if (tipo != null) {
+                switch (tipo) {
+                    case "nucleoCienciasBasicas":
+                        if(prioridades[0])
+                            factorPrioridad = 1.5; 
+                        break;
+                    case "nucleoIngenieria":
+                        if(prioridades[1])
+                            factorPrioridad = 1.5; 
+                        break;
+                    case "nucleoSociohumanisticas":
+                        if(prioridades[2])
+                            factorPrioridad = 1.5; 
+                        break;
+                }
+            }
+            
+            switch (codigo) {
+                case "0": // Electiva
+                    if(prioridades[3])
+                        factorPrioridad = 1.5;
+                    break;
+                case "1": // Complementaria
+                    if(prioridades[4])
+                        factorPrioridad = 1.5;
+                    break;
+                case "5": // Énfasis
+                    if(prioridades[5])
+                        factorPrioridad = 1.5;
+                    break;
+                case "6": // ElectivaCB
+                    if(prioridades[0])
+                        factorPrioridad = 1.5;
+                    break;
+            }
+        }
+
+        switch (codigo) {
+            case "0": // Electiva
+                coeficienteMateria = 80 * factorPeso * factorPrioridad;
+                break;
+            case "1": // Complementaria
+                coeficienteMateria = 100 * factorPeso * factorPrioridad;
+                break;
+            case "5": // Énfasis
+                coeficienteMateria = 100 * factorPeso * factorPrioridad;
+                break;
+            case "6": // ElectivaCB
+                coeficienteMateria = 90 * factorPeso * factorPrioridad;
+                break;
+            default: // Núcleo
+                coeficienteMateria = 180 * factorPeso * factorPrioridad;
+                break;
+        }
+
+        distanciaSemestral = materia.getSemestre() - proyeccion.getSemestre();
+
+        if (distanciaSemestral > 1) {
+            coeficienteDistancia = 0.3; // Materia de semestres posteriores
+        } else if (distanciaSemestral == 1) {
+            coeficienteDistancia = 0.7; // Materia de un semestre adelante
+        } else if (distanciaSemestral == 0) {
+            coeficienteDistancia = 1.0; // Materia del semestre actual
+        } else {
+            coeficienteDistancia = 1.3; // Materia de semestres anteriores
+        }
+
+        puntaje = coeficienteMateria * coeficienteDistancia;
+
+        return Math.max(puntaje, 1);
     }
 
     // Contar materias de núcleo faltantes
@@ -1018,11 +1130,27 @@ public class SimulacionService {
         return count;
     }
 
-    // Validar si una materia es de núcleo
+    // Contar creditos de núcleo faltantes
+    public int contarCreditosNucleoFaltantes(Progreso progreso) {
+        int count = 0;
+        for (MateriaJson materia : progreso.getListaMateriasFaltantes()) {
+            if (esMateriaNucleo(materia)) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    // Validar si una materia es de cualquier tipo de núcleo
     public boolean esMateriaNucleo(MateriaJson materia) {
-        String codigo = materia.getCodigo();
-        return !codigo.equals("0") && !codigo.equals("1") && 
-            !codigo.equals("5") && !codigo.equals("6");
+        /*
+         * String codigo = materia.getCodigo();
+         * return !codigo.equals("0") && !codigo.equals("1") &&
+         * !codigo.equals("5") && !codigo.equals("6");
+         */
+        String tipo = materia.getTipo();
+        return tipo.equals("nucleoCienciasBasicas") || tipo.equals("nucleoIngenieria")
+                || tipo.equals("nucleoSociohumanisticas");
     }
 
     // Generar una clave de estado única para el progreso y semestre
@@ -1030,11 +1158,10 @@ public class SimulacionService {
         StringBuilder sb = new StringBuilder();
         sb.append("sem:").append(semestre);
         sb.append("|mat:").append(
-            progreso.getListaMateriasFaltantes().stream()
-                .map(MateriaJson::getCodigo)
-                .sorted()
-                .collect(Collectors.joining(","))
-            );
+                progreso.getListaMateriasFaltantes().stream()
+                        .map(MateriaJson::getCodigo)
+                        .sorted()
+                        .collect(Collectors.joining(",")));
         sb.append("|cred:").append(progreso.getTotalCreditos());
         sb.append("|elec:").append(progreso.getFaltanElectiva());
         sb.append("|comp:").append(progreso.getFaltanComplementaria());
@@ -1046,13 +1173,12 @@ public class SimulacionService {
     // Ordenar la ruta por semestre
     public Map<Integer, Simulacion> ordenarRuta(Map<Integer, Simulacion> ruta) {
         return ruta.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue,
-                (oldValue, newValue) -> oldValue,
-                LinkedHashMap::new
-            ));
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new));
     }
 
     // Verifica si el progreso ha completado todas las materias requeridas
@@ -1062,8 +1188,9 @@ public class SimulacionService {
         boolean complementariasCompletas = progreso.getFaltanComplementaria() <= 0;
         boolean enfasisCompleto = progreso.getFaltanEnfasis() <= 0;
         boolean electivasCBCompletas = progreso.getFaltanElectivaBasicas() <= 0;
-        
-        return nucleoCompleto && electivasCompletas && complementariasCompletas && enfasisCompleto && electivasCBCompletas;
+
+        return nucleoCompleto && electivasCompletas && complementariasCompletas && enfasisCompleto
+                && electivasCBCompletas;
     }
-    
+
 }
