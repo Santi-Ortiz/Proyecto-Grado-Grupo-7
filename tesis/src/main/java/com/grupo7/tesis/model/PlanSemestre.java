@@ -3,12 +3,12 @@ package com.grupo7.tesis.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Combinacion {
+public class PlanSemestre {
         private List<MateriaJson> materias;
         private double puntajeTotal;
         private int creditosTotales;
         
-        public Combinacion(List<MateriaJson> materias, double puntaje, int creditos) {
+        public PlanSemestre(List<MateriaJson> materias, double puntaje, int creditos) {
             this.materias = new ArrayList<>(materias);
             this.puntajeTotal = puntaje;
             this.creditosTotales = creditos;

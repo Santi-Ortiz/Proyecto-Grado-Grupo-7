@@ -64,7 +64,7 @@ public class SimulacionController {
          */
 
         simulacion = simulacionService.generarSimulacionMultiSemestreAStar(simulacionDTO.getProgreso(),
-                simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum);
+                simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum, simulacionDTO.getPriorizaciones());
 
         return simulacion;
     }
