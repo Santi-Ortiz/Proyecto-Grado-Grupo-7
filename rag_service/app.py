@@ -5,6 +5,7 @@ from langchain.chains import RetrievalQA
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.prompts import PromptTemplate
+import json
 
 app = FastAPI()
 
@@ -16,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Variables globales
 global qa_reglamento, qa_materias
 
 @app.on_event("startup")
@@ -25,17 +27,40 @@ def load_rag():
     # Cargar índice del reglamento
     vectorstore_reglamento = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
 
-    # Crear prompt personalizado en español
     prompt_template = PromptTemplate.from_template(
         "Responde la siguiente pregunta en español de forma clara y precisa usando la información disponible:\n\n{context}\n\nPregunta: {question}\n\nRespuesta:"
     )
 
-    # Crear prompt personalizado en español
     prompt_template_materias = PromptTemplate.from_template(
-        "Responde la recomendación de la materia en español de forma clara y precisa usando la información disponible :\n\n{context}\n\nPregunta: {question}\n\nRespuesta:"
+        """
+        Eres un sistema de recomendación de materias. Devuelve la respuesta en formato JSON estricto.
+
+        Formato esperado:
+        {{
+        "materias": [
+            {{
+            "nombre": "...",
+            "grado": "...",
+            "id": "...",
+            "creditos": "...",
+            "numero_catalogo": "...",
+            "numero_oferta": "..."
+            }}
+        ],
+        "explicacion": "..."
+        }}
+
+        Contexto:
+        {context}
+
+        Consulta:
+        {question}
+        """
     )
 
     llm = Ollama(model="llama3")
+
+    # Cadena para reglamento
     global qa_reglamento
     qa_reglamento = RetrievalQA.from_chain_type(
         llm=llm,
@@ -45,8 +70,13 @@ def load_rag():
 
     # Cargar índice de materias
     vectorstore_materias = FAISS.load_local("faiss_materias", embeddings, allow_dangerous_deserialization=True)
+
     global qa_materias
-    qa_materias = RetrievalQA.from_chain_type(llm=llm, retriever=vectorstore_materias.as_retriever(), chain_type_kwargs={"prompt": prompt_template_materias})
+    qa_materias = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=vectorstore_materias.as_retriever(),
+        chain_type_kwargs={"prompt": prompt_template_materias}
+    )
 
     print("✅ Servicios RAG cargados correctamente")
 
@@ -55,8 +85,6 @@ async def query(request: Request):
     data = await request.json()
     question = data.get("question", "")
     result = qa_reglamento.invoke({"query": question})
-    
-    # Solo retornar la respuesta (sin incluir el query original)
     return {"answer": result["result"]}
 
 @app.post("/recomendar-materias")
@@ -64,4 +92,16 @@ async def recomendar_materias(request: Request):
     data = await request.json()
     intereses = data.get("intereses", "")
     result = qa_materias.invoke({"query": intereses})
-    return {"answer": result["result"]}
+
+    # Mostrar la respuesta cruda para debugging
+    print("🔍 Respuesta cruda del modelo:")
+    print(result["result"])
+
+    try:
+        parsed = json.loads(result["result"])
+        return parsed
+    except json.JSONDecodeError:
+        return {
+            "materias": [],
+            "explicacion": "No se pudo interpretar correctamente la recomendación generada."
+        }
