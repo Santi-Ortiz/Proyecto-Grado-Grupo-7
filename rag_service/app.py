@@ -58,7 +58,7 @@ def load_rag():
         """
     )
 
-    llm = Ollama(model="llama3")
+    llm = Ollama(model="llama3", temperature=0.3)
 
     # Cadena para reglamento
     global qa_reglamento
