@@ -38,6 +38,7 @@ __pycache__/
 *.pyd
 *.so
 rag_service/faiss_index/
+rag_service/faiss_materias/
 rag_service/.mypy_cache/
 rag_service/.pytest_cache/
 

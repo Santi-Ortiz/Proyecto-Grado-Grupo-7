@@ -10,11 +10,14 @@ import java.util.Map;
 public class RagCliente {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String RAG_SERVICE_URL = "http://localhost:8000/query";
 
+    private final String RAG_REGLAMENTO_URL = "http://localhost:8000/query";
+    private final String RAG_MATERIAS_URL = "http://localhost:8000/recomendar-materias";
+
+    // Consulta al endpoint del reglamento (clave: "question")
     public String queryRag(String question) {
         Map<String, String> request = new HashMap<>();
-        request.put("question", question);
+        request.put("question", question);  // FastAPI espera "question"
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -22,7 +25,7 @@ public class RagCliente {
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
         ResponseEntity<Map> response = restTemplate.exchange(
-                RAG_SERVICE_URL,
+                RAG_REGLAMENTO_URL,
                 HttpMethod.POST,
                 entity,
                 Map.class
@@ -34,5 +37,25 @@ public class RagCliente {
         } else {
             return "No se pudo obtener respuesta del servicio RAG.";
         }
+    }
+
+    // Consulta al endpoint de recomendación de materias (clave: "intereses")
+    public String queryMaterias(String intereses) {
+        Map<String, String> request = new HashMap<>();
+        request.put("intereses", intereses);  // FastAPI espera "intereses"
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                RAG_MATERIAS_URL,
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
+
+        return response.getBody(); // Retorna directamente el JSON string
     }
 }
