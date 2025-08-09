@@ -2,9 +2,9 @@ package com.grupo7.tesis.models;
 
 public class Proyeccion {
 
-    private int semestre;
-    private int creditos;
-    private int materias;
+    private int semestre; // Representa la cantidad de semestres a simular
+    private int creditos; // Representa la cantidad de créditos MÁXIMA que tendrán las simulaciones
+    private int materias; // Representa la cantidad de materias MÁXIMA que tendrán las simulaciones
 
     public Proyeccion() {
     }

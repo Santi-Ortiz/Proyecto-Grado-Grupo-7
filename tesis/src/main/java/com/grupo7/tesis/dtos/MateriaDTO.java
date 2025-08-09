@@ -1,6 +1,7 @@
 package com.grupo7.tesis.dtos;
 
-public class Materia {
+// ---- Nombre anterior: Materia ----
+public class MateriaDTO {
     private String cicloLectivo;
     private String materia;
     private String numeroCat;
@@ -10,7 +11,7 @@ public class Materia {
     private String cred;
     private String tipo;
 
-    public Materia(String cicloLectivo, String materia, String numeroCat, String curso, String titulo, String calif,
+    public MateriaDTO(String cicloLectivo, String materia, String numeroCat, String curso, String titulo, String calif,
             String cred, String tipo) {
         this.cicloLectivo = cicloLectivo;
         this.materia = materia;

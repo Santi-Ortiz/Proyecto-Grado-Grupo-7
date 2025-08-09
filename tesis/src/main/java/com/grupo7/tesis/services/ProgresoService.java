@@ -3,7 +3,7 @@ package com.grupo7.tesis.services;
 import java.io.InputStream;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.grupo7.tesis.dtos.Materia;
+import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;
@@ -26,11 +26,11 @@ public class ProgresoService {
         }
     }
 
-    public double calcularPromedio(List<Materia> materias) {
+    public double calcularPromedio(List<MateriaDTO> materias) {
         double promedio = 0.0;
         int totalCreditos = 0;
 
-        for (Materia materia : materias) {
+        for (MateriaDTO materia : materias) {
             String calif = materia.getCalif();
             String cred = materia.getCred();
             if (calif != null)
@@ -55,11 +55,12 @@ public class ProgresoService {
         return promedio;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materiasCursadas, List<Materia> cursosElectivas,
-            List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion,
-            List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad,
-            List<Materia> cursosIA, List<Materia> tablaDesarrolloComputacion, List<Materia> tablaDesarrolloGestion,
-            List<Materia> tablaComputacionVisual, List<Materia> tablaCVtoIA, List<Materia> tablaSIGtoIA) {
+    public Progreso obtenerResumenAcademico(List<MateriaDTO> materiasCursadas, List<MateriaDTO> cursosElectivas,
+            List<MateriaDTO> cursosComplementariaLenguas, List<MateriaDTO> cursosComplementariaInformacion,
+            List<MateriaDTO> cursosEnfasis, List<MateriaDTO> cursosElectivaBasicas, List<MateriaDTO> cursosSeguridad,
+            List<MateriaDTO> cursosIA, List<MateriaDTO> tablaDesarrolloComputacion,
+            List<MateriaDTO> tablaDesarrolloGestion,
+            List<MateriaDTO> tablaComputacionVisual, List<MateriaDTO> tablaCVtoIA, List<MateriaDTO> tablaSIGtoIA) {
         double promedio = calcularPromedio(materiasCursadas);
         int totalMaterias = 0;
         int totalFaltantes = 0;
@@ -77,14 +78,14 @@ public class ProgresoService {
         Set<String> codigosCursados = new HashSet<>();
         Set<String> codigosCursando = new HashSet<>();
         Set<String> codigosPerdidos = new HashSet<>();
-        List<Materia> materiasRealmenteCursadas = new ArrayList<>();
+        List<MateriaDTO> materiasRealmenteCursadas = new ArrayList<>();
         Set<String> codigosAgregados = new HashSet<>();
         Set<String> codigosPerdidosAgregados = new HashSet<>();
-        List<MateriaJson> materiasFaltantes = new ArrayList<>();
+        List<Materia> materiasFaltantes = new ArrayList<>();
 
         int numeroSemestre = calcularNumeroSemestre(materiasCursadas);
 
-        for (Materia m : materiasCursadas) {
+        for (MateriaDTO m : materiasCursadas) {
             String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
             String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
             String calif = m.getCalif() != null ? m.getCalif().replace(",", ".") : null;
@@ -139,16 +140,16 @@ public class ProgresoService {
         try {
             ObjectMapper mapper = new ObjectMapper();
             InputStream is = getClass().getResourceAsStream("/plan_estudios_INGSIS.json");
-            List<MateriaJson> todasLasMaterias = mapper.readValue(is, new TypeReference<List<MateriaJson>>() {
+            List<Materia> todasLasMaterias = mapper.readValue(is, new TypeReference<List<Materia>>() {
             });
 
             Set<String> codigosPensum = new HashSet<>();
-            for (MateriaJson m : todasLasMaterias) {
+            for (Materia m : todasLasMaterias) {
                 String codigo = m.getCodigo().replaceFirst("^0+(?!$)", "");
                 codigosPensum.add(codigo);
             }
 
-            for (Materia m : materiasRealmenteCursadas) {
+            for (MateriaDTO m : materiasRealmenteCursadas) {
                 String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
                 String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
 
@@ -160,7 +161,7 @@ public class ProgresoService {
                 }
             }
 
-            for (MateriaJson m : todasLasMaterias) {
+            for (Materia m : todasLasMaterias) {
                 String nombre = m.getNombre().toLowerCase();
                 String codigoJson = m.getCodigo().replaceFirst("^0+(?!$)", "");
 
@@ -205,7 +206,7 @@ public class ProgresoService {
         int creditosCursando = 0;
         int creditosFaltantes = 0;
 
-        for (Materia m : materiasCursadas) {
+        for (MateriaDTO m : materiasCursadas) {
             String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
             String calif = m.getCalif() != null ? m.getCalif().replace(",", ".") : null;
 
@@ -219,7 +220,7 @@ public class ProgresoService {
             }
         }
 
-        for (MateriaJson m : materiasFaltantes) {
+        for (Materia m : materiasFaltantes) {
             if (m.getCreditos() != null) {
                 creditosFaltantes += m.getCreditos();
             }
@@ -239,7 +240,7 @@ public class ProgresoService {
 
         creditosFaltantes = materiasFaltantes.stream()
                 .filter(m -> m.getCreditos() != null)
-                .mapToInt(MateriaJson::getCreditos)
+                .mapToInt(Materia::getCreditos)
                 .sum();
 
         Progreso progreso = new Progreso(
@@ -280,7 +281,7 @@ public class ProgresoService {
         return progreso;
     }
 
-    public int calcularNumeroSemestre(List<Materia> materias) {
+    public int calcularNumeroSemestre(List<MateriaDTO> materias) {
         if (materias == null || materias.isEmpty()) {
             return 1;
         }
@@ -288,7 +289,7 @@ public class ProgresoService {
         String semestreAnterior = "";
         int contadorSemestres = 0;
 
-        for (Materia materia : materias) {
+        for (MateriaDTO materia : materias) {
             String cicloLectivo = materia.getCicloLectivo();
 
             if (cicloLectivo == null || cicloLectivo.trim().isEmpty()) {

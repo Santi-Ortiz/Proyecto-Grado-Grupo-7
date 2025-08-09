@@ -14,19 +14,19 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.grupo7.tesis.models.MateriaJson;
+import com.grupo7.tesis.models.Materia;
 
 @Service
 public class pensumService {
 
-    public List<MateriaJson> obtenerPensum() throws Exception {
+    public List<Materia> obtenerPensum() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         InputStream is = getClass().getClassLoader().getResourceAsStream("plan_estudios_INGSIS.json");
-        List<MateriaJson> materias = mapper.readValue(is, new TypeReference<List<MateriaJson>>() {
+        List<Materia> materias = mapper.readValue(is, new TypeReference<List<Materia>>() {
         });
 
         // Setear requisitosJson para cada materia
-        for (MateriaJson materia : materias) {
+        for (Materia materia : materias) {
             try {
                 String requisitosJson = mapper.writeValueAsString(materia.getRequisitos());
                 materia.setRequisitosJson(requisitosJson);
@@ -38,11 +38,11 @@ public class pensumService {
         return materias;
     }
 
-    public Map<Integer, List<MateriaJson>> obtenerMateriasPorSemestre() throws Exception {
-        List<MateriaJson> materias = obtenerPensum();
+    public Map<Integer, List<Materia>> obtenerMateriasPorSemestre() throws Exception {
+        List<Materia> materias = obtenerPensum();
         ObjectMapper mapper = new ObjectMapper();
 
-        for (MateriaJson materia : materias) {
+        for (Materia materia : materias) {
             if (materia.getRequisitos() != null) {
                 String requisitosJson = "[]";
                 try {
@@ -54,18 +54,18 @@ public class pensumService {
         }
 
         return materias.stream()
-                .collect(Collectors.groupingBy(MateriaJson::getSemestre, TreeMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(Materia::getSemestre, TreeMap::new, Collectors.toList()));
     }
 
-    public List<Map<String, String>> calcularConexionesValidas(Map<Integer, List<MateriaJson>> materiasPorSemestre) {
-        List<MateriaJson> materias = materiasPorSemestre.values()
+    public List<Map<String, String>> calcularConexionesValidas(Map<Integer, List<Materia>> materiasPorSemestre) {
+        List<Materia> materias = materiasPorSemestre.values()
                 .stream()
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
         // Mapa de código -> requisitos
         Map<String, List<String>> mapaRequisitos = new HashMap<>();
-        for (MateriaJson m : materias) {
+        for (Materia m : materias) {
             mapaRequisitos.put(m.getCodigo(), m.getRequisitos() != null ? m.getRequisitos() : new ArrayList<>());
         }
 
@@ -76,7 +76,7 @@ public class pensumService {
 
         List<Map<String, String>> conexionesValidas = new ArrayList<>();
 
-        for (MateriaJson destino : materias) {
+        for (Materia destino : materias) {
             String destinoCodigo = destino.getCodigo();
             List<String> requisitos = mapaRequisitos.getOrDefault(destinoCodigo, List.of());
 

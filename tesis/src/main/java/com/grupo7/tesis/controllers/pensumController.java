@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.stereotype.Controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.grupo7.tesis.models.MateriaJson;
+import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.services.pensumService;
 
 @Controller
@@ -20,12 +20,12 @@ public class pensumController {
 
     @GetMapping("/pensum")
     public String mostrarPensum(Model model) throws Exception {
-        Map<Integer, List<MateriaJson>> materiasPorSemestre = pensumService.obtenerMateriasPorSemestre();
+        Map<Integer, List<Materia>> materiasPorSemestre = pensumService.obtenerMateriasPorSemestre();
 
         // Serializar requisitos a JSON
         ObjectMapper mapper = new ObjectMapper();
         materiasPorSemestre.values().forEach(lista -> {
-            for (MateriaJson materia : lista) {
+            for (Materia materia : lista) {
                 try {
                     materia.setRequisitosJson(mapper.writeValueAsString(materia.getRequisitos()));
                 } catch (Exception e) {
@@ -45,7 +45,7 @@ public class pensumController {
 
     @GetMapping("/api/pensum")
     @ResponseBody
-    public List<MateriaJson> obtenerPensumJson() throws Exception {
+    public List<Materia> obtenerPensumJson() throws Exception {
         return pensumService.obtenerPensum();
     }
 

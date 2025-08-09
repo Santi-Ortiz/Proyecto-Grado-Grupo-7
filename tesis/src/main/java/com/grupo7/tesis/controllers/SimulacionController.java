@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.grupo7.tesis.dtos.Materia;
+import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.dtos.SimulacionDTO;
-import com.grupo7.tesis.models.MateriaJson;
+import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Progreso;
 import com.grupo7.tesis.models.Proyeccion;
 import com.grupo7.tesis.models.Simulacion;
@@ -53,7 +53,7 @@ public class SimulacionController {
 
         Map<Integer, Simulacion> simulacion = new HashMap<>();
 
-        List<MateriaJson> materiasPensum = pensumService.obtenerPensum();
+        List<Materia> materiasPensum = pensumService.obtenerPensum();
         /*
          * System.out.println("\n==========================");
          * System.out.println("Progreso desde simulacionDTO: " +

@@ -5,21 +5,21 @@ import java.util.List;
 
 public class Simulacion {
 
-    private List<MateriaJson> materias;
+    private List<Materia> materias;
 
     public Simulacion() {
         this.materias = new ArrayList<>();
     }
 
-    public List<MateriaJson> getMaterias() {
+    public List<Materia> getMaterias() {
         return materias;
     }
 
-    public void setMaterias(List<MateriaJson> materias) {
+    public void setMaterias(List<Materia> materias) {
         this.materias = materias;
     }
 
-    public void agregarMateria(MateriaJson materia) {
+    public void agregarMateria(Materia materia) {
         if (this.materias == null) {
             this.materias = new ArrayList<>();
         }

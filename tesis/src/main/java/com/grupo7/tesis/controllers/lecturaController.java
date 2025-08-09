@@ -49,42 +49,42 @@ public class lecturaController {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF válido.");
                 }
 
-                List<Materia> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
+                List<MateriaDTO> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
 
-                List<Materia> cursosElectivaBasicas = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> cursosElectivaBasicas = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoElectivaBasicasBruto(archivo));
 
-                List<Materia> cursosEnfasis = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> cursosEnfasis = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoEnfasisBruto(archivo));
 
-                List<Materia> cursosSeguridad = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> cursosSeguridad = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoDesarrolloYSeguridadBruto(archivo));
 
-                List<Materia> cursosComplementariaLenguas = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> cursosComplementariaLenguas = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoComplementariaLenguasBruto(archivo));
 
-                List<Materia> cursosComplementariaInfo = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> cursosComplementariaInfo = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoComplementariaInformacionBruto(archivo));
 
-                List<Materia> tablaElectivas = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> tablaElectivas = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoElectivasBruto(archivo));
 
-                List<Materia> cursosIA = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> cursosIA = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoInteligenciaArtificialBruto(archivo));
 
-                List<Materia> tablaDesarrolloComputacion = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> tablaDesarrolloComputacion = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoDesarrolloSeguridadAComputacionBruto(archivo));
 
-                List<Materia> tablaDesarrolloGestion = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> tablaDesarrolloGestion = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoDesarrolloYGestionBruto(archivo));
 
-                List<Materia> tablaComputacionVisual = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> tablaComputacionVisual = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoComputacionVisualBruto(archivo));
 
-                List<Materia> tablaCVtoIA = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> tablaCVtoIA = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoComputacionVisualAInteligenciaArtificialBruto(archivo));
 
-                List<Materia> tablaSIGtoIA = lecturaService.convertirTextoElectivasATabla(
+                List<MateriaDTO> tablaSIGtoIA = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoSistemasGestionAInteligenciaArtificialBruto(archivo));
 
                 List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado(archivo);

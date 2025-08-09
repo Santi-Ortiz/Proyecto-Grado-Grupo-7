@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.grupo7.tesis.dtos.Materia;
+import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.*;
 
 import java.io.IOException;
@@ -22,8 +22,8 @@ public class lecturaService {
     @Autowired
     private ProgresoService progresoService;
 
-    public List<Materia> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
-        List<Materia> materias = new ArrayList<>();
+    public List<MateriaDTO> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
+        List<MateriaDTO> materias = new ArrayList<>();
         String titulo = "Historial de Cursos";
 
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
@@ -67,8 +67,9 @@ public class lecturaService {
                                 calif = "SIN CALIFICACIÓN";
                             }
 
-                            materias.add(new Materia(ciclo, materiaCod, nCat, cursoCod, tituloCurso.trim(), calif, cred,
-                                    tipo));
+                            materias.add(
+                                    new MateriaDTO(ciclo, materiaCod, nCat, cursoCod, tituloCurso.trim(), calif, cred,
+                                            tipo));
                         }
                     }
                 }
@@ -81,11 +82,12 @@ public class lecturaService {
         return materias;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materias, List<Materia> cursosElectivas,
-            List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion,
-            List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad,
-            List<Materia> cursosIA, List<Materia> tablaDesarrolloComputacion, List<Materia> tablaDesarrolloGestion,
-            List<Materia> tablaComputacionVisual, List<Materia> tablaCVtoIA, List<Materia> tablaSIGtoIA) {
+    public Progreso obtenerResumenAcademico(List<MateriaDTO> materias, List<MateriaDTO> cursosElectivas,
+            List<MateriaDTO> cursosComplementariaLenguas, List<MateriaDTO> cursosComplementariaInformacion,
+            List<MateriaDTO> cursosEnfasis, List<MateriaDTO> cursosElectivaBasicas, List<MateriaDTO> cursosSeguridad,
+            List<MateriaDTO> cursosIA, List<MateriaDTO> tablaDesarrolloComputacion,
+            List<MateriaDTO> tablaDesarrolloGestion,
+            List<MateriaDTO> tablaComputacionVisual, List<MateriaDTO> tablaCVtoIA, List<MateriaDTO> tablaSIGtoIA) {
         return progresoService.obtenerResumenAcademico(materias, cursosElectivas, cursosComplementariaLenguas,
                 cursosComplementariaInformacion, cursosEnfasis, cursosElectivaBasicas, cursosSeguridad, cursosIA,
                 tablaDesarrolloComputacion, tablaDesarrolloGestion, tablaComputacionVisual, tablaCVtoIA, tablaSIGtoIA);
@@ -667,8 +669,8 @@ public class lecturaService {
         return null;
     }
 
-    public List<Materia> convertirTextoElectivasATabla(String texto) {
-        List<Materia> lista = new ArrayList<>();
+    public List<MateriaDTO> convertirTextoElectivasATabla(String texto) {
+        List<MateriaDTO> lista = new ArrayList<>();
 
         if (texto == null || texto.isEmpty())
             return lista;
@@ -704,7 +706,7 @@ public class lecturaService {
                     String cred = tokens[tokens.length - 2];
                     String tipo = tokens[tokens.length - 1];
 
-                    lista.add(new Materia(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
+                    lista.add(new MateriaDTO(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
                 }
             }
         }
