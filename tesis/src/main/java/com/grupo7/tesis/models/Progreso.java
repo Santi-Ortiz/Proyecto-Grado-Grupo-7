@@ -1,13 +1,16 @@
-package com.grupo7.tesis.model;
+package com.grupo7.tesis.models;
 
 import java.util.List;
+
+import com.grupo7.tesis.dtos.*;
+
 import java.util.ArrayList;
 
 public class Progreso {
     private double promedio;
     private int materiasCursadas;
     private int materiasFaltantes;
-    private List<MateriaJson> listaMateriasFaltantes;
+    private List<Materia> listaMateriasFaltantes;
     private int totalMaterias;
     private int totalFaltantes;
     private int totalCursando;
@@ -23,24 +26,24 @@ public class Progreso {
     private int faltanElectivaBasicas;
     private int semestre;
     private double porcentaje;
-    private List<Materia> materias;
+    private List<MateriaDTO> materias;
     private List<String> lineasRequisitosGrado;
-    private List<Materia> cursosElectivas;
-    private List<Materia> cursosEnfasis;
-    private List<Materia> cursosComplementariaLenguas;
-    private List<Materia> cursosComplementariaInformacion;
-    private List<Materia> cursosIA;
-    private List<Materia> cursosDesarrolloComputacion;
-    private List<Materia> cursosDesarrolloGestion;
-    private List<Materia> cursosComputacionVisual;
-    private List<Materia> cursosCVtoIA;
-    private List<Materia> cursosSIGtoIA;
-    private List<Materia> cursosElectivaBasicas;
+    private List<MateriaDTO> cursosElectivas;
+    private List<MateriaDTO> cursosEnfasis;
+    private List<MateriaDTO> cursosComplementariaLenguas;
+    private List<MateriaDTO> cursosComplementariaInformacion;
+    private List<MateriaDTO> cursosIA;
+    private List<MateriaDTO> cursosDesarrolloComputacion;
+    private List<MateriaDTO> cursosDesarrolloGestion;
+    private List<MateriaDTO> cursosComputacionVisual;
+    private List<MateriaDTO> cursosCVtoIA;
+    private List<MateriaDTO> cursosSIGtoIA;
+    private List<MateriaDTO> cursosElectivaBasicas;
 
     public Progreso(double promedio,
             int materiasCursadas,
             int materiasFaltantes,
-            List<MateriaJson> listaMateriasFaltantes,
+            List<Materia> listaMateriasFaltantes,
             int totalMaterias,
             int totalFaltantes,
             int totalCursantes,
@@ -55,17 +58,17 @@ public class Progreso {
             int faltanEnfasis,
             int faltanElectivaBasicas,
             int semestre,
-            List<Materia> cursosElectivas,
-            List<Materia> cursosEnfasis,
-            List<Materia> cursosComplementariaLenguas,
-            List<Materia> cursosComplementariaInformacion,
-            List<Materia> cursosIA,
-            List<Materia> cursosDesarrolloComputacion,
-            List<Materia> cursosDesarrolloGestion,
-            List<Materia> cursosComputacionVisual,
-            List<Materia> cursosCVtoIA,
-            List<Materia> cursosSIGtoIA,
-            List<Materia> cursosElectivaBasicas) {
+            List<MateriaDTO> cursosElectivas,
+            List<MateriaDTO> cursosEnfasis,
+            List<MateriaDTO> cursosComplementariaLenguas,
+            List<MateriaDTO> cursosComplementariaInformacion,
+            List<MateriaDTO> cursosIA,
+            List<MateriaDTO> cursosDesarrolloComputacion,
+            List<MateriaDTO> cursosDesarrolloGestion,
+            List<MateriaDTO> cursosComputacionVisual,
+            List<MateriaDTO> cursosCVtoIA,
+            List<MateriaDTO> cursosSIGtoIA,
+            List<MateriaDTO> cursosElectivaBasicas) {
         this.promedio = promedio;
         this.materiasCursadas = materiasCursadas;
         this.materiasFaltantes = materiasFaltantes;
@@ -97,11 +100,11 @@ public class Progreso {
         this.cursosElectivaBasicas = cursosElectivaBasicas;
     }
 
-    public List<Materia> getMaterias() {
+    public List<MateriaDTO> getMaterias() {
         return materias;
     }
 
-    public void setMaterias(List<Materia> materias) {
+    public void setMaterias(List<MateriaDTO> materias) {
         this.materias = materias;
     }
 
@@ -117,7 +120,7 @@ public class Progreso {
         return materiasFaltantes;
     }
 
-    public List<MateriaJson> getListaMateriasFaltantes() {
+    public List<Materia> getListaMateriasFaltantes() {
         return listaMateriasFaltantes;
     }
 
@@ -205,7 +208,7 @@ public class Progreso {
         this.materiasFaltantes = materiasFaltantes;
     }
 
-    public void setListaMateriasFaltantes(List<MateriaJson> listaMateriasFaltantes) {
+    public void setListaMateriasFaltantes(List<Materia> listaMateriasFaltantes) {
         this.listaMateriasFaltantes = listaMateriasFaltantes;
     }
 
@@ -265,100 +268,100 @@ public class Progreso {
         this.semestre = semestre;
     }
 
-    public List<Materia> getCursosElectivas() {
+    public List<MateriaDTO> getCursosElectivas() {
         return cursosElectivas;
     }
 
-    public void setCursosElectivas(List<Materia> cursosElectivas) {
+    public void setCursosElectivas(List<MateriaDTO> cursosElectivas) {
         this.cursosElectivas = cursosElectivas;
     }
 
-    public List<Materia> getCursosEnfasis() {
+    public List<MateriaDTO> getCursosEnfasis() {
         return cursosEnfasis;
     }
 
-    public void setCursosEnfasis(List<Materia> cursosEnfasis) {
+    public void setCursosEnfasis(List<MateriaDTO> cursosEnfasis) {
         this.cursosEnfasis = cursosEnfasis;
     }
 
-    public List<Materia> getCursosComplementariaLenguas() {
+    public List<MateriaDTO> getCursosComplementariaLenguas() {
         return cursosComplementariaLenguas;
     }
 
-    public void setCursosComplementariaLenguas(List<Materia> cursosComplementariaLenguas) {
+    public void setCursosComplementariaLenguas(List<MateriaDTO> cursosComplementariaLenguas) {
         this.cursosComplementariaLenguas = cursosComplementariaLenguas;
     }
 
-    public List<Materia> getCursosComplementariaInformacion() {
+    public List<MateriaDTO> getCursosComplementariaInformacion() {
         return cursosComplementariaInformacion;
     }
 
-    public void setCursosComplementariaInformacion(List<Materia> cursosComplementariaInformacion) {
+    public void setCursosComplementariaInformacion(List<MateriaDTO> cursosComplementariaInformacion) {
         this.cursosComplementariaInformacion = cursosComplementariaInformacion;
     }
 
-    public List<Materia> getCursosIA() {
+    public List<MateriaDTO> getCursosIA() {
         return cursosIA;
     }
 
-    public void setCursosIA(List<Materia> cursosIA) {
+    public void setCursosIA(List<MateriaDTO> cursosIA) {
         this.cursosIA = cursosIA;
     }
 
-    public List<Materia> getCursosDesarrolloComputacion() {
+    public List<MateriaDTO> getCursosDesarrolloComputacion() {
         return cursosDesarrolloComputacion;
     }
 
-    public void setCursosDesarrolloComputacion(List<Materia> cursosDesarrolloComputacion) {
+    public void setCursosDesarrolloComputacion(List<MateriaDTO> cursosDesarrolloComputacion) {
         this.cursosDesarrolloComputacion = cursosDesarrolloComputacion;
     }
 
-    public List<Materia> getCursosDesarrolloGestion() {
+    public List<MateriaDTO> getCursosDesarrolloGestion() {
         return cursosDesarrolloGestion;
     }
 
-    public void setCursosDesarrolloGestion(List<Materia> cursosDesarrolloGestion) {
+    public void setCursosDesarrolloGestion(List<MateriaDTO> cursosDesarrolloGestion) {
         this.cursosDesarrolloGestion = cursosDesarrolloGestion;
     }
 
-    public List<Materia> getCursosComputacionVisual() {
+    public List<MateriaDTO> getCursosComputacionVisual() {
         return cursosComputacionVisual;
     }
 
-    public void setCursosComputacionVisual(List<Materia> cursosComputacionVisual) {
+    public void setCursosComputacionVisual(List<MateriaDTO> cursosComputacionVisual) {
         this.cursosComputacionVisual = cursosComputacionVisual;
     }
 
-    public List<Materia> getCursosCVtoIA() {
+    public List<MateriaDTO> getCursosCVtoIA() {
         return cursosCVtoIA;
     }
 
-    public void setCursosCVtoIA(List<Materia> cursosCVtoIA) {
+    public void setCursosCVtoIA(List<MateriaDTO> cursosCVtoIA) {
         this.cursosCVtoIA = cursosCVtoIA;
     }
 
-    public List<Materia> getCursosSIGtoIA() {
+    public List<MateriaDTO> getCursosSIGtoIA() {
         return cursosSIGtoIA;
     }
 
-    public void setCursosSIGtoIA(List<Materia> cursosSIGtoIA) {
+    public void setCursosSIGtoIA(List<MateriaDTO> cursosSIGtoIA) {
         this.cursosSIGtoIA = cursosSIGtoIA;
     }
 
-    public List<Materia> getCursosElectivaBasicas() {
+    public List<MateriaDTO> getCursosElectivaBasicas() {
         return cursosElectivaBasicas;
     }
 
-    public void setCursosElectivaBasicas(List<Materia> cursosElectivaBasicas) {
+    public void setCursosElectivaBasicas(List<MateriaDTO> cursosElectivaBasicas) {
         this.cursosElectivaBasicas = cursosElectivaBasicas;
     }
 
     public Progreso copy() {
 
-        List<MateriaJson> nuevaListaMateriasFaltantes = new ArrayList<>();
+        List<Materia> nuevaListaMateriasFaltantes = new ArrayList<>();
         if (this.listaMateriasFaltantes != null) {
-            for (MateriaJson materia : this.listaMateriasFaltantes) {
-                MateriaJson nuevaMateria = new MateriaJson();
+            for (Materia materia : this.listaMateriasFaltantes) {
+                Materia nuevaMateria = new Materia();
                 nuevaMateria.setCodigo(materia.getCodigo());
                 nuevaMateria.setNombre(materia.getNombre());
                 nuevaMateria.setCreditos(materia.getCreditos());

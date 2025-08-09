@@ -1,4 +1,4 @@
-package com.grupo7.tesis.service;
+package com.grupo7.tesis.services;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -28,8 +28,7 @@ public class RagCliente {
                 RAG_REGLAMENTO_URL,
                 HttpMethod.POST,
                 entity,
-                Map.class
-        );
+                Map.class);
 
         Map<String, Object> body = response.getBody();
         if (body != null && body.containsKey("answer")) {
