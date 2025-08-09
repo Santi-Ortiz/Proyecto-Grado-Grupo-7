@@ -1,4 +1,4 @@
-package com.grupo7.tesis.model;
+package com.grupo7.tesis.models;
 
 import java.util.List;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.grupo7.tesis.service;
+package com.grupo7.tesis.services;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.grupo7.tesis.model.MateriaJson;
-import com.grupo7.tesis.model.Progreso;
-import com.grupo7.tesis.model.Proyeccion;
-import com.grupo7.tesis.model.Simulacion;
-import com.grupo7.tesis.model.MateriaConPuntaje;
-import com.grupo7.tesis.model.PlanSemestre;
-import com.grupo7.tesis.model.NodoA;
+import com.grupo7.tesis.models.MateriaConPuntaje;
+import com.grupo7.tesis.models.MateriaJson;
+import com.grupo7.tesis.models.NodoA;
+import com.grupo7.tesis.models.PlanSemestre;
+import com.grupo7.tesis.models.Progreso;
+import com.grupo7.tesis.models.Proyeccion;
+import com.grupo7.tesis.models.Simulacion;
 
 @Service
 public class SimulacionService {
