@@ -2,10 +2,7 @@ package com.grupo7.tesis.controllers;
 
 import com.grupo7.tesis.dtos.*;
 import com.grupo7.tesis.models.*;
-import com.grupo7.tesis.services.ProyeccionService;
-import com.grupo7.tesis.services.SimulacionService;
 import com.grupo7.tesis.services.lecturaService;
-import com.grupo7.tesis.services.pensumService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,22 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class lecturaController {
 
         @Autowired
         private lecturaService lecturaService;
-
-        @Autowired
-        private ProyeccionService proyeccionService;
-
-        @Autowired
-        private SimulacionService simulacionService;
-
-        @Autowired
-        private pensumService pensumService;
 
         @GetMapping("/historial")
         public String mostrarFormulario(Model model) {

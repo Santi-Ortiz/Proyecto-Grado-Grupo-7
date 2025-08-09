@@ -7,7 +7,7 @@ import com.grupo7.tesis.services.RagService;
 
 @RestController
 @RequestMapping("/api/rag")
-@CrossOrigin(origins = "*") // Permite el acceso desde cualquier frontend (útil en desarrollo)
+@CrossOrigin(origins = "*")
 public class RagController {
 
     private final RagService ragService;
