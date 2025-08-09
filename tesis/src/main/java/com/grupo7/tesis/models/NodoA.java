@@ -5,14 +5,14 @@ import java.util.Map;
 
 public class NodoA {
 
-    private Map<Integer, Simulacion> rutaParcial;
+    private Map<Integer, PlanSemestre> rutaParcial;
     private int semestreActual;
     private double costoAcumulado;
     private double heuristica;
     private double costoTotal;
     private Progreso progresoActual;
 
-    public NodoA(Map<Integer, Simulacion> rutaParcial, int semestre, double costo, double heuristica,
+    public NodoA(Map<Integer, PlanSemestre> rutaParcial, int semestre, double costo, double heuristica,
             Progreso progreso) {
         this.rutaParcial = new HashMap<>(rutaParcial);
         this.semestreActual = semestre;
@@ -22,7 +22,7 @@ public class NodoA {
         this.progresoActual = progreso.copy();
     }
 
-    public Map<Integer, Simulacion> getRutaParcial() {
+    public Map<Integer, PlanSemestre> getRutaParcial() {
         return rutaParcial;
     }
 
