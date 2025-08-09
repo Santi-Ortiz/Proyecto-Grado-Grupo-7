@@ -1,5 +1,6 @@
 package com.grupo7.tesis.controllers;
 
+import com.grupo7.tesis.dtos.*;
 import com.grupo7.tesis.models.*;
 import com.grupo7.tesis.services.ProyeccionService;
 import com.grupo7.tesis.services.SimulacionService;

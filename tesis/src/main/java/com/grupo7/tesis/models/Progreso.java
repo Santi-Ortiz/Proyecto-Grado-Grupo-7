@@ -1,6 +1,9 @@
 package com.grupo7.tesis.models;
 
 import java.util.List;
+
+import com.grupo7.tesis.dtos.*;
+
 import java.util.ArrayList;
 
 public class Progreso {

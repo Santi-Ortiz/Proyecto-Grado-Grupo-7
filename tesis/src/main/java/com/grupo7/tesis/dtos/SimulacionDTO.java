@@ -1,4 +1,7 @@
-package com.grupo7.tesis.models;
+package com.grupo7.tesis.dtos;
+
+import com.grupo7.tesis.models.Progreso;
+import com.grupo7.tesis.models.Proyeccion;
 
 public class SimulacionDTO {
     private Progreso progreso;

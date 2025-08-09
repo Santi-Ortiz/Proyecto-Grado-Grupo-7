@@ -1,4 +1,6 @@
-package com.grupo7.tesis.models;
+package com.grupo7.tesis.dtos;
+
+import com.grupo7.tesis.models.MateriaJson;
 
 public class MateriaConPuntaje {
     private MateriaJson materia;

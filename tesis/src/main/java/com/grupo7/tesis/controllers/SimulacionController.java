@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.grupo7.tesis.models.Materia;
+import com.grupo7.tesis.dtos.Materia;
+import com.grupo7.tesis.dtos.SimulacionDTO;
 import com.grupo7.tesis.models.MateriaJson;
 import com.grupo7.tesis.models.Progreso;
 import com.grupo7.tesis.models.Proyeccion;
 import com.grupo7.tesis.models.Simulacion;
-import com.grupo7.tesis.models.SimulacionDTO;
 import com.grupo7.tesis.services.ProgresoService;
 import com.grupo7.tesis.services.ProyeccionService;
 import com.grupo7.tesis.services.SimulacionService;

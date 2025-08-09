@@ -3,6 +3,7 @@ package com.grupo7.tesis.services;
 import java.io.InputStream;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.grupo7.tesis.dtos.Materia;
 import com.grupo7.tesis.models.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;

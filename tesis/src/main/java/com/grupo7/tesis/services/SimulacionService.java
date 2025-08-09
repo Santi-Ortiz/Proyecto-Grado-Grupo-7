@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.grupo7.tesis.models.MateriaConPuntaje;
+import com.grupo7.tesis.dtos.MateriaConPuntaje;
 import com.grupo7.tesis.models.MateriaJson;
 import com.grupo7.tesis.models.NodoA;
 import com.grupo7.tesis.models.PlanSemestre;

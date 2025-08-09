@@ -7,7 +7,6 @@ public class Simulacion {
 
     private List<MateriaJson> materias;
 
-    // Constructor que inicializa la lista
     public Simulacion() {
         this.materias = new ArrayList<>();
     }

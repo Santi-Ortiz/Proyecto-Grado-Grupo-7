@@ -1,4 +1,4 @@
-package com.grupo7.tesis.models;
+package com.grupo7.tesis.dtos;
 
 public class Materia {
     private String cicloLectivo;
