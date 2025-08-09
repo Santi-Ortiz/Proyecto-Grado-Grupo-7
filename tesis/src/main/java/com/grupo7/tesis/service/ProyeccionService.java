@@ -1,8 +1,7 @@
-package com.grupo7.tesis.services;
+package com.grupo7.tesis.service;
 
 import org.springframework.stereotype.Service;
-
-import com.grupo7.tesis.models.Proyeccion;
+import com.grupo7.tesis.model.Proyeccion;
 
 @Service
 public class ProyeccionService {

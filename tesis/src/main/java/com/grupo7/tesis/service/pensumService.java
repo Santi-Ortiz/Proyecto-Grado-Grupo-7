@@ -1,4 +1,4 @@
-package com.grupo7.tesis.services;
+package com.grupo7.tesis.service;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,19 +14,19 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.grupo7.tesis.models.Materia;
+import com.grupo7.tesis.model.MateriaJson;
 
 @Service
 public class pensumService {
+    
 
-    public List<Materia> obtenerPensum() throws Exception {
+    public List<MateriaJson> obtenerPensum() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         InputStream is = getClass().getClassLoader().getResourceAsStream("plan_estudios_INGSIS.json");
-        List<Materia> materias = mapper.readValue(is, new TypeReference<List<Materia>>() {
-        });
-
+        List<MateriaJson> materias = mapper.readValue(is, new TypeReference<List<MateriaJson>>() {});
+        
         // Setear requisitosJson para cada materia
-        for (Materia materia : materias) {
+        for (MateriaJson materia : materias) {
             try {
                 String requisitosJson = mapper.writeValueAsString(materia.getRequisitos());
                 materia.setRequisitosJson(requisitosJson);
@@ -34,52 +34,52 @@ public class pensumService {
                 materia.setRequisitosJson("[]");
             }
         }
-
+    
         return materias;
     }
-
-    public Map<Integer, List<Materia>> obtenerMateriasPorSemestre() throws Exception {
-        List<Materia> materias = obtenerPensum();
+    
+    
+    public Map<Integer, List<MateriaJson>> obtenerMateriasPorSemestre() throws Exception {
+        List<MateriaJson> materias = obtenerPensum(); 
         ObjectMapper mapper = new ObjectMapper();
-
-        for (Materia materia : materias) {
+    
+        for (MateriaJson materia : materias) {
             if (materia.getRequisitos() != null) {
                 String requisitosJson = "[]";
                 try {
                     requisitosJson = mapper.writeValueAsString(materia.getRequisitos());
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored) {}
                 materia.setRequisitosJson(requisitosJson);
             }
         }
-
+    
         return materias.stream()
-                .collect(Collectors.groupingBy(Materia::getSemestre, TreeMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(MateriaJson::getSemestre, TreeMap::new, Collectors.toList()));
     }
 
-    public List<Map<String, String>> calcularConexionesValidas(Map<Integer, List<Materia>> materiasPorSemestre) {
-        List<Materia> materias = materiasPorSemestre.values()
+    public List<Map<String, String>> calcularConexionesValidas(Map<Integer, List<MateriaJson>> materiasPorSemestre) {
+        List<MateriaJson> materias = materiasPorSemestre.values()
                 .stream()
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-
+    
         // Mapa de código -> requisitos
         Map<String, List<String>> mapaRequisitos = new HashMap<>();
-        for (Materia m : materias) {
+        for (MateriaJson m : materias) {
             mapaRequisitos.put(m.getCodigo(), m.getRequisitos() != null ? m.getRequisitos() : new ArrayList<>());
         }
-
+    
         Map<String, Set<String>> transitivosPorCodigo = new HashMap<>();
         for (String codigo : mapaRequisitos.keySet()) {
             transitivosPorCodigo.put(codigo, obtenerTransitivosDe(codigo, new HashSet<>(), mapaRequisitos));
         }
-
+    
         List<Map<String, String>> conexionesValidas = new ArrayList<>();
-
-        for (Materia destino : materias) {
+    
+        for (MateriaJson destino : materias) {
             String destinoCodigo = destino.getCodigo();
             List<String> requisitos = mapaRequisitos.getOrDefault(destinoCodigo, List.of());
-
+    
             List<String> filtrados = requisitos.stream().filter(req -> {
                 // Se mantiene si no está contenido transitivamente en otro requisito
                 for (String otroReq : requisitos) {
@@ -89,7 +89,7 @@ public class pensumService {
                 }
                 return true;
             }).collect(Collectors.toList());
-
+    
             for (String origen : filtrados) {
                 Map<String, String> conexion = new HashMap<>();
                 conexion.put("origen", origen);
@@ -97,24 +97,23 @@ public class pensumService {
                 conexionesValidas.add(conexion);
             }
         }
-
+    
         return conexionesValidas;
-    }
+    }    
+    
 
-    private Set<String> obtenerTransitivosDe(String codigo, Set<String> visitados,
-            Map<String, List<String>> mapaRequisitos) {
-        if (visitados.contains(codigo))
-            return new HashSet<>();
+    private Set<String> obtenerTransitivosDe(String codigo, Set<String> visitados, Map<String, List<String>> mapaRequisitos) {
+        if (visitados.contains(codigo)) return new HashSet<>();
         visitados.add(codigo);
-
+    
         Set<String> resultado = new HashSet<>();
         List<String> directos = mapaRequisitos.getOrDefault(codigo, List.of());
         resultado.addAll(directos);
-
+    
         for (String req : directos) {
             resultado.addAll(obtenerTransitivosDe(req, new HashSet<>(visitados), mapaRequisitos));
         }
-
+    
         return resultado;
-    }
+    }      
 }

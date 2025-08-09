@@ -1,4 +1,4 @@
-package com.grupo7.tesis.models;
+package com.grupo7.tesis.model;
 
 public class Conexion {
     private String origen;
@@ -17,3 +17,4 @@ public class Conexion {
         return destino;
     }
 }
+

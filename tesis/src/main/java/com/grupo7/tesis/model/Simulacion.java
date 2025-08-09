@@ -1,26 +1,26 @@
-package com.grupo7.tesis.models;
+package com.grupo7.tesis.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Simulacion {
 
-    private List<Materia> materias;
+    private List<MateriaJson> materias;
 
     // Constructor que inicializa la lista
     public Simulacion() {
         this.materias = new ArrayList<>();
     }
 
-    public List<Materia> getMaterias() {
+    public List<MateriaJson> getMaterias() {
         return materias;
     }
 
-    public void setMaterias(List<Materia> materias) {
+    public void setMaterias(List<MateriaJson> materias) {
         this.materias = materias;
     }
 
-    public void agregarMateria(Materia materia) {
+    public void agregarMateria(MateriaJson materia) {
         if (this.materias == null) {
             this.materias = new ArrayList<>();
         }

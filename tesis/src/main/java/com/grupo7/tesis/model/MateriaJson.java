@@ -1,12 +1,11 @@
-package com.grupo7.tesis.models;
+package com.grupo7.tesis.model;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-// ---- NOMBRE ANTERIOR: MateriaJson ----
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Materia {
+public class MateriaJson {
     private String codigo;
     private String nombre;
     private Integer creditos;
@@ -15,7 +14,7 @@ public class Materia {
     private String requisitosJson;
     private String tipo;
 
-    public Materia() {
+    public MateriaJson() {
     }
 
     public String getCodigo() {

@@ -1,4 +1,4 @@
-package com.grupo7.tesis.services;
+package com.grupo7.tesis.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
