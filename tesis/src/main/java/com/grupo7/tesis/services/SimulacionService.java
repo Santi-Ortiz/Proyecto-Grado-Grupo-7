@@ -32,7 +32,7 @@ public class SimulacionService {
         System.out.println("Semestre objetivo: " + semestreObjetivo);
 
         int maxNodos = 25000;
-        int maxCombinacionesPorNodo = 4;
+        int maxCombinacionesPorNodo = 99999999;
 
         PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
 
