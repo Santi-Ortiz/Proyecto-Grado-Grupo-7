@@ -1,4 +1,4 @@
-package com.grupo7.tesis.controller;
+package com.grupo7.tesis.controllers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.grupo7.tesis.model.Materia;
-import com.grupo7.tesis.model.MateriaJson;
-import com.grupo7.tesis.model.Progreso;
-import com.grupo7.tesis.model.Proyeccion;
-import com.grupo7.tesis.model.Simulacion;
-import com.grupo7.tesis.model.SimulacionDTO;
-import com.grupo7.tesis.service.ProgresoService;
-import com.grupo7.tesis.service.SimulacionService;
-import com.grupo7.tesis.service.ProyeccionService;
-import com.grupo7.tesis.service.lecturaService;
-import com.grupo7.tesis.service.pensumService;
+import com.grupo7.tesis.dtos.MateriaDTO;
+import com.grupo7.tesis.dtos.SimulacionDTO;
+import com.grupo7.tesis.models.Materia;
+import com.grupo7.tesis.models.Progreso;
+import com.grupo7.tesis.models.Proyeccion;
+import com.grupo7.tesis.models.Simulacion;
+import com.grupo7.tesis.services.ProgresoService;
+import com.grupo7.tesis.services.ProyeccionService;
+import com.grupo7.tesis.services.SimulacionService;
+import com.grupo7.tesis.services.lecturaService;
+import com.grupo7.tesis.services.pensumService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -53,7 +53,7 @@ public class SimulacionController {
 
         Map<Integer, Simulacion> simulacion = new HashMap<>();
 
-        List<MateriaJson> materiasPensum = pensumService.obtenerPensum();
+        List<Materia> materiasPensum = pensumService.obtenerPensum();
         /*
          * System.out.println("\n==========================");
          * System.out.println("Progreso desde simulacionDTO: " +
@@ -64,7 +64,8 @@ public class SimulacionController {
          */
 
         simulacion = simulacionService.generarSimulacionMultiSemestreAStar(simulacionDTO.getProgreso(),
-                simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum, simulacionDTO.getPriorizaciones());
+                simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum,
+                simulacionDTO.getPriorizaciones());
 
         return simulacion;
     }

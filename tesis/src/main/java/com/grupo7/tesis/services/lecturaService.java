@@ -1,11 +1,14 @@
-package com.grupo7.tesis.service;
+package com.grupo7.tesis.services;
 
-import com.grupo7.tesis.model.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.grupo7.tesis.dtos.MateriaDTO;
+import com.grupo7.tesis.models.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +22,8 @@ public class lecturaService {
     @Autowired
     private ProgresoService progresoService;
 
-    public List<Materia> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
-        List<Materia> materias = new ArrayList<>();
+    public List<MateriaDTO> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
+        List<MateriaDTO> materias = new ArrayList<>();
         String titulo = "Historial de Cursos";
 
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
@@ -35,11 +38,12 @@ public class lecturaService {
                 Pattern patronFinal = Pattern.compile("(.+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)$");
 
                 for (String linea : lineas) {
-                    if (linea.trim().isEmpty() || linea.contains("Ciclo Lectivo")) continue;
+                    if (linea.trim().isEmpty() || linea.contains("Ciclo Lectivo"))
+                        continue;
 
                     Matcher matcher = patronFinal.matcher(linea);
                     if (matcher.find()) {
-                        //String posibleFinal = matcher.group(0);
+                        // String posibleFinal = matcher.group(0);
                         String calif = matcher.group(2).trim();
                         String cred = matcher.group(3).trim();
                         String tipo = matcher.group(4).trim();
@@ -63,7 +67,9 @@ public class lecturaService {
                                 calif = "SIN CALIFICACIÓN";
                             }
 
-                            materias.add(new Materia(ciclo, materiaCod, nCat, cursoCod, tituloCurso.trim(), calif, cred, tipo));
+                            materias.add(
+                                    new MateriaDTO(ciclo, materiaCod, nCat, cursoCod, tituloCurso.trim(), calif, cred,
+                                            tipo));
                         }
                     }
                 }
@@ -72,12 +78,19 @@ public class lecturaService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return materias;
     }
 
-    public Progreso obtenerResumenAcademico(List<Materia> materias, List<Materia> cursosElectivas, List<Materia> cursosComplementariaLenguas, List<Materia> cursosComplementariaInformacion, List<Materia> cursosEnfasis, List<Materia> cursosElectivaBasicas, List<Materia> cursosSeguridad, List<Materia> cursosIA, List<Materia> tablaDesarrolloComputacion, List<Materia> tablaDesarrolloGestion, List<Materia> tablaComputacionVisual, List<Materia> tablaCVtoIA, List<Materia> tablaSIGtoIA) {
-        return progresoService.obtenerResumenAcademico(materias, cursosElectivas, cursosComplementariaLenguas, cursosComplementariaInformacion, cursosEnfasis, cursosElectivaBasicas, cursosSeguridad, cursosIA, tablaDesarrolloComputacion, tablaDesarrolloGestion, tablaComputacionVisual, tablaCVtoIA, tablaSIGtoIA);
+    public Progreso obtenerResumenAcademico(List<MateriaDTO> materias, List<MateriaDTO> cursosElectivas,
+            List<MateriaDTO> cursosComplementariaLenguas, List<MateriaDTO> cursosComplementariaInformacion,
+            List<MateriaDTO> cursosEnfasis, List<MateriaDTO> cursosElectivaBasicas, List<MateriaDTO> cursosSeguridad,
+            List<MateriaDTO> cursosIA, List<MateriaDTO> tablaDesarrolloComputacion,
+            List<MateriaDTO> tablaDesarrolloGestion,
+            List<MateriaDTO> tablaComputacionVisual, List<MateriaDTO> tablaCVtoIA, List<MateriaDTO> tablaSIGtoIA) {
+        return progresoService.obtenerResumenAcademico(materias, cursosElectivas, cursosComplementariaLenguas,
+                cursosComplementariaInformacion, cursosEnfasis, cursosElectivaBasicas, cursosSeguridad, cursosIA,
+                tablaDesarrolloComputacion, tablaDesarrolloGestion, tablaComputacionVisual, tablaCVtoIA, tablaSIGtoIA);
     }
 
     public String extraerTextoElectivaBasicasBruto(MultipartFile archivo) {
@@ -112,7 +125,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -159,7 +173,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -206,7 +221,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -253,7 +269,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -300,7 +317,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -347,7 +365,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -394,7 +413,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -441,7 +461,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -488,7 +509,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -535,7 +557,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -582,7 +605,8 @@ public class lecturaService {
                     }
 
                     if (incluir) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -629,7 +653,8 @@ public class lecturaService {
                     }
 
                     if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by")) break;
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
                         resultado.append(l).append("\n");
                     }
                 }
@@ -644,10 +669,11 @@ public class lecturaService {
         return null;
     }
 
-    public List<Materia> convertirTextoElectivasATabla(String texto) {
-        List<Materia> lista = new ArrayList<>();
+    public List<MateriaDTO> convertirTextoElectivasATabla(String texto) {
+        List<MateriaDTO> lista = new ArrayList<>();
 
-        if (texto == null || texto.isEmpty()) return lista;
+        if (texto == null || texto.isEmpty())
+            return lista;
 
         String[] lineas = texto.split("\\n");
 
@@ -680,7 +706,7 @@ public class lecturaService {
                     String cred = tokens[tokens.length - 2];
                     String tipo = tokens[tokens.length - 1];
 
-                    lista.add(new Materia(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
+                    lista.add(new MateriaDTO(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
                 }
             }
         }
@@ -720,10 +746,10 @@ public class lecturaService {
                     }
 
                     if (lineaActual.equalsIgnoreCase("Requisito de Lengua Extranjera B2") ||
-                        lineaActual.equalsIgnoreCase("Prueba SABER-PRO")) {
+                            lineaActual.equalsIgnoreCase("Prueba SABER-PRO")) {
 
                         if (lineaSiguiente.toLowerCase().startsWith("satisfecho") ||
-                            lineaSiguiente.toLowerCase().startsWith("no satisfecho")) {
+                                lineaSiguiente.toLowerCase().startsWith("no satisfecho")) {
                             lineas.add(lineaActual + " / " + lineaSiguiente);
                             i++;
                         } else {
