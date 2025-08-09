@@ -199,19 +199,19 @@ public class SimulacionService {
         factorPeso = Math.min(1.0, 0.2 + (semestresRestantes * 0.2));
 
         int materiasNucleoFaltantes = contarCreditosNucleoFaltantes(progreso);
-        heuristica += materiasNucleoFaltantes * (100 * factorPeso);
+        heuristica += materiasNucleoFaltantes * (1.0 * factorPeso);
 
         double electivasFaltantes = progreso.getFaltanElectiva();
-        heuristica += electivasFaltantes * (60 * factorPeso);
+        heuristica += electivasFaltantes * (0.6 * factorPeso);
 
         double complementariasFaltantes = progreso.getFaltanComplementaria();
-        heuristica += complementariasFaltantes * (80 * factorPeso);
+        heuristica += complementariasFaltantes * (0.8 * factorPeso);
 
         double enfasisFaltantes = progreso.getFaltanEnfasis();
-        heuristica += enfasisFaltantes * (80 * factorPeso);
+        heuristica += enfasisFaltantes * (0.8 * factorPeso);
 
         double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
-        heuristica += electivasCBFaltantes * (100 * factorPeso);
+        heuristica += electivasCBFaltantes * (1.0 * factorPeso);
 
         System.out.println("HEURISTICA FINAL: " + String.format("%.2f", Math.max(heuristica, 1.0)));
 
@@ -280,19 +280,19 @@ public class SimulacionService {
 
         switch (codigo) {
             case "0": // Electiva
-                coeficienteMateria = 60 * factorPrioridad;
+                coeficienteMateria = 0.6 * factorPrioridad;
                 break;
             case "1": // Complementaria
-                coeficienteMateria = 80 * factorPrioridad;
+                coeficienteMateria = 0.8 * factorPrioridad;
                 break;
             case "5": // Énfasis
-                coeficienteMateria = 80 * factorPrioridad;
+                coeficienteMateria = 0.8 * factorPrioridad;
                 break;
             case "6": // ElectivaCB
-                coeficienteMateria = 100 * factorPrioridad;
+                coeficienteMateria = 1.0 * factorPrioridad;
                 break;
             default: // Núcleo
-                coeficienteMateria = 100 * factorPrioridad;
+                coeficienteMateria = 1.0 * factorPrioridad;
                 break;
         }
 
