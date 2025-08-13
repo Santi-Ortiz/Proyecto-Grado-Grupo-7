@@ -1,5 +1,7 @@
 package com.grupo7.tesis.services;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.MateriaConPuntajeDTO;
@@ -23,16 +26,25 @@ import com.grupo7.tesis.models.Proyeccion;
 @Service
 public class SimulacionService {
 
+    private int contadorCombinaciones = 0;
+    private int contadorNodosCreados = 0;
+
+    @Autowired
+    private pensumService pensumService; 
+
     // ALGORITMO A*
     public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
             int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades) {
+
+        contadorCombinaciones = 0;
+        contadorNodosCreados = 0;
 
         System.out.println("================ INICIO SIMULACIÓN A*  ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
         System.out.println("Semestre objetivo: " + semestreObjetivo);
 
         int maxNodos = 25000;
-        int maxCombinacionesPorNodo = 99999999;
+        int maxCombinacionesPorNodo = 3;
 
         PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
 
@@ -42,6 +54,7 @@ public class SimulacionService {
         double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum);
 
         NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), heuristicaInicial, progreso);
+        contadorNodosCreados++;
 
         frontera.offer(nodoInicial);
 
@@ -59,6 +72,8 @@ public class SimulacionService {
                 System.out.println("Semestre objetivo original: " + semestreObjetivo);
                 System.out.println("Semestres ahorrados: " + (semestreObjetivo - nodoActual.getSemestreActual()));
                 System.out.println("Nodos explorados: " + nodosExplorados);
+                System.out.println("Nodos creados: " + contadorNodosCreados);
+                System.out.println("Combinaciones generadas: " + contadorCombinaciones);
                 System.out.println("Tiempo total: " + tiempoTotal + "ms");
                 System.out.println("Heurística inicial: " + heuristicaInicial);
 
@@ -72,6 +87,8 @@ public class SimulacionService {
                 long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
                 System.out.println("SOLUCION A* ENCONTRADA");
                 System.out.println("Nodos explorados: " + nodosExplorados);
+                System.out.println("Nodos creados: " + contadorNodosCreados);
+                System.out.println("Combinaciones generadas: " + contadorCombinaciones);
                 System.out.println("Tiempo total: " + tiempoTotal + "ms");
                 System.out.println("Heurística inicial: " + heuristicaInicial);
 
@@ -92,6 +109,8 @@ public class SimulacionService {
 
         long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
         System.out.println("A* alcanzó límite de nodos: " + maxNodos);
+        System.out.println("Nodos creados: " + contadorNodosCreados);
+        System.out.println("Combinaciones generadas: " + contadorCombinaciones);
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
         System.out.println("A* no pudo encontrar ninguna solución completa");
         return new HashMap<>();
@@ -135,6 +154,7 @@ public class SimulacionService {
             double costoTotal = nuevoCosto + nuevaHeuristica;
 
             NodoA nuevoNodo = new NodoA(nuevaRuta, siguienteSemestre, costoTotal, nuevoProgreso);
+            contadorNodosCreados++; // Contar cada nuevo nodo creado
             frontera.offer(nuevoNodo);
         }
     }
@@ -210,7 +230,7 @@ public class SimulacionService {
 
         heuristica = materiasNucleoFaltantes * (1.0) + electivasFaltantes * (0.6) + complementariasFaltantes * (0.8) + enfasisFaltantes * (0.8) + electivasCBFaltantes * (1.0);
 
-        System.out.println("HEURISTICA FINAL: " + String.format("%.2f", heuristica));
+        //System.out.println("HEURISTICA FINAL: " + String.format("%.2f", heuristica));
 
         return heuristica;
     }
@@ -701,8 +721,7 @@ public class SimulacionService {
 
     // Combinaciones
     public List<Simulacion> generarMejoresCombinaciones(List<MateriaConPuntajeDTO> materiasConPuntaje,
-            int creditosMax,
-            int materiasMax) {
+            int creditosMax,int materiasMax, int iteraciones) {
         List<Simulacion> todasLasCombinaciones = new ArrayList<>();
         List<Materia> combinacionActual = new ArrayList<>();
 
@@ -712,7 +731,8 @@ public class SimulacionService {
         // Ordenar por puntaje de mayor a menor
         todasLasCombinaciones.sort((a, b) -> Double.compare(b.getPuntajeTotal(), a.getPuntajeTotal()));
 
-        return todasLasCombinaciones.stream().limit(5).collect(Collectors.toList());
+        return todasLasCombinaciones.stream().limit(iteraciones).collect(Collectors.toList());
+        //return todasLasCombinaciones;
     }
 
     // Backtracking para generar combinaciones de materias
@@ -723,6 +743,7 @@ public class SimulacionService {
         // Si se alcanzan los límites se guarda la combinación actual
         if (indice == materias.size() || materiasActuales == materiasMax || creditosActuales >= creditosMax) {
             if (!combinacionActual.isEmpty()) {
+                contadorCombinaciones++;
                 double puntajeTotal = calcularPuntajeCombinacion(combinacionActual, materias);
                 resultado.add(new Simulacion(combinacionActual, puntajeTotal));
             }
@@ -808,9 +829,8 @@ public class SimulacionService {
                 prioridades);
         mostrarMateriasPuntajes(materiasConPuntaje);
         List<Simulacion> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
-                proyeccion.getCreditos(), proyeccion.getMaterias()).stream().limit(numCombinaciones)
-                .collect(Collectors.toList());
-        mostrarResultadosCombinaciones(mejoresCombinaciones);
+                proyeccion.getCreditos(), proyeccion.getMaterias(), numCombinaciones);
+        //mostrarResultadosCombinaciones(mejoresCombinaciones);
 
         return mejoresCombinaciones;
     }
@@ -864,6 +884,132 @@ public class SimulacionService {
         proyeccion.setCreditos(base.getCreditos());
         proyeccion.setMaterias(base.getMaterias());
         return proyeccion;
+    }
+
+    //Métodos para test
+    public Map<String, Object> generarSimulacionConEstadisticas(Progreso progreso, Proyeccion proyeccionBase,
+            int semestreObjetivo, boolean[] prioridades, int limiteCombinaciones) throws Exception {
+
+        // Guardar configuración original de salida
+        PrintStream originalOut = System.out;
+
+        List<Materia> materiasPensum = pensumService.obtenerPensum();
+        
+        try {
+            // Redirigir salida para evitar spam en tests
+            System.setOut(new PrintStream(new ByteArrayOutputStream()));
+            
+            // Resetear contadores
+            contadorCombinaciones = 0;
+            contadorNodosCreados = 0;
+            
+            long tiempoInicio = System.currentTimeMillis();
+            
+            // Usar la versión con límite personalizable
+            Map<Integer, Simulacion> resultado = generarSimulacionMultiSemestreAStarConLimite(
+                progreso, proyeccionBase, semestreObjetivo, materiasPensum, prioridades, limiteCombinaciones);
+            
+            long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+            
+            // Crear estadísticas
+            Map<String, Object> estadisticas = new HashMap<>();
+            estadisticas.put("tiempoMs", tiempoTotal);
+            estadisticas.put("nodosCreados", contadorNodosCreados);
+            estadisticas.put("combinacionesGeneradas", contadorCombinaciones);
+            estadisticas.put("solucionEncontrada", !resultado.isEmpty());
+            estadisticas.put("semestresSimulados", resultado.size());
+            estadisticas.put("limiteCombinaciones", limiteCombinaciones);
+            
+            return estadisticas;
+            
+        } finally {
+            // Restaurar salida original
+            System.setOut(originalOut);
+        }
+    }
+
+    
+    // ALGORITMO A* CON LÍMITE PERSONALIZABLE
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStarConLimite(Progreso progreso, Proyeccion proyeccionBase,
+            int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades, int limiteCombinaciones) {
+
+        // Resetear contadores
+        contadorCombinaciones = 0;
+        contadorNodosCreados = 0;
+
+        System.out.println("================ INICIO SIMULACIÓN A* (Límite: " + limiteCombinaciones + ") ================");
+        System.out.println("Semestre actual: " + progreso.getSemestre());
+        System.out.println("Semestre objetivo: " + semestreObjetivo);
+
+        int maxNodos = 25000;
+        
+        PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
+        Set<String> visitados = new HashSet<>();
+
+        Map<Integer, Simulacion> rutaInicial = new HashMap<>();
+        double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum);
+
+        NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), heuristicaInicial, progreso);
+        contadorNodosCreados++; // Contar el nodo inicial
+
+        frontera.offer(nodoInicial);
+
+        int nodosExplorados = 0;
+        long tiempoInicio = System.currentTimeMillis();
+
+        while (!frontera.isEmpty() && nodosExplorados < maxNodos) {
+            NodoA nodoActual = frontera.poll();
+            nodosExplorados++;
+
+            if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
+                long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Termino antes)");
+                System.out.println("Semestre de finalización: " + nodoActual.getSemestreActual());
+                System.out.println("Semestre objetivo original: " + semestreObjetivo);
+                System.out.println("Semestres ahorrados: " + (semestreObjetivo - nodoActual.getSemestreActual()));
+                System.out.println("Nodos explorados: " + nodosExplorados);
+                System.out.println("Nodos creados: " + contadorNodosCreados);
+                System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                System.out.println("Tiempo total: " + tiempoTotal + "ms");
+                System.out.println("Heurística inicial: " + heuristicaInicial);
+
+                Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
+                mostrarResultados(rutaCompleta, puntajeTotal);
+                return rutaCompleta;
+            }
+
+            if (nodoActual.getSemestreActual() == semestreObjetivo) {
+                long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                System.out.println("SOLUCION A* ENCONTRADA");
+                System.out.println("Nodos explorados: " + nodosExplorados);
+                System.out.println("Nodos creados: " + contadorNodosCreados);
+                System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                System.out.println("Tiempo total: " + tiempoTotal + "ms");
+                System.out.println("Heurística inicial: " + heuristicaInicial);
+
+                Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
+                mostrarResultados(rutaCompleta, puntajeTotal);
+                return rutaCompleta;
+            }
+
+            String claveEstado = generarClaveEstado(nodoActual.getProgresoActual(), nodoActual.getSemestreActual());
+            if (visitados.contains(claveEstado))
+                continue;
+            visitados.add(claveEstado);
+
+            expandirNodo(nodoActual, frontera, semestreObjetivo, proyeccionBase, materiasPensum,
+                    limiteCombinaciones, prioridades);
+        }
+
+        long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+        System.out.println("A* alcanzó límite de nodos: " + maxNodos);
+        System.out.println("Nodos creados: " + contadorNodosCreados);
+        System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+        System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
+        System.out.println("A* no pudo encontrar ninguna solución completa");
+        return new HashMap<>();
     }
 
 }
