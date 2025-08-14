@@ -2,12 +2,10 @@ package com.grupo7.tesis.services;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.grupo7.tesis.dtos.MateriaDTO;
-import com.grupo7.tesis.models.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,9 +16,6 @@ import java.util.regex.Pattern;
 
 @Service
 public class lecturaService {
-
-    @Autowired
-    private ProgresoService progresoService;
 
     public List<MateriaDTO> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
         List<MateriaDTO> materias = new ArrayList<>();
@@ -80,17 +75,6 @@ public class lecturaService {
         }
 
         return materias;
-    }
-
-    public Progreso obtenerResumenAcademico(List<MateriaDTO> materias, List<MateriaDTO> cursosElectivas,
-            List<MateriaDTO> cursosComplementariaLenguas, List<MateriaDTO> cursosComplementariaInformacion,
-            List<MateriaDTO> cursosEnfasis, List<MateriaDTO> cursosElectivaBasicas, List<MateriaDTO> cursosSeguridad,
-            List<MateriaDTO> cursosIA, List<MateriaDTO> tablaDesarrolloComputacion,
-            List<MateriaDTO> tablaDesarrolloGestion,
-            List<MateriaDTO> tablaComputacionVisual, List<MateriaDTO> tablaCVtoIA, List<MateriaDTO> tablaSIGtoIA) {
-        return progresoService.obtenerResumenAcademico(materias, cursosElectivas, cursosComplementariaLenguas,
-                cursosComplementariaInformacion, cursosEnfasis, cursosElectivaBasicas, cursosSeguridad, cursosIA,
-                tablaDesarrolloComputacion, tablaDesarrolloGestion, tablaComputacionVisual, tablaCVtoIA, tablaSIGtoIA);
     }
 
     public String extraerTextoElectivaBasicasBruto(MultipartFile archivo) {

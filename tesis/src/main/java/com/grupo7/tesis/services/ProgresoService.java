@@ -1,18 +1,18 @@
 package com.grupo7.tesis.services;
 
-import java.io.InputStream;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
+/*import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;
 import java.util.stream.Stream;
+import java.io.InputStream;*/
 
 @Service
 public class ProgresoService {
 
-    private static final int REQ_ELECTIVA = 8;
+    /*private static final int REQ_ELECTIVA = 8;
     private static final int REQ_COMPLEMENTARIA = 6;
     private static final int REQ_ENFASIS = 6;
     private static final int REQ_ELECTIVA_BASICAS = 3;
@@ -308,6 +308,6 @@ public class ProgresoService {
         }
 
         return Math.max(1, contadorSemestres);
-    }
+    }*/
 
 }

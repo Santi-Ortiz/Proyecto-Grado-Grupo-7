@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.MateriaConPuntajeDTO;
+import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.NodoA;
 import com.grupo7.tesis.models.Simulacion;
@@ -44,7 +45,7 @@ public class SimulacionService {
         System.out.println("Semestre objetivo: " + semestreObjetivo);
 
         int maxNodos = 25000;
-        int maxCombinacionesPorNodo = 3;
+        int maxCombinacionesPorNodo = 10;
 
         PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
 
@@ -145,8 +146,13 @@ public class SimulacionService {
             nuevaRuta.put(siguienteSemestre, simulacionSemestre);
 
             Progreso nuevoProgreso = nodoActual.getProgresoActual().copy();
+            
+            for (Materia m : simulacionSemestre.getMaterias()) {
+                System.out.println("  - " + m.getNombre() + " (" + m.getCodigo() + ") - " + m.getCreditos() + " créditos");
+            }
+            
             nuevoProgreso = actualizarProgresoTemporal(nuevoProgreso, simulacionSemestre, siguienteSemestre);
-
+            
             double nuevoCosto = nodoActual.getTotalCreditos() + calcularCostoTransicion(combinacion, nuevoProgreso, proyeccionSemestre, prioridades);
             double nuevaHeuristica = calcularHeuristica(nuevoProgreso, semestreObjetivo, proyeccionBase,materiasPensum);
             
@@ -162,9 +168,11 @@ public class SimulacionService {
     // Nueva versión de actualizar progreso temporal para que sirva con A*
     public Progreso actualizarProgresoTemporal(Progreso progreso, Simulacion simulacion, int semestreSimulado) {
 
+        // Remover materias de núcleo que se simulan como cursadas
         List<Materia> materiasARemover = new ArrayList<>();
         for (Materia materiaSimulada : simulacion.getMaterias()) {
 
+            // Solo procesar materias de núcleo (no electivas especiales)
             if (!materiaSimulada.getCodigo().equals("0") && !materiaSimulada.getCodigo().equals("1")
                     && !materiaSimulada.getCodigo().equals("5") && !materiaSimulada.getCodigo().equals("6")) {
 
@@ -179,35 +187,104 @@ public class SimulacionService {
             }
         }
 
+        // Remover las materias de núcleo de la lista de faltantes
         progreso.getListaMateriasFaltantes().removeAll(materiasARemover);
+
+        // Simular que se cursaron las electivas/complementarias/énfasis agregándolas a las listas correspondientes
+        List<MateriaDTO> nuevasElectivas = new ArrayList<>(progreso.getCursosElectivas() != null ? progreso.getCursosElectivas() : new ArrayList<>());
+        List<MateriaDTO> nuevasComplementarias = new ArrayList<>();
+        if (progreso.getCursosComplementariaLenguas() != null) {
+            nuevasComplementarias.addAll(progreso.getCursosComplementariaLenguas());
+        }
+        if (progreso.getCursosComplementariaInformacion() != null) {
+            nuevasComplementarias.addAll(progreso.getCursosComplementariaInformacion());
+        }
+        List<MateriaDTO> nuevosEnfasis = new ArrayList<>(progreso.getCursosEnfasis() != null ? progreso.getCursosEnfasis() : new ArrayList<>());
+        List<MateriaDTO> nuevasElectivaBasicas = new ArrayList<>(progreso.getCursosElectivaBasicas() != null ? progreso.getCursosElectivaBasicas() : new ArrayList<>());
 
         for (Materia materia : simulacion.getMaterias()) {
             switch (materia.getCodigo()) {
                 case "0":
-                    int creditosElectiva = materia.getCreditos();
-                    progreso.setFaltanElectiva(Math.max(0, progreso.getFaltanElectiva() - creditosElectiva));
+                    // Agregar electiva simulada
+                    MateriaDTO electivaSimulada = new MateriaDTO(
+                        "SimSem" + semestreSimulado, // cicloLectivo
+                        "ELEC", // materia
+                        "000", // numeroCat
+                        "ELEC" + System.nanoTime(), // curso - ID único temporal
+                        materia.getNombre(), // titulo
+                        "3.0", // calif - Calificación aprobatoria
+                        String.valueOf(materia.getCreditos()), // cred
+                        "" // tipo
+                    );
+                    nuevasElectivas.add(electivaSimulada);
                     break;
                 case "1":
-                    progreso.setFaltanComplementaria(Math.max(0, progreso.getFaltanComplementaria() - 3));
+                    // Agregar complementaria simulada
+                    MateriaDTO complementariaSimulada = new MateriaDTO(
+                        "SimSem" + semestreSimulado,
+                        "COMP",
+                        "000",
+                        "COMP" + System.nanoTime(),
+                        materia.getNombre(),
+                        "3.0",
+                        String.valueOf(materia.getCreditos()), // Usar créditos reales de la materia
+                        ""
+                    );
+                    nuevasComplementarias.add(complementariaSimulada);
                     break;
                 case "5":
-                    progreso.setFaltanEnfasis(Math.max(0, progreso.getFaltanEnfasis() - 3));
+                    // Agregar énfasis simulado
+                    MateriaDTO enfasisSimulado = new MateriaDTO(
+                        "SimSem" + semestreSimulado,
+                        "ENF",
+                        "000",
+                        "ENF" + System.nanoTime(),
+                        materia.getNombre(),
+                        "3.0",
+                        String.valueOf(materia.getCreditos()), // Usar créditos reales de la materia
+                        ""
+                    );
+                    nuevosEnfasis.add(enfasisSimulado);
                     break;
                 case "6":
-                    progreso.setFaltanElectivaBasicas(Math.max(0, progreso.getFaltanElectivaBasicas() - 3));
+                    // Agregar electiva de ciencias básicas simulada
+                    MateriaDTO electivaCBSimulada = new MateriaDTO(
+                        "SimSem" + semestreSimulado,
+                        "ELCB",
+                        "000",
+                        "ELCB" + System.nanoTime(),
+                        materia.getNombre(),
+                        "3.0",
+                        String.valueOf(materia.getCreditos()), // Usar créditos reales de la materia
+                        ""
+                    );
+                    nuevasElectivaBasicas.add(electivaCBSimulada);
                     break;
             }
         }
 
-        progreso.setMateriasCursadas(progreso.getMateriasCursadas() + materiasARemover.size());
-        progreso.setMateriasFaltantes(progreso.getMateriasFaltantes() - materiasARemover.size());
-        progreso.setTotalFaltantes(progreso.getListaMateriasFaltantes().size());
+        progreso.setCursosElectivas(nuevasElectivas);
+        progreso.setCursosComplementariaLenguas(nuevasComplementarias);
+        progreso.setCursosEnfasis(nuevosEnfasis);
+        progreso.setCursosElectivaBasicas(nuevasElectivaBasicas);
 
-        int creditosNucleoSimulados = materiasARemover.stream().mapToInt(Materia::getCreditos).sum();
-        progreso.setCreditosPensum(progreso.getCreditosPensum() + creditosNucleoSimulados);
-        progreso.setTotalCreditos(progreso.getTotalCreditos() + creditosNucleoSimulados);
+        List<MateriaDTO> materiasActualizadas = new ArrayList<>(progreso.getMaterias() != null ? progreso.getMaterias() : new ArrayList<>());
+        
+        for (Materia materiaRemovida : materiasARemover) {
+            MateriaDTO materiaSimulada = new MateriaDTO(
+                "SimSem" + semestreSimulado, // cicloLectivo - Marcar como simulado
+                materiaRemovida.getCodigo(), // materia
+                "000", // numeroCat
+                materiaRemovida.getCodigo(), // curso
+                materiaRemovida.getNombre(), // titulo
+                "3.0", // calif - Calificación aprobatoria
+                String.valueOf(materiaRemovida.getCreditos()), // cred
+                "" // tipo
+            );
+            materiasActualizadas.add(materiaSimulada);
+        }
 
-        progreso.setSemestre(semestreSimulado);
+        progreso.setMaterias(materiasActualizadas);
 
         return progreso;
     }
@@ -1010,6 +1087,54 @@ public class SimulacionService {
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
         System.out.println("A* no pudo encontrar ninguna solución completa");
         return new HashMap<>();
+    }
+
+    // Método para probar actualizarProgresoTemporal de forma aislada
+    public void probarActualizacionProgreso(Progreso progreso, Simulacion simulacion, int semestre) {
+        System.out.println("=== PRUEBA DE ACTUALIZACIÓN DE PROGRESO ===");
+        System.out.println("Semestre: " + semestre);
+        
+        // Estado inicial
+        System.out.println("\n--- ESTADO INICIAL ---");
+        System.out.println("Materias faltantes: " + progreso.getListaMateriasFaltantes().size());
+        System.out.println("Faltan electivas: " + progreso.getFaltanElectiva());
+        System.out.println("Faltan complementarias: " + progreso.getFaltanComplementaria());
+        System.out.println("Faltan énfasis: " + progreso.getFaltanEnfasis());
+        System.out.println("Faltan electivas CB: " + progreso.getFaltanElectivaBasicas());
+        
+        if (progreso.getCursosElectivas() != null) {
+            System.out.println("Electivas cursadas: " + progreso.getCursosElectivas().size());
+        }
+        if (progreso.getCursosEnfasis() != null) {
+            System.out.println("Énfasis cursados: " + progreso.getCursosEnfasis().size());
+        }
+        
+        // Materias a simular
+        System.out.println("\n--- MATERIAS A SIMULAR ---");
+        for (Materia m : simulacion.getMaterias()) {
+            System.out.println("- " + m.getNombre() + " (" + m.getCodigo() + ") - " + m.getCreditos() + " créditos");
+        }
+        
+        // Hacer copia y actualizar
+        Progreso progresoActualizado = progreso.copy();
+        progresoActualizado = actualizarProgresoTemporal(progresoActualizado, simulacion, semestre);
+        
+        // Estado final
+        System.out.println("\n--- ESTADO DESPUÉS DE ACTUALIZAR ---");
+        System.out.println("Materias faltantes: " + progresoActualizado.getListaMateriasFaltantes().size());
+        System.out.println("Faltan electivas: " + progresoActualizado.getFaltanElectiva());
+        System.out.println("Faltan complementarias: " + progresoActualizado.getFaltanComplementaria());
+        System.out.println("Faltan énfasis: " + progresoActualizado.getFaltanEnfasis());
+        System.out.println("Faltan electivas CB: " + progresoActualizado.getFaltanElectivaBasicas());
+        
+        if (progresoActualizado.getCursosElectivas() != null) {
+            System.out.println("Electivas cursadas: " + progresoActualizado.getCursosElectivas().size());
+        }
+        if (progresoActualizado.getCursosEnfasis() != null) {
+            System.out.println("Énfasis cursados: " + progresoActualizado.getCursosEnfasis().size());
+        }
+        
+        System.out.println("===========================================\n");
     }
 
 }
