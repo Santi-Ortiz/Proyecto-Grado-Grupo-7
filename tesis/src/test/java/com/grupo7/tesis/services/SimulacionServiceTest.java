@@ -73,6 +73,7 @@ public class SimulacionServiceTest {
         List<Materia> materiasFaltantes = new ArrayList<>();
         
         materiasFaltantes.add(createMateria("1295", "Cálculo Diferencial", 3, 1, Arrays.asList(), "nucleoCienciasBasicas"));
+        materiasFaltantes.add(createMateria("33698", "Introducción a la programación", 4, 3, Arrays.asList(), "nucleoIngenieria"));
         materiasFaltantes.add(createMateria("1297", "Cálculo Integral", 3, 2, Arrays.asList("1295"), "nucleoCienciasBasicas"));
         materiasFaltantes.add(createMateria("1290", "Álgebra Lineal", 3, 2, Arrays.asList(), "nucleoCienciasBasicas"));
         materiasFaltantes.add(createMateria("33699", "Programación Avanzada", 3, 2, Arrays.asList("33698"), "nucleoIngenieria"));
@@ -123,9 +124,7 @@ public class SimulacionServiceTest {
         materias.add(new MateriaDTO("PrimPe2022", "MATEMÁT", "1700", "033518", "Lógica y Matemáticas Discretas", "4.9", "3.00", "Ma"));
         materias.add(new MateriaDTO("PrimPe2022", "PROCESOS", "4900", "033763", "Introducción a la ingeniería", "4.4", "2.00", "Ma"));
         materias.add(new MateriaDTO("PrimPe2022", "SISTEMAS", "4800", "004075", "Pensamiento Sistémico", "4.6", "3.00", "Ma"));
-        materias.add(new MateriaDTO("PrimPe2022", "SISTEMAS", "4800", "033698", "Introducción a la programación", "4.1", "3.00", "Ma"));
         materias.add(new MateriaDTO("PrimPe2022", "SISTEMAS", "4800", "034809", "Seguridad de la información", "4.7", "2.00", "Ma"));
-
 
         Progreso progreso = new Progreso(
             materias,   // cursosElectivas

@@ -301,9 +301,10 @@ public class SimulacionService {
         double enfasisFaltantes = progreso.getFaltanEnfasis();
         double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
 
-        heuristica = materiasNucleoFaltantes * (1.0) + electivasFaltantes * (0.8) + complementariasFaltantes * (0.9) + enfasisFaltantes * (0.9) + electivasCBFaltantes * (1.0);
+        heuristica = materiasNucleoFaltantes * (1.2) + electivasFaltantes * (1.0) + complementariasFaltantes * (1.1) + enfasisFaltantes * (1.1) + electivasCBFaltantes * (1.2);
+        //heuristica = materiasNucleoFaltantes * (1.1) + electivasFaltantes * (1.1) + complementariasFaltantes * (1.1) + enfasisFaltantes * (1.1) + electivasCBFaltantes * (1.1);
+        //heuristica = materiasNucleoFaltantes * (1.0) + electivasFaltantes * (0.6) + complementariasFaltantes * (0.8) + enfasisFaltantes * (0.8) + electivasCBFaltantes * (1.0);
 
-        //System.out.println("HEURISTICA FINAL: " + String.format("%.2f", heuristica));
 
         return heuristica;
     }
@@ -368,13 +369,13 @@ public class SimulacionService {
     
         switch (codigo) {
             case "0": // Electiva
-                coeficienteMateria = 0.8 * factorPrioridad;
+                coeficienteMateria = 0.6 * factorPrioridad;
                 break;
             case "1": // Complementaria
-                coeficienteMateria = 0.9 * factorPrioridad;
+                coeficienteMateria = 0.8 * factorPrioridad;
                 break;
             case "5": // Énfasis
-                coeficienteMateria = 0.9 * factorPrioridad;
+                coeficienteMateria = 0.8 * factorPrioridad;
                 break;
             case "6": // ElectivaCB
                 coeficienteMateria = 1.0 * factorPrioridad;
@@ -387,7 +388,7 @@ public class SimulacionService {
         distanciaSemestral = materia.getSemestre() - proyeccion.getSemestre();
 
         if (distanciaSemestral > 1) {
-            coeficienteDistancia = 0.5; // Materia de semestres posteriores
+            coeficienteDistancia = 0.3; // Materia de semestres posteriores
         } else if (distanciaSemestral == 1) {
             coeficienteDistancia = 0.7; // Materia de un semestre adelante
         } else if (distanciaSemestral == 0) {
@@ -900,7 +901,7 @@ public class SimulacionService {
         List<Materia> materiasDisponibles = filtrarMateriasDisponibles(progreso, materiasPensum, proyeccion);
         List<MateriaConPuntajeDTO> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion,
                 prioridades);
-        mostrarMateriasPuntajes(materiasConPuntaje);
+        //mostrarMateriasPuntajes(materiasConPuntaje);
         List<Simulacion> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
                 proyeccion.getCreditos(), proyeccion.getMaterias(), numCombinaciones);
         //mostrarResultadosCombinaciones(mejoresCombinaciones);
