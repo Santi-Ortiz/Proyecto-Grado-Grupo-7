@@ -228,9 +228,8 @@ public class SimulacionService {
         double enfasisFaltantes = progreso.getFaltanEnfasis();
         double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
 
-        heuristica = materiasNucleoFaltantes * (1.0) + electivasFaltantes * (0.6) + complementariasFaltantes * (0.8) + enfasisFaltantes * (0.8) + electivasCBFaltantes * (1.0);
-
-        //System.out.println("HEURISTICA FINAL: " + String.format("%.2f", heuristica));
+        //heuristica = materiasNucleoFaltantes * (1.0) + electivasFaltantes * (0.6) + complementariasFaltantes * (0.8) + enfasisFaltantes * (0.8) + electivasCBFaltantes * (1.0);
+        heuristica = materiasNucleoFaltantes * (1.2) + electivasFaltantes * (1.0) + complementariasFaltantes * (1.1) + enfasisFaltantes * (1.1) + electivasCBFaltantes * (1.2);
 
         return heuristica;
     }

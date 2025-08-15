@@ -73,6 +73,7 @@ public void ejecutarTest() {
         List<Materia> materiasFaltantes = new ArrayList<>();
         
         materiasFaltantes.add(createMateria("1295", "Cálculo Diferencial", 3, 1, Arrays.asList(), "nucleoCienciasBasicas"));
+        materiasFaltantes.add(createMateria("33698", "Introducción a la programación", 4, 3, Arrays.asList(), "nucleoIngenieria"));
         materiasFaltantes.add(createMateria("1297", "Cálculo Integral", 3, 2, Arrays.asList("1295"), "nucleoCienciasBasicas"));
         materiasFaltantes.add(createMateria("1290", "Álgebra Lineal", 3, 2, Arrays.asList(), "nucleoCienciasBasicas"));
         materiasFaltantes.add(createMateria("33699", "Programación Avanzada", 3, 2, Arrays.asList("33698"), "nucleoIngenieria"));
