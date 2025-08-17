@@ -6,13 +6,15 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.services.pensumService;
 
-@Controller
+@RestController
+@RequestMapping ("/api/pensum")
 public class pensumController {
 
     @Autowired
@@ -43,7 +45,7 @@ public class pensumController {
         return "pensum";
     }
 
-    @GetMapping("/api/pensum")
+    @GetMapping
     @ResponseBody
     public List<Materia> obtenerPensumJson() throws Exception {
         return pensumService.obtenerPensum();

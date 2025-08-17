@@ -1,18 +1,48 @@
 package com.grupo7.tesis.models;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "Proyeccion")
 public class Proyeccion {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "proyeccion_id")
+    private Long id;
+
     private int semestre; // Representa la cantidad de semestres a simular
-    private int creditos; // Representa la cantidad de créditos MÁXIMA que tendrán las simulaciones
-    private int materias; // Representa la cantidad de materias MÁXIMA que tendrán las simulaciones
+
+    private int numMaxCreditos; // Representa la cantidad de créditos MÁXIMA que tendrán las simulaciones
+
+    private int numMaxMaterias; // Representa la cantidad de numMaxMaterias MÁXIMA que tendrán las simulaciones
+
+    @ManyToOne
+    @JoinColumn(name = "estudiante_id")
+    private Long estudianteId;
 
     public Proyeccion() {
     }
 
-    public Proyeccion(int semestre, int creditos, int materias, int tipoMatricula, int doblePrograma) {
+    public Proyeccion(int semestre, int numMaxCreditos, int numMaxMaterias, int tipoMatricula, int doblePrograma) {
         this.semestre = semestre;
-        this.creditos = creditos;
-        this.materias = materias;
+        this.numMaxCreditos = numMaxCreditos;
+        this.numMaxMaterias = numMaxMaterias;
+    }
+
+    public Proyeccion(Long id, int semestre, int numMaxCreditos, int numMaxMaterias, Long estudianteId) {
+        this.id = id;
+        this.semestre = semestre;
+        this.numMaxCreditos = numMaxCreditos;
+        this.numMaxMaterias = numMaxMaterias;
+        this.estudianteId = estudianteId;
     }
 
     public int getSemestre() {
@@ -23,25 +53,25 @@ public class Proyeccion {
         this.semestre = semestre;
     }
 
-    public int getCreditos() {
-        return creditos;
+    public int getnumMaxCreditos() {
+        return numMaxCreditos;
     }
 
-    public void setCreditos(int creditos) {
-        this.creditos = creditos;
+    public void setnumMaxCreditos(int numMaxCreditos) {
+        this.numMaxCreditos = numMaxCreditos;
     }
 
-    public int getMaterias() {
-        return materias;
+    public int getnumMaxMaterias() {
+        return numMaxMaterias;
     }
 
-    public void setMaterias(int materias) {
-        this.materias = materias;
+    public void setnumMaxMaterias(int numMaxMaterias) {
+        this.numMaxMaterias = numMaxMaterias;
     }
 
     @Override
     public String toString() {
-        return "Proyeccion [semestre: " + semestre + ", creditos: " + creditos + ", materias: " + materias + "]";
+        return "Proyeccion [semestre: " + semestre + ", numMaxCreditos: " + numMaxCreditos + ", numMaxMaterias: " + numMaxMaterias + "]";
     }
 
 }

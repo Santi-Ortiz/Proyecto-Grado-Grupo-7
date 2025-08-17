@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -12,21 +14,57 @@ import jakarta.persistence.Table;
 public class Estudiante {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "EstudianteID_PK")
+    @Column(name = "estudiante_id")
     private Long id;
 
     private String codigo;
 
     private String correo;
 
-    private String contrasena;
+    private String contrasenia;
 
     private String nombre;
 
     private String carrera;
 
-    @Column(name = "anioingreso") 
     private Long anioIngreso;
+
+    @ManyToOne
+    @JoinColumn(name = "facultad_id")
+    private Long pensumId;
+
+    @ManyToOne
+    @JoinColumn(name = "pensum_id")
+    private Long facultadId;
+
+
+    public Estudiante() {
+    }
+
+    public Estudiante(String codigo, String correo, String contrasenia, String nombre, String carrera, Long anioIngreso,
+            Long pensumId, Long facultadId) {
+        this.codigo = codigo;
+        this.correo = correo;
+        this.contrasenia = contrasenia;
+        this.nombre = nombre;
+        this.carrera = carrera;
+        this.anioIngreso = anioIngreso;
+        this.pensumId = pensumId;
+        this.facultadId = facultadId;
+    }
+
+    public Estudiante(Long id, String codigo, String correo, String contrasenia, String nombre, String carrera,
+            Long anioIngreso, Long pensumId, Long facultadId) {
+        this.id = id;
+        this.codigo = codigo;
+        this.correo = correo;
+        this.contrasenia = contrasenia;
+        this.nombre = nombre;
+        this.carrera = carrera;
+        this.anioIngreso = anioIngreso;
+        this.pensumId = pensumId;
+        this.facultadId = facultadId;
+    }
 
     public Long getId() {
         return id;
@@ -52,12 +90,12 @@ public class Estudiante {
         this.correo = correo;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getContrasenia() {
+        return contrasenia;
     }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    public void setContrasenia(String contrasenia) {
+        this.contrasenia = contrasenia;
     }
 
     public String getNombre() {
@@ -84,6 +122,20 @@ public class Estudiante {
         this.anioIngreso = anioIngreso;
     }
 
-    
+    public Long getPensumId() {
+        return pensumId;
+    }
+
+    public void setPensumId(Long pensumId) {
+        this.pensumId = pensumId;
+    }
+
+    public Long getFacultadId() {
+        return facultadId;
+    }
+
+    public void setFacultadId(Long facultadId) {
+        this.facultadId = facultadId;
+    }
 
 }

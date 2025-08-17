@@ -10,14 +10,27 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo7.tesis.models.Materia;
+import com.grupo7.tesis.repositories.MateriaRepository;
+import com.grupo7.tesis.repositories.PensumMateriaRepository;
+import com.grupo7.tesis.repositories.PensumRepository;
 
 @Service
 public class pensumService {
+
+    @Autowired 
+    private PensumRepository pensumRepository;
+
+    @Autowired
+    private PensumMateriaRepository pensumMateriaRepository;
+
+    @Autowired
+    private MateriaRepository materiaRepository;
 
     public List<Materia> obtenerPensum() throws Exception {
         ObjectMapper mapper = new ObjectMapper();

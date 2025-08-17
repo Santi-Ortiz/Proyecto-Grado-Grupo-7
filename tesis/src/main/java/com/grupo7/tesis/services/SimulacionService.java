@@ -11,6 +11,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.MateriaConPuntajeDTO;
@@ -19,9 +20,13 @@ import com.grupo7.tesis.models.NodoA;
 import com.grupo7.tesis.models.PlanSemestre;
 import com.grupo7.tesis.models.Progreso;
 import com.grupo7.tesis.models.Proyeccion;
+import com.grupo7.tesis.repositories.SimulacionRepository;
 
 @Service
 public class SimulacionService {
+
+    @Autowired
+    private SimulacionRepository simulacionRepository;
 
     // ALGORITMO A*
     public Map<Integer, PlanSemestre> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
@@ -591,8 +596,8 @@ public class SimulacionService {
     public void agregarMateriasAdicionalesDisponibles(List<Materia> materiasDisponibles, Progreso progreso,
             List<Materia> materiasPensum, Proyeccion proyeccion) {
 
-        int creditosDisponibles = proyeccion.getCreditos();
-        int materiasDisponiblesNum = proyeccion.getMaterias();
+        int creditosDisponibles = proyeccion.getnumMaxCreditos();
+        int materiasDisponiblesNum = proyeccion.getnumMaxMaterias();
         int semestre = proyeccion.getSemestre();
 
         // ELECTIVAS
@@ -813,7 +818,7 @@ public class SimulacionService {
                 prioridades);
         mostrarMateriasPuntajes(materiasConPuntaje);
         List<PlanSemestre> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
-                proyeccion.getCreditos(), proyeccion.getMaterias()).stream().limit(numCombinaciones)
+                proyeccion.getnumMaxCreditos(), proyeccion.getnumMaxMaterias()).stream().limit(numCombinaciones)
                 .collect(Collectors.toList());
         mostrarResultadosCombinaciones(mejoresCombinaciones);
 
@@ -866,8 +871,8 @@ public class SimulacionService {
     public Proyeccion crearProyeccionParaSemestre(Proyeccion base, int semestre) {
         Proyeccion proyeccion = new Proyeccion();
         proyeccion.setSemestre(semestre);
-        proyeccion.setCreditos(base.getCreditos());
-        proyeccion.setMaterias(base.getMaterias());
+        proyeccion.setnumMaxCreditos(base.getnumMaxCreditos());
+        proyeccion.setnumMaxMaterias(base.getnumMaxMaterias());
         return proyeccion;
     }
 
