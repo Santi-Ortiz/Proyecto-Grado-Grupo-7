@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo7.tesis.models.Materia;
-import com.grupo7.tesis.services.pensumService;
+import com.grupo7.tesis.services.PensumService;
 
 @RestController
 @RequestMapping ("/api/pensum")
-public class pensumController {
+public class PensumController {
 
     @Autowired
-    private pensumService pensumService;
+    private PensumService pensumService;
 
     @GetMapping("/pensum")
     public String mostrarPensum(Model model) throws Exception {

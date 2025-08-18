@@ -15,7 +15,7 @@ import com.grupo7.tesis.dtos.SimulacionDTO;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.PlanSemestre;
 import com.grupo7.tesis.services.SimulacionService;
-import com.grupo7.tesis.services.pensumService;
+import com.grupo7.tesis.services.PensumService;
 
 @RestController
 @RequestMapping("/api/simulacion")
@@ -25,7 +25,7 @@ public class SimulacionController {
     private SimulacionService simulacionService;
 
     @Autowired
-    private pensumService pensumService;
+    private PensumService pensumService;
 
     @PostMapping("/generar")
     @ResponseBody

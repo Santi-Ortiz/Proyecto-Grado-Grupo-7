@@ -93,6 +93,14 @@ public class InformeAvance {
     public void setArchivo(byte[] archivo) {
         this.archivo = archivo;
     }
+    
+    public Date getFechaPublicacion() {
+        return fechaPublicacion;
+    }
+
+    public void setFechaPublicacion(Date fechaPublicacion) {
+        this.fechaPublicacion = fechaPublicacion;
+    }
 
     public Estudiante getEstudianteId() {
         return estudianteId;
@@ -129,5 +137,4 @@ public class InformeAvance {
 
         return materias;
     }
-    
 }
