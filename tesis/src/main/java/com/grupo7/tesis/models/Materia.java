@@ -5,13 +5,17 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 // ---- Nombre Anterior: MateriaJson ----
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,8 +36,12 @@ public class Materia {
 
     private int semestre;
 
+    @ElementCollection
+    @CollectionTable(name = "materia_requisitos", joinColumns = @JoinColumn(name = "materia_id"))
+    @Column(name = "requisito_codigo")
     private List<String> requisitos;
 
+    @Transient
     private String requisitosJson;
 
     private String tipo;
@@ -98,7 +106,6 @@ public class Materia {
     public void setSimulacionesAsociadas(Set<SimulacionMateria> simulacionesAsociadas) {
         this.simulacionesAsociadas = simulacionesAsociadas;
     }
-
 
     public String getCodigo() {
         return codigo;
@@ -166,6 +173,6 @@ public class Materia {
 
     public void setInformesAsociados(Set<InformeAvanceMateria> informesAsociados) {
         this.informesAsociados = informesAsociados;
-    } 
+    }
 
 }
