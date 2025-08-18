@@ -4,7 +4,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # Cargar el PDF con las materias
-loader = PyPDFLoader("../data/CursosIS_Javeriana.pdf")
+loader = PyPDFLoader("../data/Cursos_Javeriana.pdf")
 pages = loader.load()
 
 # Dividir texto en fragmentos manejables
