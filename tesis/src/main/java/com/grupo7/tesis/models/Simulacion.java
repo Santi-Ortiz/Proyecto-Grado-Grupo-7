@@ -18,7 +18,6 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "simulacion")
 public class Simulacion {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "simulacion_id")
@@ -35,8 +34,9 @@ public class Simulacion {
     @JoinColumn(name = "proyeccion_id")
     private Proyeccion proyeccionId;
 
+    private double puntajeTotal;
+
     public Simulacion() {
-        this.materiasAsociadas = new HashSet<>();
     }
 
     public Simulacion(Proyeccion proyeccionId) {
@@ -58,6 +58,11 @@ public class Simulacion {
             }
         }
         return materias;
+    }
+
+
+    public double getPuntajeTotal() {
+        return puntajeTotal;
     }
 
     public Set<SimulacionMateria> getMateriasAsociadas() {
@@ -100,12 +105,26 @@ public class Simulacion {
         this.creditosTotales = creditosTotales;
     }
 
+    public void setPuntajeTotal(double puntajeTotal) {
+        this.puntajeTotal = puntajeTotal;
+    }
+
     public void agregarMateria(Materia materia) {
         if (this.materiasAsociadas == null) {
             this.materiasAsociadas = new HashSet<>();
         }
         SimulacionMateria asociacion = new SimulacionMateria(this, materia);
         this.materiasAsociadas.add(asociacion);
+    }
+
+    public int getTotalCreditos() {
+        int total = 0;
+        if (materiasAsociadas != null) {
+            for (SimulacionMateria sm : materiasAsociadas) {
+                total += sm.getMateria().getCreditos();
+            }
+        }
+        return total;
     }
 
 }
