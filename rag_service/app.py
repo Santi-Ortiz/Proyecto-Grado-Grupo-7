@@ -57,14 +57,18 @@ Respuesta:"""
 
     prompt_materias = PromptTemplate.from_template(
         """
-Eres un sistema de recomendación de materias universitarias. Responde en JSON ESTRICTO.
+Eres un sistema de recomendación de materias universitarias. 
+Debes responder **únicamente en formato JSON válido**.
 
-Reglas:
-- SOLO devuelve materias del contexto.
-- Respeta estrictamente las restricciones y requisitos que vengan en la consulta del estudiante (por ejemplo, número de créditos).
-- Si no hay coincidencias, devuelve "materias": [] y una explicación breve de por qué.
+📌 Reglas estrictas:
+- SOLO utiliza materias presentes en el CONTEXTO.
+- Si el estudiante indica un número específico de créditos, SOLO devuelve materias que tengan exactamente esos créditos (usa el valor literal de "Créditos: X.0" en el contexto).
+- Si el estudiante elige "Cualquiera" en créditos, ignora ese filtro y recomienda solo en base a intereses.
+- NO inventes ni cambies los valores de créditos, ID, catálogo ni oferta. Copia exactamente lo que aparezca en el contexto.
+- Incluye una justificación clara: afinidad entre los intereses del estudiante y el contenido/competencias de la materia.
+- Si no hay coincidencias exactas, devuelve "materias": [] y una explicación clara.
 
-Formato:
+📌 Formato de salida obligatorio:
 {{
   "materias": [
     {{
@@ -73,16 +77,17 @@ Formato:
       "id": "...",
       "creditos": "...",
       "numero_catalogo": "...",
-      "numero_oferta": "..."
+      "numero_oferta": "...",
+      "razon": "Explica brevemente por qué esta materia fue recomendada según los intereses del estudiante."
     }}
   ],
-  "explicacion": "..."
+  "explicacion": "Explicación general de la recomendación o por qué no se encontraron resultados."
 }}
 
-Contexto:
+📌 Contexto:
 {context}
 
-Consulta del estudiante:
+📌 Consulta del estudiante:
 {question}
 """
     )
@@ -114,13 +119,12 @@ async def recomendar_materias(request: Request):
     intereses = data.get("intereses", "")
     creditos = data.get("creditos", None)
 
-    # Construcción de la consulta: intereses + créditos
-    if creditos:
-        consulta = f"{intereses}. Buscar SOLO materias con Créditos: {creditos}."
+    # Construcción de la consulta
+    if creditos and str(creditos).lower() != "cualquiera":
+        consulta = f"Intereses del estudiante: {intereses}. SOLO devolver materias con Créditos: {creditos}."
     else:
-        consulta = intereses
+        consulta = f"Intereses del estudiante: {intereses}. No aplicar filtro de créditos."
 
-    # 👇 SOLO enviamos 'question', nada más
     result = qa_materias.invoke({"question": consulta})
 
     raw = result["result"]
