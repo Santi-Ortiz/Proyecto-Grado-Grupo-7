@@ -31,6 +31,7 @@ public class InformeAvance {
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
+    @Column(name = "archivo", columnDefinition = "BYTEA")
     private byte[] archivo;
 
     private Date fechaPublicacion;
@@ -93,7 +94,7 @@ public class InformeAvance {
     public void setArchivo(byte[] archivo) {
         this.archivo = archivo;
     }
-    
+
     public Date getFechaPublicacion() {
         return fechaPublicacion;
     }

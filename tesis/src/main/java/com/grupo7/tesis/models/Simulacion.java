@@ -38,6 +38,7 @@ public class Simulacion {
     @JoinColumn(name = "proyeccion_id")
     private Proyeccion proyeccionId;
 
+    @Transient
     private double puntajeTotal;
 
     public Simulacion() {

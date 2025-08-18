@@ -16,13 +16,13 @@ import com.grupo7.tesis.models.Facultad;
 import com.grupo7.tesis.services.FacultadService;
 
 @RestController
-@RequestMapping("/api/facultad")
+@RequestMapping("/api/facultades")
 public class FacultadController {
 
     @Autowired
     private FacultadService facultadService;
 
-    @GetMapping("/todas")
+    @GetMapping
     public List<Facultad> getAllFacultades() {
         return facultadService.obtenerTodasFacultades();
     }

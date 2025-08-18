@@ -1,6 +1,5 @@
 package com.grupo7.tesis.services;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,26 @@ public class EstudianteService {
 
     public List<Estudiante> obtenerTodosEstudiantes() {
         return estudianteRepository.findAll();
+    }
+
+    public Estudiante obtenerEstudiantePorId(Long id) {
+        return estudianteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con ID: " + id));
+    }
+
+    public Estudiante crearEstudiante(Estudiante estudiante) {
+        return estudianteRepository.save(estudiante);
+    }
+
+    public Estudiante actualizarEstudiante(Long id, Estudiante estudiante) {
+        Estudiante estudianteExistente = obtenerEstudiantePorId(id);
+        estudianteExistente = estudiante;
+        return estudianteRepository.save(estudianteExistente);
+    }
+
+    public void eliminarEstudiante(Long id) {
+        Estudiante estudiante = obtenerEstudiantePorId(id);
+        estudianteRepository.delete(estudiante);
     }
 
 }

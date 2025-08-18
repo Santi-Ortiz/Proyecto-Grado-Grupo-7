@@ -9,11 +9,11 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1015,6 +1015,29 @@ public class SimulacionService {
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
         System.out.println("A* no pudo encontrar ninguna solución completa");
         return new HashMap<>();
+    }
+
+    /* CRUD DE SIMULACIÓN */
+
+    public List<Simulacion> obtenerTodasSimulaciones() {
+        return simulacionRepository.findAll();
+    }
+
+    public Optional<Simulacion> obtenerSimulacionPorId(Long id) {
+        return simulacionRepository.findById(id);
+    }
+
+    public Simulacion crearSimulacion(Simulacion simulacion) {
+        return simulacionRepository.save(simulacion);
+    }
+
+    public Simulacion actualizarSimulacion(Long id, Simulacion simulacion) {
+        simulacion.setId(id);
+        return simulacionRepository.save(simulacion);
+    }
+
+    public void eliminarSimulacion(Long id) {
+        simulacionRepository.deleteById(id);
     }
 
 }

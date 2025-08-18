@@ -2,7 +2,12 @@ package com.grupo7.tesis.controllers;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,9 +24,29 @@ public class EstudianteController {
         this.estudianteService = estudianteService;
     }
 
-    @GetMapping("/todos")
+    @GetMapping
     public List<Estudiante> obtenerTodosEstudiantes() {
         return estudianteService.obtenerTodosEstudiantes();
+    }
+
+    @GetMapping("/{id}")
+    public Estudiante obtenerEstudiantePorId(@PathVariable Long id) {
+        return estudianteService.obtenerEstudiantePorId(id);
+    }
+
+    @PostMapping
+    public Estudiante crearEstudiante(@RequestBody Estudiante estudiante) {
+        return estudianteService.crearEstudiante(estudiante);
+    }
+
+    @PutMapping("/{id}")
+    public Estudiante actualizarEstudiante(@PathVariable Long id, @RequestBody Estudiante estudiante) {
+        return estudianteService.actualizarEstudiante(id, estudiante);
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminarEstudiante(@PathVariable Long id) {
+        estudianteService.eliminarEstudiante(id);
     }
 
 }

@@ -22,7 +22,7 @@ public class MateriaController {
     @Autowired
     private MateriaService materiaService;
 
-    @GetMapping("/todas")
+    @GetMapping
     public List<Materia> obtenerMaterias() {
         return materiaService.obtenerMaterias();
     }

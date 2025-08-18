@@ -17,25 +17,25 @@ import com.grupo7.tesis.models.Pensum;
 import com.grupo7.tesis.services.PensumService;
 
 @RestController
-@RequestMapping ("/api/pensum")
+@RequestMapping ("/api/pensums")
 public class PensumController {
 
     @Autowired
     private PensumService pensumService;
 
     @GetMapping("/todos")
-    public List<Pensum> getAllPensums() throws Exception {
+    public List<Pensum> getAllPensums(){
         return pensumService.obtenerPensums();
-    }
-
-    @PostMapping
-    public Pensum createPensum(@RequestBody Pensum pensum) {
-        return pensumService.crearPensum(pensum);
     }
 
     @GetMapping("/{id}")
     public Pensum getPensumById(@PathVariable Long id) {
         return pensumService.obtenerPensumPorId(id);
+    }
+
+    @PostMapping
+    public Pensum createPensum(@RequestBody Pensum pensum) {
+        return pensumService.crearPensum(pensum);
     }
 
     @PutMapping("/{id}")
