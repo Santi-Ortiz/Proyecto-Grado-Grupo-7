@@ -16,8 +16,8 @@ public class ProyeccionService {
 
         Proyeccion proyeccion = new Proyeccion();
         proyeccion.setSemestre(semestre);
-        proyeccion.setnumMaxCreditos(creditos);
-        proyeccion.setnumMaxMaterias(materias);
+        proyeccion.setNumMaxCreditos(creditos);
+        proyeccion.setNumMaxMaterias(materias);
 
         return proyeccion;
     }

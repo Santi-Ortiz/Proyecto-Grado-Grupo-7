@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 // ---- Nombre Anterior: MateriaJson ----
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "Materia")
+@Table(name = "materia")
 public class Materia {
 
     @Id
@@ -35,16 +35,20 @@ public class Materia {
     private List<String> requisitos;
 
     private String requisitosJson;
-    
+
     private String tipo;
 
     @OneToMany(mappedBy = "materia")
-    private Set<PensumMateria> pensumsAsociados;    
+    private Set<PensumMateria> pensumsAsociados;
+
+    @OneToMany(mappedBy = "materia")
+    private Set<SimulacionMateria> simulacionesAsociadas;
+
+    @OneToMany(mappedBy = "materia")
+    private Set<InformeAvanceMateria> informesAsociados;
 
     public Materia() {
     }
-
-    
 
     public Materia(String codigo, String nombre, Integer creditos, int semestre, List<String> requisitos,
             String requisitosJson, String tipo, Set<PensumMateria> pensumsAsociados) {
@@ -86,6 +90,15 @@ public class Materia {
     public void setPensumsAsociados(Set<PensumMateria> pensumsAsociados) {
         this.pensumsAsociados = pensumsAsociados;
     }
+
+    public Set<SimulacionMateria> getSimulacionesAsociadas() {
+        return simulacionesAsociadas;
+    }
+
+    public void setSimulacionesAsociadas(Set<SimulacionMateria> simulacionesAsociadas) {
+        this.simulacionesAsociadas = simulacionesAsociadas;
+    }
+
 
     public String getCodigo() {
         return codigo;
@@ -146,5 +159,13 @@ public class Materia {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
+
+    public Set<InformeAvanceMateria> getInformesAsociados() {
+        return informesAsociados;
+    }
+
+    public void setInformesAsociados(Set<InformeAvanceMateria> informesAsociados) {
+        this.informesAsociados = informesAsociados;
+    } 
 
 }

@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Proyeccion")
+@Table(name = "proyeccion")
 public class Proyeccion {
 
     @Id
@@ -18,7 +18,7 @@ public class Proyeccion {
     @Column(name = "proyeccion_id")
     private Long id;
 
-    private int semestre; // Representa la cantidad de semestres a simular
+    private int semestre; // Representa la cantidad de semestres hacia delante que se desean simular
 
     private int numMaxCreditos; // Representa la cantidad de créditos MÁXIMA que tendrán las simulaciones
 
@@ -26,7 +26,7 @@ public class Proyeccion {
 
     @ManyToOne
     @JoinColumn(name = "estudiante_id")
-    private Long estudianteId;
+    private Estudiante estudianteId;
 
     public Proyeccion() {
     }
@@ -37,12 +37,20 @@ public class Proyeccion {
         this.numMaxMaterias = numMaxMaterias;
     }
 
-    public Proyeccion(Long id, int semestre, int numMaxCreditos, int numMaxMaterias, Long estudianteId) {
+    public Proyeccion(Long id, int semestre, int numMaxCreditos, int numMaxMaterias, Estudiante estudianteId) {
         this.id = id;
         this.semestre = semestre;
         this.numMaxCreditos = numMaxCreditos;
         this.numMaxMaterias = numMaxMaterias;
         this.estudianteId = estudianteId;
+    }
+    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public int getSemestre() {
@@ -53,20 +61,28 @@ public class Proyeccion {
         this.semestre = semestre;
     }
 
-    public int getnumMaxCreditos() {
+    public int getNumMaxCreditos() {
         return numMaxCreditos;
     }
 
-    public void setnumMaxCreditos(int numMaxCreditos) {
+    public void setNumMaxCreditos(int numMaxCreditos) {
         this.numMaxCreditos = numMaxCreditos;
     }
 
-    public int getnumMaxMaterias() {
+    public int getNumMaxMaterias() {
         return numMaxMaterias;
     }
 
-    public void setnumMaxMaterias(int numMaxMaterias) {
+    public void setNumMaxMaterias(int numMaxMaterias) {
         this.numMaxMaterias = numMaxMaterias;
+    }
+
+    public Estudiante getEstudianteId() {
+        return estudianteId;
+    }
+
+    public void setEstudianteId(Estudiante estudianteId) {
+        this.estudianteId = estudianteId;
     }
 
     @Override

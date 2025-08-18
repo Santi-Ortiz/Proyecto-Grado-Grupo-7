@@ -1,7 +1,9 @@
 package com.grupo7.tesis.models;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,10 +12,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Simulacion")
+@Table(name = "simulacion")
 public class Simulacion {
 
     @Id
@@ -21,34 +24,48 @@ public class Simulacion {
     @Column(name = "simulacion_id")
     private Long id;
 
-    private List<Materia> materias;
+    @OneToMany(mappedBy = "simulacion")
+    private Set<SimulacionMateria> materiasAsociadas;
+
+    private Long semestre; // Representa el semestre al que se está simulando
+
+    private Long creditosTotales; // Representa la cantidad de creditos que contiene la simulación 
 
     @ManyToOne
     @JoinColumn(name = "proyeccion_id")
-    private Long proyeccionId;
+    private Proyeccion proyeccionId;
 
-    
     public Simulacion() {
-        this.materias = new ArrayList<>();
+        this.materiasAsociadas = new HashSet<>();
     }
-    
-    public Simulacion(List<Materia> materias, Long proyeccionId) {
-        this.materias = materias;
+
+    public Simulacion(Proyeccion proyeccionId) {
+        this();
         this.proyeccionId = proyeccionId;
     }
 
-    public Simulacion(Long id, List<Materia> materias, Long proyeccionId) {
+    public Simulacion(Long id, Proyeccion proyeccionId) {
+        this();
         this.id = id;
-        this.materias = materias;
         this.proyeccionId = proyeccionId;
     }
 
     public List<Materia> getMaterias() {
+        List<Materia> materias = new ArrayList<>();
+        if (this.materiasAsociadas != null) {
+            for (SimulacionMateria sm : this.materiasAsociadas) {
+                materias.add(sm.getMateria());
+            }
+        }
         return materias;
     }
 
-    public void setMaterias(List<Materia> materias) {
-        this.materias = materias;
+    public Set<SimulacionMateria> getMateriasAsociadas() {
+        return materiasAsociadas;
+    }
+
+    public void setMateriasAsociadas(Set<SimulacionMateria> materiasAsociadas) {
+        this.materiasAsociadas = materiasAsociadas;
     }
 
     public Long getId() {
@@ -59,19 +76,36 @@ public class Simulacion {
         this.id = id;
     }
 
-    public Long getProyeccionId() {
+    public Proyeccion getProyeccionId() {
         return proyeccionId;
     }
 
-    public void setProyeccionId(Long proyeccionId) {
+    public void setProyeccionId(Proyeccion proyeccionId) {
         this.proyeccionId = proyeccionId;
     }
 
+    public Long getSemestre() {
+        return semestre;
+    }
+
+    public void setSemestre(Long semestre) {
+        this.semestre = semestre;
+    }
+
+    public Long getCreditosTotales() {
+        return creditosTotales;
+    }
+
+    public void setCreditosTotales(Long creditosTotales) {
+        this.creditosTotales = creditosTotales;
+    }
+
     public void agregarMateria(Materia materia) {
-        if (this.materias == null) {
-            this.materias = new ArrayList<>();
+        if (this.materiasAsociadas == null) {
+            this.materiasAsociadas = new HashSet<>();
         }
-        this.materias.add(materia);
+        SimulacionMateria asociacion = new SimulacionMateria(this, materia);
+        this.materiasAsociadas.add(asociacion);
     }
 
 }

@@ -8,8 +8,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
+/* Tabla intermedia entre Pensum y materia para almacenar las materias de un pensum */
 @Entity
-@Table(name = "PensumMateria")
+@Table(name = "pensum_materia")
 public class PensumMateria {
 
     @EmbeddedId

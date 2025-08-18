@@ -596,8 +596,8 @@ public class SimulacionService {
     public void agregarMateriasAdicionalesDisponibles(List<Materia> materiasDisponibles, Progreso progreso,
             List<Materia> materiasPensum, Proyeccion proyeccion) {
 
-        int creditosDisponibles = proyeccion.getnumMaxCreditos();
-        int materiasDisponiblesNum = proyeccion.getnumMaxMaterias();
+        int creditosDisponibles = proyeccion.getNumMaxCreditos();
+        int materiasDisponiblesNum = proyeccion.getNumMaxMaterias();
         int semestre = proyeccion.getSemestre();
 
         // ELECTIVAS
@@ -818,7 +818,7 @@ public class SimulacionService {
                 prioridades);
         mostrarMateriasPuntajes(materiasConPuntaje);
         List<PlanSemestre> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
-                proyeccion.getnumMaxCreditos(), proyeccion.getnumMaxMaterias()).stream().limit(numCombinaciones)
+                proyeccion.getNumMaxCreditos(), proyeccion.getNumMaxMaterias()).stream().limit(numCombinaciones)
                 .collect(Collectors.toList());
         mostrarResultadosCombinaciones(mejoresCombinaciones);
 
@@ -871,8 +871,8 @@ public class SimulacionService {
     public Proyeccion crearProyeccionParaSemestre(Proyeccion base, int semestre) {
         Proyeccion proyeccion = new Proyeccion();
         proyeccion.setSemestre(semestre);
-        proyeccion.setnumMaxCreditos(base.getnumMaxCreditos());
-        proyeccion.setnumMaxMaterias(base.getnumMaxMaterias());
+        proyeccion.setNumMaxCreditos(base.getNumMaxCreditos());
+        proyeccion.setNumMaxMaterias(base.getNumMaxMaterias());
         return proyeccion;
     }
 

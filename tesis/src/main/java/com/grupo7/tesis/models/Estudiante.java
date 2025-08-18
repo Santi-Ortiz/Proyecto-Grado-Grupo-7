@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Estudiante")
+@Table(name = "estudiante")
 public class Estudiante {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,19 +30,19 @@ public class Estudiante {
     private Long anioIngreso;
 
     @ManyToOne
-    @JoinColumn(name = "facultad_id")
-    private Long pensumId;
+    @JoinColumn(name = "pensum_id")
+    private Pensum pensumId;
 
     @ManyToOne
-    @JoinColumn(name = "pensum_id")
-    private Long facultadId;
+    @JoinColumn(name = "facultad_id")
+    private Facultad facultadId;
 
 
     public Estudiante() {
     }
 
     public Estudiante(String codigo, String correo, String contrasenia, String nombre, String carrera, Long anioIngreso,
-            Long pensumId, Long facultadId) {
+            Pensum pensumId, Facultad facultadId) {
         this.codigo = codigo;
         this.correo = correo;
         this.contrasenia = contrasenia;
@@ -54,7 +54,7 @@ public class Estudiante {
     }
 
     public Estudiante(Long id, String codigo, String correo, String contrasenia, String nombre, String carrera,
-            Long anioIngreso, Long pensumId, Long facultadId) {
+            Long anioIngreso, Pensum pensumId, Facultad facultadId) {
         this.id = id;
         this.codigo = codigo;
         this.correo = correo;
@@ -65,7 +65,7 @@ public class Estudiante {
         this.pensumId = pensumId;
         this.facultadId = facultadId;
     }
-
+    
     public Long getId() {
         return id;
     }
@@ -122,19 +122,19 @@ public class Estudiante {
         this.anioIngreso = anioIngreso;
     }
 
-    public Long getPensumId() {
+    public Pensum getPensumId() {
         return pensumId;
     }
 
-    public void setPensumId(Long pensumId) {
+    public void setPensumId(Pensum pensumId) {
         this.pensumId = pensumId;
     }
 
-    public Long getFacultadId() {
+    public Facultad getFacultadId() {
         return facultadId;
     }
 
-    public void setFacultadId(Long facultadId) {
+    public void setFacultadId(Facultad facultadId) {
         this.facultadId = facultadId;
     }
 
