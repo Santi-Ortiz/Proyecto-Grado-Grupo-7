@@ -153,8 +153,8 @@ public void ejecutarTest() {
     private Proyeccion crearProyeccion() {
         Proyeccion proyeccion = new Proyeccion();
         proyeccion.setSemestre(8); 
-        proyeccion.setCreditos(20);
-        proyeccion.setMaterias(6);
+        proyeccion.setNumMaxCreditos(20);
+        proyeccion.setNumMaxMaterias(6);
         return proyeccion;
     }
 

@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "simulacion")
@@ -29,6 +30,9 @@ public class Simulacion {
     private Long semestre; // Representa el semestre al que se está simulando
 
     private Long creditosTotales; // Representa la cantidad de creditos que contiene la simulación 
+
+    @Transient
+    private List<Materia> materias;
 
     @ManyToOne
     @JoinColumn(name = "proyeccion_id")
@@ -48,6 +52,11 @@ public class Simulacion {
         this();
         this.id = id;
         this.proyeccionId = proyeccionId;
+    }
+
+    public Simulacion(List<Materia> materias, double puntajeTotal) {
+        this.materias = materias;
+        this.puntajeTotal = puntajeTotal;
     }
 
     public List<Materia> getMaterias() {
