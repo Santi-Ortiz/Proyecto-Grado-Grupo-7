@@ -1,16 +1,19 @@
 package com.grupo7.tesis.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo7.tesis.models.Materia;
+import com.grupo7.tesis.models.Pensum;
 import com.grupo7.tesis.services.PensumService;
 
 @RestController
@@ -20,29 +23,29 @@ public class PensumController {
     @Autowired
     private PensumService pensumService;
 
-    @GetMapping("/pensum")
-    public String mostrarPensum(Model model) throws Exception {
-        Map<Integer, List<Materia>> materiasPorSemestre = pensumService.obtenerMateriasPorSemestre();
+    @GetMapping("/todos")
+    public List<Pensum> getAllPensums() throws Exception {
+        return pensumService.obtenerPensums();
+    }
 
-        // Serializar requisitos a JSON
-        ObjectMapper mapper = new ObjectMapper();
-        materiasPorSemestre.values().forEach(lista -> {
-            for (Materia materia : lista) {
-                try {
-                    materia.setRequisitosJson(mapper.writeValueAsString(materia.getRequisitos()));
-                } catch (Exception e) {
-                    materia.setRequisitosJson("[]");
-                }
-            }
-        });
+    @PostMapping
+    public Pensum createPensum(@RequestBody Pensum pensum) {
+        return pensumService.crearPensum(pensum);
+    }
 
-        // Calcular conexiones y pasarlas como JSON al modelo
-        List<Map<String, String>> conexiones = pensumService.calcularConexionesValidas(materiasPorSemestre);
-        model.addAttribute("materiasPorSemestre", materiasPorSemestre);
-        model.addAttribute("conexiones", mapper.writeValueAsString(conexiones));
-        // conexiones.forEach(c -> System.out.println(c.get("origen") + " -> " +
-        // c.get("destino")));
-        return "pensum";
+    @GetMapping("/{id}")
+    public Pensum getPensumById(@PathVariable Long id) {
+        return pensumService.obtenerPensumPorId(id);
+    }
+
+    @PutMapping("/{id}")
+    public Pensum updatePensum(@PathVariable Long id, @RequestBody Pensum pensum) {
+        return pensumService.actualizarPensum(id, pensum);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletePensum(@PathVariable Long id) {
+        pensumService.eliminarPensum(id);
     }
 
     @GetMapping

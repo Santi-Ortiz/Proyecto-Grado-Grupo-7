@@ -23,7 +23,13 @@ public class Estudiante {
 
     private String contrasenia;
 
-    private String nombre;
+    private String primerNombre;
+
+    private String segundoNombre;
+
+    private String primerApellido;
+
+    private String segundoApellido;
 
     private String carrera;
 
@@ -41,31 +47,39 @@ public class Estudiante {
     public Estudiante() {
     }
 
-    public Estudiante(String codigo, String correo, String contrasenia, String nombre, String carrera, Long anioIngreso,
-            Pensum pensumId, Facultad facultadId) {
+    public Estudiante(String codigo, String correo, String contrasenia, String primerNombre, String segundoNombre,
+            String primerApellido, String segundoApellido, String carrera, Long anioIngreso, Pensum pensumId,
+            Facultad facultadId) {
         this.codigo = codigo;
         this.correo = correo;
         this.contrasenia = contrasenia;
-        this.nombre = nombre;
+        this.primerNombre = primerNombre;
+        this.segundoNombre = segundoNombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
         this.carrera = carrera;
         this.anioIngreso = anioIngreso;
         this.pensumId = pensumId;
         this.facultadId = facultadId;
     }
 
-    public Estudiante(Long id, String codigo, String correo, String contrasenia, String nombre, String carrera,
-            Long anioIngreso, Pensum pensumId, Facultad facultadId) {
+    public Estudiante(Long id, String codigo, String correo, String contrasenia, String primerNombre,
+            String segundoNombre, String primerApellido, String segundoApellido, String carrera, Long anioIngreso,
+            Pensum pensumId, Facultad facultadId) {
         this.id = id;
         this.codigo = codigo;
         this.correo = correo;
         this.contrasenia = contrasenia;
-        this.nombre = nombre;
+        this.primerNombre = primerNombre;
+        this.segundoNombre = segundoNombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
         this.carrera = carrera;
         this.anioIngreso = anioIngreso;
         this.pensumId = pensumId;
         this.facultadId = facultadId;
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -98,12 +112,36 @@ public class Estudiante {
         this.contrasenia = contrasenia;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getPrimerNombre() {
+        return primerNombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setPrimerNombre(String primerNombre) {
+        this.primerNombre = primerNombre;
+    }
+
+    public String getSegundoNombre() {
+        return segundoNombre;
+    }
+
+    public void setSegundoNombre(String segundoNombre) {
+        this.segundoNombre = segundoNombre;
+    }
+
+    public String getPrimerApellido() {
+        return primerApellido;
+    }
+
+    public void setPrimerApellido(String primerApellido) {
+        this.primerApellido = primerApellido;
+    }
+
+    public String getSegundoApellido() {
+        return segundoApellido;
+    }
+
+    public void setSegundoApellido(String segundoApellido) {
+        this.segundoApellido = segundoApellido;
     }
 
     public String getCarrera() {
