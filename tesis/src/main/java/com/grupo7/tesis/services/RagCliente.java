@@ -36,12 +36,12 @@ public class RagCliente {
         return "No se pudo obtener respuesta del servicio RAG.";
     }
 
-    // 👇 Enviamos intereses + creditos y devolvemos el JSON que responde el servicio
-    public String queryMaterias(String intereses, int creditos) {
+    public String queryMaterias(String intereses, Object creditos, String tipo) {
         try {
             Map<String, Object> request = new HashMap<>();
             request.put("intereses", intereses);
-            request.put("creditos", creditos);
+            request.put("creditos", creditos); // puede ser número o "cualquiera"
+            request.put("tipo", tipo == null ? "cualquiera" : tipo);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -54,7 +54,6 @@ public class RagCliente {
 
             return response.getBody();
         } catch (RestClientResponseException e) {
-            // Si el rag_service falla devolvemos un JSON seguro para el front
             return "{ \"materias\": [], \"explicacion\": \"No fue posible obtener recomendaciones en este momento.\" }";
         }
     }

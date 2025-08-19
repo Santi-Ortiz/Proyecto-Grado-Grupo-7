@@ -1,3 +1,4 @@
+# app.py
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import Ollama
@@ -17,15 +18,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Variables globales
-global qa_reglamento, qa_materias
+# ====== Globales ======
+qa_reglamento = None
+qa_all = None
+qa_enfasis = None
+qa_electivas = None
+qa_complementarias = None
 
 
 @app.on_event("startup")
 def load_rag():
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-    # ========= INDICE DEL REGLAMENTO =========
+    # ========= REGLAMENTO =========
     vectorstore_reglamento = FAISS.load_local(
         "faiss_index", embeddings, allow_dangerous_deserialization=True
     )
@@ -50,10 +55,14 @@ Respuesta:"""
         input_key="question",
     )
 
-    # ========= INDICE DE MATERIAS =========
-    vectorstore_materias = FAISS.load_local(
-        "faiss_materias", embeddings, allow_dangerous_deserialization=True
-    )
+    # ========= MATERIAS (4 índices) =========
+    def load_index(path: str):
+        return FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
+
+    vector_all = load_index("faiss_materias")               # TODAS (por defecto)
+    vector_enfasis = load_index("faiss_enfasis")            # Énfasis
+    vector_electivas = load_index("faiss_electivas")        # Electivas
+    vector_complementarias = load_index("faiss_complementarias")  # Complementarias
 
     prompt_materias = PromptTemplate.from_template(
         """
@@ -62,7 +71,7 @@ Debes responder **únicamente en formato JSON válido**.
 
 📌 Reglas estrictas:
 - SOLO utiliza materias presentes en el CONTEXTO.
-- Si el estudiante indica un número específico de créditos, SOLO devuelve materias que tengan exactamente esos créditos (usa el valor literal de "Créditos: X.0" en el contexto).
+- Si el estudiante indica un número específico de créditos, SOLO devuelve materias que tengan exactamente esos créditos (usa el valor literal tal como aparece).
 - Si el estudiante elige "Cualquiera" en créditos, ignora ese filtro y recomienda solo en base a intereses.
 - NO inventes ni cambies los valores de créditos, ID, catálogo ni oferta. Copia exactamente lo que aparezca en el contexto.
 - Incluye una justificación clara: afinidad entre los intereses del estudiante y el contenido/competencias de la materia.
@@ -92,10 +101,28 @@ Debes responder **únicamente en formato JSON válido**.
 """
     )
 
-    global qa_materias
-    qa_materias = RetrievalQA.from_chain_type(
+    global qa_all, qa_enfasis, qa_electivas, qa_complementarias
+    qa_all = RetrievalQA.from_chain_type(
         llm=llm,
-        retriever=vectorstore_materias.as_retriever(search_kwargs={"k": 10}),
+        retriever=vector_all.as_retriever(search_kwargs={"k": 10}),
+        chain_type_kwargs={"prompt": prompt_materias},
+        input_key="question",
+    )
+    qa_enfasis = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=vector_enfasis.as_retriever(search_kwargs={"k": 10}),
+        chain_type_kwargs={"prompt": prompt_materias},
+        input_key="question",
+    )
+    qa_electivas = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=vector_electivas.as_retriever(search_kwargs={"k": 10}),
+        chain_type_kwargs={"prompt": prompt_materias},
+        input_key="question",
+    )
+    qa_complementarias = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=vector_complementarias.as_retriever(search_kwargs={"k": 10}),
         chain_type_kwargs={"prompt": prompt_materias},
         input_key="question",
     )
@@ -103,7 +130,7 @@ Debes responder **únicamente en formato JSON válido**.
     print("✅ Servicios RAG cargados correctamente")
 
 
-# ========= ENDPOINT PARA PREGUNTAS DEL REGLAMENTO =========
+# ========= REGLAMENTO =========
 @app.post("/query")
 async def query(request: Request):
     data = await request.json()
@@ -112,23 +139,33 @@ async def query(request: Request):
     return {"answer": result["result"]}
 
 
-# ========= ENDPOINT PARA RECOMENDACIÓN DE MATERIAS =========
+# ========= RECOMENDACIÓN (elige índice por tipo) =========
 @app.post("/recomendar-materias")
 async def recomendar_materias(request: Request):
     data = await request.json()
-    intereses = data.get("intereses", "")
+    intereses = (data.get("intereses") or "").strip()
     creditos = data.get("creditos", None)
+    tipo = (data.get("tipo") or "cualquiera").strip().lower()
 
-    # Construcción de la consulta
+    # Construcción de consulta
     if creditos and str(creditos).lower() != "cualquiera":
         consulta = f"Intereses del estudiante: {intereses}. SOLO devolver materias con Créditos: {creditos}."
     else:
         consulta = f"Intereses del estudiante: {intereses}. No aplicar filtro de créditos."
 
-    result = qa_materias.invoke({"question": consulta})
+    # Elegir QA por tipo
+    qa = {
+        "cualquiera": qa_all,
+        "énfasis": qa_enfasis,
+        "enfasis": qa_enfasis,
+        "electivas": qa_electivas,
+        "complementarias": qa_complementarias,
+    }.get(tipo, qa_all)
 
+    result = qa.invoke({"question": consulta})
     raw = result["result"]
 
+    print(f"🔍 Tipo seleccionado: {tipo}")
     print("🔍 Respuesta cruda del modelo:")
     print(raw)
 

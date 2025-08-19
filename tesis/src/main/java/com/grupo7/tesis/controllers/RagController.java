@@ -22,26 +22,30 @@ public class RagController {
     }
 
     @PostMapping("/recomendar")
-    public String recomendarMaterias(@RequestBody InteresesDTO dto) {
-        return ragService.recomendarMaterias(dto.getIntereses(), dto.getCreditos());
+    public String recomendarMaterias(@RequestBody FiltroDTO dto) {
+        return ragService.recomendarMaterias(dto.getIntereses(), dto.getCreditos(), dto.getTipo());
     }
 
-    // DTO para preguntas sobre el reglamento
+    // DTO reglamento
     public static class QuestionDTO {
         private String question;
         public String getQuestion() { return question; }
         public void setQuestion(String question) { this.question = question; }
     }
 
-    // DTO para recomendación: intereses + creditos
-    public static class InteresesDTO {
+    // DTO filtros para recomendación
+    public static class FiltroDTO {
         private String intereses;
-        private Integer creditos; // 👈 nuevo
+        private Object creditos; // puede venir número o "cualquiera"
+        private String tipo;     // "cualquiera", "énfasis", "electivas", "complementarias"
 
         public String getIntereses() { return intereses; }
         public void setIntereses(String intereses) { this.intereses = intereses; }
 
-        public Integer getCreditos() { return creditos; }
-        public void setCreditos(Integer creditos) { this.creditos = creditos; }
+        public Object getCreditos() { return creditos; }
+        public void setCreditos(Object creditos) { this.creditos = creditos; }
+
+        public String getTipo() { return tipo; }
+        public void setTipo(String tipo) { this.tipo = tipo; }
     }
 }

@@ -17,8 +17,7 @@ public class RagService {
         return ragClient.queryRag(pregunta);
     }
 
-    public String recomendarMaterias(String intereses, Integer creditos) {
-        int c = creditos != null ? creditos : 0;
-        return ragClient.queryMaterias(intereses, c);
+    public String recomendarMaterias(String intereses, Object creditos, String tipo) {
+        return ragClient.queryMaterias(intereses, creditos, tipo);
     }
 }
