@@ -19,7 +19,7 @@ import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Simulacion;
 import com.grupo7.tesis.services.SimulacionService;
 
-import com.grupo7.tesis.services.PensumService2;
+import com.grupo7.tesis.services.PensumService;
 
 @RestController
 @RequestMapping("/api/simulaciones")
@@ -29,7 +29,7 @@ public class SimulacionController {
     private SimulacionService simulacionService;
 
     @Autowired
-    private PensumService2 pensumService;
+    private PensumService pensumService;
 
     @GetMapping
     public List<Simulacion> obtenerSimulaciones() {

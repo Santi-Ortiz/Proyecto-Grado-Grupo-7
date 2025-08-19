@@ -15,7 +15,7 @@ import com.grupo7.tesis.repositories.PensumMateriaRepository;
 import com.grupo7.tesis.repositories.PensumRepository;
 
 @Service
-public class PensumService2 {
+public class PensumService {
 
     @Autowired 
     private PensumRepository pensumRepository;

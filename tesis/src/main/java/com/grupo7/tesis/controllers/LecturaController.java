@@ -2,7 +2,7 @@ package com.grupo7.tesis.controllers;
 
 import com.grupo7.tesis.dtos.*;
 import com.grupo7.tesis.models.*;
-import com.grupo7.tesis.services.LecturaService2;
+import com.grupo7.tesis.services.LecturaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,10 +18,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-public class LecturaController2 {
+public class LecturaController {
 
         @Autowired
-        private LecturaService2 lecturaService;
+        private LecturaService lecturaService;
 
         @GetMapping("/historial")
         public String mostrarFormulario(Model model) {

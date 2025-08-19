@@ -35,7 +35,7 @@ public class SimulacionService {
     private int contadorNodosCreados = 0;
 
     @Autowired
-    private PensumService2 pensumService;
+    private PensumService pensumService;
 
     // ALGORITMO A*
     public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
