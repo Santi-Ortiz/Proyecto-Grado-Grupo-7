@@ -37,7 +37,7 @@ public class Materia {
     private int semestre;
 
     @ElementCollection
-    @CollectionTable(name = "materia_requisitos", joinColumns = @JoinColumn(name = "materia_id"))
+    @CollectionTable(name = "requisito_materia", joinColumns = @JoinColumn(name = "materia_id"))
     @Column(name = "requisito_codigo")
     private List<String> requisitos;
 
