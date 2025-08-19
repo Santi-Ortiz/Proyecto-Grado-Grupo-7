@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.grupo7.tesis.dtos.SimulacionDTO;
@@ -20,9 +19,7 @@ import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Simulacion;
 import com.grupo7.tesis.services.SimulacionService;
 
-import lombok.Delegate;
-
-import com.grupo7.tesis.services.PensumService;
+import com.grupo7.tesis.services.PensumService2;
 
 @RestController
 @RequestMapping("/api/simulaciones")
@@ -32,7 +29,7 @@ public class SimulacionController {
     private SimulacionService simulacionService;
 
     @Autowired
-    private PensumService pensumService;
+    private PensumService2 pensumService;
 
     @GetMapping
     public List<Simulacion> obtenerSimulaciones() {

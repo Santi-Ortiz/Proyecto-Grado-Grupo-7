@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class LecturaService {
+public class LecturaService2 {
 
     @Autowired
     private ProgresoService progresoService;

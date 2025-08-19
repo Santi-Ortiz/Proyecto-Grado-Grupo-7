@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Pensum;
-import com.grupo7.tesis.services.PensumService;
+import com.grupo7.tesis.services.PensumService2;
 
 @RestController
 @RequestMapping ("/api/pensums")
-public class PensumController {
+public class PensumController2 {
 
     @Autowired
-    private PensumService pensumService;
+    private PensumService2 pensumService;
 
     @GetMapping("/todos")
     public List<Pensum> getAllPensums(){
