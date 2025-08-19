@@ -38,6 +38,11 @@ public class lecturaController {
 
                 List<MateriaDTO> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
 
+                if (materias == null || materias.isEmpty()) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                                "El archivo no corresponde a un informe de avance válido.");
+                }
+
                 List<MateriaDTO> cursosElectivaBasicas = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoElectivaBasicasBruto(archivo));
 
