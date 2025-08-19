@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.grupo7.tesis.dtos.EstudianteDTO;
 import com.grupo7.tesis.models.Estudiante;
+import com.grupo7.tesis.models.Facultad;
+import com.grupo7.tesis.models.Pensum;
 import com.grupo7.tesis.services.EstudianteService;
 
 @RestController
@@ -35,8 +38,8 @@ public class EstudianteController {
     }
 
     @PostMapping
-    public Estudiante crearEstudiante(@RequestBody Estudiante estudiante) {
-        return estudianteService.crearEstudiante(estudiante);
+    public Estudiante crearEstudiante(@RequestBody EstudianteDTO estudianteDTO) {
+        return estudianteService.crearEstudiante(estudianteDTO);
     }
 
     @PutMapping("/{id}")
@@ -47,6 +50,18 @@ public class EstudianteController {
     @DeleteMapping("/{id}")
     public void eliminarEstudiante(@PathVariable Long id) {
         estudianteService.eliminarEstudiante(id);
+    }
+
+    /* Acceder a los objetos Pensum y Facultad */
+
+    @GetMapping("/{id}/pensum")
+    public Pensum obtenerPensumEstudiante(@PathVariable Long id) {
+        return estudianteService.obtenerPensumEstudiante(id);
+    }
+
+    @GetMapping("/{id}/facultad")
+    public Facultad obtenerFacultadEstudiante(@PathVariable Long id) {
+        return estudianteService.obtenerFacultadEstudiante(id);
     }
 
 }

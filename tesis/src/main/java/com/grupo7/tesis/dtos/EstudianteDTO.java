@@ -1,72 +1,24 @@
-package com.grupo7.tesis.models;
+package com.grupo7.tesis.dtos;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "estudiante")
-public class Estudiante {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "estudiante_id")
-    private Long id;
-
+public class EstudianteDTO {
     private String codigo;
-
     private String correo;
-
     private String contrasenia;
-
     private String primerNombre;
-
     private String segundoNombre;
-
     private String primerApellido;
-
     private String segundoApellido;
-
     private String carrera;
-
     private Long anioIngreso;
+    private Long pensumId;
+    private Long facultadId;
 
-    @ManyToOne
-    @JoinColumn(name = "pensum_id")
-    private Pensum pensum;
-
-    @ManyToOne
-    @JoinColumn(name = "facultad_id")
-    private Facultad facultad;
-
-
-    public Estudiante() {
+    public EstudianteDTO() {
     }
 
-    public Estudiante(String codigo, String correo, String contrasenia, String primerNombre, String segundoNombre,
-            String primerApellido, String segundoApellido, String carrera, Long anioIngreso, Pensum pensum,
-            Facultad facultad) {
-        this.codigo = codigo;
-        this.correo = correo;
-        this.contrasenia = contrasenia;
-        this.primerNombre = primerNombre;
-        this.segundoNombre = segundoNombre;
-        this.primerApellido = primerApellido;
-        this.segundoApellido = segundoApellido;
-        this.carrera = carrera;
-        this.anioIngreso = anioIngreso;
-        this.pensum = pensum;
-        this.facultad = facultad;
-    }
-
-    public Estudiante(Long id, String codigo, String correo, String contrasenia, String primerNombre,
+    public EstudianteDTO(String codigo, String correo, String contrasenia, String primerNombre,
             String segundoNombre, String primerApellido, String segundoApellido, String carrera, Long anioIngreso,
-            Pensum pensum, Facultad facultad) {
-        this.id = id;
+            Long pensumId, Long facultadId) {
         this.codigo = codigo;
         this.correo = correo;
         this.contrasenia = contrasenia;
@@ -76,16 +28,8 @@ public class Estudiante {
         this.segundoApellido = segundoApellido;
         this.carrera = carrera;
         this.anioIngreso = anioIngreso;
-        this.pensum = pensum;
-        this.facultad = facultad;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+        this.pensumId = pensumId;
+        this.facultadId = facultadId;
     }
 
     public String getCodigo() {
@@ -160,20 +104,19 @@ public class Estudiante {
         this.anioIngreso = anioIngreso;
     }
 
-    public Pensum getPensum() {
-        return pensum;
+    public Long getPensumId() {
+        return pensumId;
     }
 
-    public void setPensum(Pensum pensum) {
-        this.pensum = pensum;
+    public void setPensumId(Long pensumId) {
+        this.pensumId = pensumId;
     }
 
-    public Facultad getFacultad() {
-        return facultad;
+    public Long getFacultadId() {
+        return facultadId;
     }
 
-    public void setFacultad(Facultad facultad) {
-        this.facultad = facultad;
+    public void setFacultadId(Long facultadId) {
+        this.facultadId = facultadId;
     }
-
 }

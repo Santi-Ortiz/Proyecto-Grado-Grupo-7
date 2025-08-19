@@ -39,9 +39,22 @@ public class PensumService {
     }
 
     public Pensum actualizarPensum(Long id, Pensum pensumActualizado) {
-        if (pensumRepository.existsById(id)) {
-            pensumActualizado.setId(id);
-            return pensumRepository.save(pensumActualizado);
+        Pensum pensumExistente = pensumRepository.findById(id).orElse(null);
+        if (pensumExistente != null) {
+
+            if(pensumActualizado.getCarrera() != null) {
+                pensumExistente.setCarrera(pensumActualizado.getCarrera());
+            }
+            if (pensumActualizado.getCreditosTotales() != null) {
+                pensumExistente.setCreditosTotales(pensumActualizado.getCreditosTotales());
+            }
+            if (pensumActualizado.getNumeroSemestres() != null) {
+                pensumExistente.setNumeroSemestres(pensumActualizado.getNumeroSemestres());
+            }
+            if(pensumActualizado.getMateriasAsociadas() != null) {
+                pensumExistente.setMateriasAsociadas(pensumActualizado.getMateriasAsociadas());
+            }
+            return pensumRepository.save(pensumExistente);
         }
         return null;
     }
