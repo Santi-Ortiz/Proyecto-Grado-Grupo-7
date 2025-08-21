@@ -3,9 +3,11 @@ package com.grupo7.tesis.controllers;
 import com.grupo7.tesis.dtos.*;
 import com.grupo7.tesis.models.*;
 import com.grupo7.tesis.services.LecturaService;
-
+import com.grupo7.tesis.services.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,18 +18,22 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.io.IOException;
 
 @RestController
 public class LecturaController {
 
         @Autowired
         private LecturaService lecturaService;
+        @Autowired
+        private EstudianteService estudianteService;
 
         @GetMapping("/historial")
         public String mostrarFormulario(Model model) {
                 model.addAttribute("materias", null);
                 return "lecturaInforme";
         }
+
 
         @PostMapping("/subir-pdf")
         @ResponseBody
@@ -37,7 +43,7 @@ public class LecturaController {
                 }
 
                 List<MateriaDTO> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
-
+                
                 List<MateriaDTO> cursosElectivaBasicas = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoElectivaBasicasBruto(archivo));
 
@@ -96,8 +102,36 @@ public class LecturaController {
 
                 double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
                 progreso.setPorcentaje(porcentaje);
+                guardarInformeAvance(archivo);
 
                 return progreso;
         }
+        
+        @PostMapping("/guardar-informe")
+        public String guardarInformeAvance(@RequestParam("archivo") MultipartFile archivo) {
+                try {
+                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                        String correo = authentication.getName();
+                        Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
 
+                        if (estudiante == null) {
+                        throw new RuntimeException("Estudiante no encontrado");
+                        }
+
+                        Pensum pensum = estudiante.getPensum();
+
+                        if (pensum == null) {
+                        throw new RuntimeException("El estudiante no tiene un pensum asociado");
+                        }
+
+                        lecturaService.guardarInformeAvance(archivo, estudiante, pensum);
+
+                        return "/historial"; 
+                } catch (IOException e) {
+                        e.printStackTrace(); 
+                        throw new RuntimeException("Error al guardar el archivo");
+                }
+        }
+
+        
 }

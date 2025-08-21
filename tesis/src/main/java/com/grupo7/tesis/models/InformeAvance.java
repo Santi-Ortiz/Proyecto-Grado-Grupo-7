@@ -1,7 +1,7 @@
 package com.grupo7.tesis.models;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +34,7 @@ public class InformeAvance {
     @Column(name = "archivo", columnDefinition = "BYTEA")
     private byte[] archivo;
 
-    private Date fechaPublicacion;
+    private LocalDate fechaPublicacion;
 
     @OneToMany(mappedBy = "informeAvance")
     private Set<InformeAvanceMateria> materiasAsociadas;
@@ -50,7 +50,7 @@ public class InformeAvance {
     public InformeAvance() {
     }
 
-    public InformeAvance(Long id, String nombreArchivo, byte[] archivo, Date fechaPublicacion,
+    public InformeAvance(Long id, String nombreArchivo, byte[] archivo, LocalDate fechaPublicacion,
             Set<InformeAvanceMateria> materiasAsociadas, Estudiante estudianteId, Pensum pensumId) {
         this.id = id;
         this.nombreArchivo = nombreArchivo;
@@ -61,7 +61,7 @@ public class InformeAvance {
         this.pensumId = pensumId;
     }
 
-    public InformeAvance(String nombreArchivo, byte[] archivo, Date fechaPublicacion,
+    public InformeAvance(String nombreArchivo, byte[] archivo, LocalDate fechaPublicacion,
             Set<InformeAvanceMateria> materiasAsociadas, Estudiante estudianteId, Pensum pensumId) {
         this.nombreArchivo = nombreArchivo;
         this.archivo = archivo;
@@ -95,11 +95,11 @@ public class InformeAvance {
         this.archivo = archivo;
     }
 
-    public Date getFechaPublicacion() {
+    public LocalDate getFechaPublicacion() {
         return fechaPublicacion;
     }
 
-    public void setFechaPublicacion(Date fechaPublicacion) {
+    public void setFechaPublicacion(LocalDate fechaPublicacion) {
         this.fechaPublicacion = fechaPublicacion;
     }
 

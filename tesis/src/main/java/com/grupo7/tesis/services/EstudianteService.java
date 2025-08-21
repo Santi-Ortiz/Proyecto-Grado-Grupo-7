@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.grupo7.tesis.dtos.EstudianteDTO;
 import com.grupo7.tesis.models.Estudiante;
 import com.grupo7.tesis.models.Facultad;
-import com.grupo7.tesis.models.InformeAvance;
 import com.grupo7.tesis.models.Pensum;
 import com.grupo7.tesis.repositories.EstudianteRepository;
 
@@ -30,6 +29,10 @@ public class EstudianteService {
 
     public List<Estudiante> obtenerTodosEstudiantes() {
         return estudianteRepository.findAll();
+    }
+
+    public Estudiante obtenerEstudiantePorCorreo(String correo){
+        return estudianteRepository.findByCorreo(correo);
     }
 
     public Estudiante obtenerEstudiantePorId(Long id) {

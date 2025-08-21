@@ -8,8 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.*;
+import com.grupo7.tesis.repositories.InformeAvanceRepository;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
@@ -21,14 +24,55 @@ public class LecturaService {
 
     @Autowired
     private ProgresoService progresoService;
+    @Autowired
+    private InformeAvanceRepository informeAvanceRepository;
+
+    public LecturaService(InformeAvanceRepository informeAvanceRepository) {
+        this.informeAvanceRepository = informeAvanceRepository;
+    }
+
+    public InformeAvance guardarInformeAvance(MultipartFile archivo, Estudiante estudiante, Pensum pensum) throws IOException {
+        LocalDate fecha = extraerFecha(archivo);
+        InformeAvance informe = new InformeAvance();
+        informe.setNombreArchivo(archivo.getOriginalFilename());
+        informe.setArchivo(archivo.getBytes());
+        informe.setFechaPublicacion(fecha);
+        informe.setEstudianteId(estudiante);
+        informe.setPensumId(pensum);
+        
+        return informeAvanceRepository.save(informe);
+    }
+
+
+    public LocalDate extraerFecha(MultipartFile archivo) throws IOException {
+        if (archivo == null || archivo.isEmpty()) {
+            throw new IllegalArgumentException("El archivo no puede ser nulo o vacío");
+        }
+        
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String textoCompleto = lector.getText(documento);
+            
+            Pattern pattern = Pattern.compile("expedido el (\\d{1,2}/\\d{1,2}/\\d{4})");
+            Matcher matcher = pattern.matcher(textoCompleto);
+            
+            if (matcher.find()) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                return LocalDate.parse(matcher.group(1), formatter);
+            }
+            return null;
+        }
+    }
 
     public List<MateriaDTO> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
+
         List<MateriaDTO> materias = new ArrayList<>();
         String titulo = "Historial de Cursos";
 
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();
             String textoCompleto = lector.getText(documento);
+            
             int indice = textoCompleto.indexOf(titulo);
 
             if (indice != -1) {
