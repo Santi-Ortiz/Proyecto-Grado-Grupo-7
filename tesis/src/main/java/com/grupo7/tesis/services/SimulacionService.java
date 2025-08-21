@@ -319,19 +319,24 @@ public class SimulacionService {
         double heuristica = 0.0;
 
         int materiasNucleoFaltantes = contarCreditosNucleoFaltantes(progreso);
+        int creditosNucleoCBFaltantes = contarCreditosNucleoCBFaltantes(progreso);
+        int creditosNucleoIngenieria = contarCreditosNucleoIngeFaltantes(progreso);
+        int creditosNucleoSociohumanisticas = contarCreditosNucleoSocioFaltantes(progreso);
+
         double electivasFaltantes = progreso.getFaltanElectiva();
         double complementariasFaltantes = progreso.getFaltanComplementaria();
         double enfasisFaltantes = progreso.getFaltanEnfasis();
         double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
 
-        double nucleoPrioridad = (prioridades != null && prioridades.length > 0 && prioridades[0]) ? 0.2 : 0;
+        double CBPrioridad = (prioridades != null && prioridades.length > 0 && prioridades[0]) ? 0.2 : 0;
         double ingenieriaPrioridad = (prioridades != null && prioridades.length > 1 && prioridades[1]) ? 0.2 : 0;
         double sociohumanisticasPrioridad = (prioridades != null && prioridades.length > 2 && prioridades[2]) ? 0.2 : 0;
         double electivasPrioridad = (prioridades != null && prioridades.length > 3 && prioridades[3]) ? 0.2 : 0;
         double complementariasPrioridad = (prioridades != null && prioridades.length > 4 && prioridades[4]) ? 0.2 : 0;
         double enfasisPrioridad = (prioridades != null && prioridades.length > 5 && prioridades[5]) ? 0.2 : 0;
 
-        heuristica = materiasNucleoFaltantes * ( (1.3) + nucleoPrioridad + ingenieriaPrioridad + sociohumanisticasPrioridad )+ electivasFaltantes * ((1.3) + electivasPrioridad) + complementariasFaltantes * ((1.3) + complementariasPrioridad) + enfasisFaltantes * ((1.3) + enfasisPrioridad) + electivasCBFaltantes * ((1.3) + nucleoPrioridad);
+        //heuristica = materiasNucleoFaltantes * ( (1.3) + nucleoPrioridad + ingenieriaPrioridad + sociohumanisticasPrioridad )+ electivasFaltantes * ((1.3) + electivasPrioridad) + complementariasFaltantes * ((1.3) + complementariasPrioridad) + enfasisFaltantes * ((1.3) + enfasisPrioridad) + electivasCBFaltantes * ((1.3) + nucleoPrioridad);
+        heuristica = materiasNucleoFaltantes * ( (1.0) + CBPrioridad + ingenieriaPrioridad + sociohumanisticasPrioridad )+ electivasFaltantes * ((1.0) + electivasPrioridad) + complementariasFaltantes * ((1.0) + complementariasPrioridad) + enfasisFaltantes * ((1.0) + enfasisPrioridad) + electivasCBFaltantes * ((1.0) + CBPrioridad);
 
         return heuristica;
     }
@@ -440,11 +445,40 @@ public class SimulacionService {
         return count;
     }
 
-    // Contar creditos de núcleo faltantes
     public int contarCreditosNucleoFaltantes(Progreso progreso) {
         int count = 0;
         for (Materia materia : progreso.getListaMateriasFaltantes()) {
             if (esMateriaNucleo(materia)) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosNucleoCBFaltantes(Progreso progreso) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getTipo().equals("nucleoCienciasBasicas")) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosNucleoIngeFaltantes(Progreso progreso) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getTipo().equals("nucleoIngenieria")) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosNucleoSocioFaltantes(Progreso progreso) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getTipo().equals("nucleoSociohumanisticas")) {
                 count += materia.getCreditos();
             }
         }
