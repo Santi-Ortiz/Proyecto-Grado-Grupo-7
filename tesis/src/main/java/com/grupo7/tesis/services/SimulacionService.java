@@ -84,11 +84,10 @@ public class SimulacionService {
                 return rutaCompleta;
             }
 
-            // NUEVO: Solo parar si llegamos al objetivo Y hemos explorado suficientes alternativas
             if (nodoActual.getSemestreActual() == semestreObjetivo) {
                 double heuristicaActual = calcularHeuristica(nodoActual.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades, nodoActual.getSemestreActual());
                 
-                int nodosMinimosParaComparar = Math.min(50, maxNodos / 10); 
+                int nodosMinimosParaComparar = 50; 
                 
                 if (nodosExplorados >= nodosMinimosParaComparar) {
                     boolean hayMejorOpcion = false;
@@ -100,7 +99,7 @@ public class SimulacionService {
                         }
                     }
                     
-                    if (!hayMejorOpcion || nodosExplorados >= maxNodos / 2) {
+                    if (!hayMejorOpcion || nodosExplorados >= maxNodos) {
                         long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
                         System.out.println("SOLUCION A* ENCONTRADA (Semestre objetivo alcanzado)");
                         System.out.println("Heurística del nodo seleccionado: " + heuristicaActual);
