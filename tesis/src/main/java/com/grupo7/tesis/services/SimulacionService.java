@@ -45,14 +45,14 @@ public class SimulacionService {
         System.out.println("Semestre objetivo: " + semestreObjetivo);
 
         int maxNodos = 25000;
-        int maxCombinacionesPorNodo = 60;
+        int maxCombinacionesPorNodo = 65;
 
         PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
 
         Set<String> visitados = new HashSet<>();
 
         Map<Integer, Simulacion> rutaInicial = new HashMap<>();
-        double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+        double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum, prioridades, progreso.getSemestre());
 
         NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), heuristicaInicial, progreso);
         contadorNodosCreados++;
@@ -86,14 +86,11 @@ public class SimulacionService {
 
             // NUEVO: Solo parar si llegamos al objetivo Y hemos explorado suficientes alternativas
             if (nodoActual.getSemestreActual() == semestreObjetivo) {
-                // Calcular heurística del nodo actual
-                double heuristicaActual = calcularHeuristica(nodoActual.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+                double heuristicaActual = calcularHeuristica(nodoActual.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades, nodoActual.getSemestreActual());
                 
-                // Explorar más nodos antes de decidir parar para tener mejor muestra
-                int nodosMinimosParaComparar = Math.min(50, maxNodos / 10); // Al menos 50 nodos o 10% del límite
+                int nodosMinimosParaComparar = Math.min(50, maxNodos / 10); 
                 
                 if (nodosExplorados >= nodosMinimosParaComparar) {
-                    // Solo ahora verificar si hay mejores opciones en frontera
                     boolean hayMejorOpcion = false;
                     for (NodoA nodoFrontera : frontera) {
                         double heuristicaFrontera = calcularHeuristica(nodoFrontera.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
@@ -103,7 +100,6 @@ public class SimulacionService {
                         }
                     }
                     
-                    // Parar si no hay mejores opciones O si alcanzamos límite de exploración
                     if (!hayMejorOpcion || nodosExplorados >= maxNodos / 2) {
                         long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
                         System.out.println("SOLUCION A* ENCONTRADA (Semestre objetivo alcanzado)");
@@ -173,7 +169,7 @@ public class SimulacionService {
             nuevoProgreso = actualizarProgresoTemporal(nuevoProgreso, simulacionSemestre, siguienteSemestre);
             
             double nuevoCosto = nodoActual.getTotalCreditos() + calcularCostoTransicion(combinacion, nuevoProgreso, proyeccionSemestre, prioridades);
-            double nuevaHeuristica = calcularHeuristica(nuevoProgreso, semestreObjetivo, proyeccionBase,materiasPensum, prioridades);
+            double nuevaHeuristica = calcularHeuristica(nuevoProgreso, semestreObjetivo, proyeccionBase,materiasPensum, prioridades, siguienteSemestre);
             
             //Funcion f(n)=h(n)+g(n)
             double costoTotal = nuevoCosto + nuevaHeuristica;
@@ -310,7 +306,7 @@ public class SimulacionService {
 
     // Heuristica
     public double calcularHeuristica(Progreso progreso, int semestreObjetivo, Proyeccion proyeccionBase,
-            List<Materia> materiasPensum, boolean[] prioridades) {
+            List<Materia> materiasPensum, boolean[] prioridades, int semestreActual) {
 
         if (haCompletadoTodasLasMaterias(progreso)) {
             return 0.0;
@@ -318,7 +314,6 @@ public class SimulacionService {
 
         double heuristica = 0.0;
 
-        int materiasNucleoFaltantes = contarCreditosNucleoFaltantes(progreso);
         int creditosNucleoCBFaltantes = contarCreditosNucleoCBFaltantes(progreso);
         int creditosNucleoIngenieria = contarCreditosNucleoIngeFaltantes(progreso);
         int creditosNucleoSociohumanisticas = contarCreditosNucleoSocioFaltantes(progreso);
@@ -328,17 +323,25 @@ public class SimulacionService {
         double enfasisFaltantes = progreso.getFaltanEnfasis();
         double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
 
-        double CBPrioridad = (prioridades != null && prioridades.length > 0 && prioridades[0]) ? 0.2 : 0;
-        double ingenieriaPrioridad = (prioridades != null && prioridades.length > 1 && prioridades[1]) ? 0.2 : 0;
-        double sociohumanisticasPrioridad = (prioridades != null && prioridades.length > 2 && prioridades[2]) ? 0.2 : 0;
-        double electivasPrioridad = (prioridades != null && prioridades.length > 3 && prioridades[3]) ? 0.2 : 0;
-        double complementariasPrioridad = (prioridades != null && prioridades.length > 4 && prioridades[4]) ? 0.2 : 0;
-        double enfasisPrioridad = (prioridades != null && prioridades.length > 5 && prioridades[5]) ? 0.2 : 0;
+        double cbPrioridad = (prioridades != null && prioridades.length > 0 && prioridades[0]) ? 0.5 : 0;
+        double ingenieriaPrioridad = (prioridades != null && prioridades.length > 1 && prioridades[1]) ? 0.5 : 0;
+        double sociohumanisticasPrioridad = (prioridades != null && prioridades.length > 2 && prioridades[2]) ? 0.5 : 0;
+        double electivasPrioridad = (prioridades != null && prioridades.length > 3 && prioridades[3]) ? 0.5 : 0;
+        double complementariasPrioridad = (prioridades != null && prioridades.length > 4 && prioridades[4]) ? 0.5 : 0;
+        double enfasisPrioridad = (prioridades != null && prioridades.length > 5 && prioridades[5]) ? 0.5 : 0;
 
-        //heuristica = materiasNucleoFaltantes * ( (1.3) + nucleoPrioridad + ingenieriaPrioridad + sociohumanisticasPrioridad )+ electivasFaltantes * ((1.3) + electivasPrioridad) + complementariasFaltantes * ((1.3) + complementariasPrioridad) + enfasisFaltantes * ((1.3) + enfasisPrioridad) + electivasCBFaltantes * ((1.3) + nucleoPrioridad);
-        heuristica = materiasNucleoFaltantes * ( (1.0) + CBPrioridad + ingenieriaPrioridad + sociohumanisticasPrioridad )+ electivasFaltantes * ((1.0) + electivasPrioridad) + complementariasFaltantes * ((1.0) + complementariasPrioridad) + enfasisFaltantes * ((1.0) + enfasisPrioridad) + electivasCBFaltantes * ((1.0) + CBPrioridad);
+        //heuristica = creditosNucleoCBFaltantes * ( (1.1) + cbPrioridad) + creditosNucleoIngenieria * ( (1.1) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (1.1) + sociohumanisticasPrioridad) + electivasFaltantes * ((1.1) + electivasPrioridad) + complementariasFaltantes * ((1.1) + complementariasPrioridad) + enfasisFaltantes * ((1.1) + enfasisPrioridad) + electivasCBFaltantes * ((1.1) + cbPrioridad);
+        //heuristica = creditosNucleoCBFaltantes * ( (1.0) + cbPrioridad) + creditosNucleoIngenieria * ( (1.0) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (1.0) + sociohumanisticasPrioridad) + electivasFaltantes * ((1.0) + electivasPrioridad) + complementariasFaltantes * ((1.0) + complementariasPrioridad) + enfasisFaltantes * ((1.0) + enfasisPrioridad) + electivasCBFaltantes * ((1.0) + cbPrioridad);
+        heuristica = creditosNucleoCBFaltantes * ( (2.0) + cbPrioridad) + creditosNucleoIngenieria * ( (2.0) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (2.0) + sociohumanisticasPrioridad) + electivasFaltantes * ((2.0) + electivasPrioridad) + complementariasFaltantes * ((2.0) + complementariasPrioridad) + enfasisFaltantes * ((2.0) + enfasisPrioridad) + electivasCBFaltantes * ((2.0) + cbPrioridad);
 
         return heuristica;
+    }
+
+    // Método de compatibilidad para mantener las llamadas existentes
+    public double calcularHeuristica(Progreso progreso, int semestreObjetivo, Proyeccion proyeccionBase,
+            List<Materia> materiasPensum, boolean[] prioridades) {
+        // Usar el semestre calculado del progreso como fallback
+        return calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum, prioridades, progreso.getSemestre());
     }
 
     // Función G 
@@ -479,6 +482,16 @@ public class SimulacionService {
         int count = 0;
         for (Materia materia : progreso.getListaMateriasFaltantes()) {
             if (materia.getTipo().equals("nucleoSociohumanisticas")) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosAtrasados(Progreso progreso, int semestreActual) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getSemestre() <= semestreActual) {
                 count += materia.getCreditos();
             }
         }
@@ -1130,18 +1143,36 @@ public class SimulacionService {
             }
 
             if (nodoActual.getSemestreActual() == semestreObjetivo) {
-                long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
-                System.out.println("SOLUCION A* ENCONTRADA");
-                System.out.println("Nodos explorados: " + nodosExplorados);
-                System.out.println("Nodos creados: " + contadorNodosCreados);
-                System.out.println("Combinaciones generadas: " + contadorCombinaciones);
-                System.out.println("Tiempo total: " + tiempoTotal + "ms");
-                System.out.println("Heurística inicial: " + heuristicaInicial);
+                double heuristicaActual = calcularHeuristica(nodoActual.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+                
+                int nodosMinimosParaComparar = Math.min(50, maxNodos / 10); 
+                
+                if (nodosExplorados >= nodosMinimosParaComparar) {
+                    boolean hayMejorOpcion = false;
+                    for (NodoA nodoFrontera : frontera) {
+                        double heuristicaFrontera = calcularHeuristica(nodoFrontera.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+                        if (heuristicaFrontera < heuristicaActual) {
+                            hayMejorOpcion = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!hayMejorOpcion || nodosExplorados >= maxNodos / 2) {
+                        long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                        System.out.println("SOLUCION A* ENCONTRADA (Semestre objetivo alcanzado)");
+                        System.out.println("Heurística del nodo seleccionado: " + heuristicaActual);
+                        System.out.println("Nodos explorados: " + nodosExplorados);
+                        System.out.println("Nodos creados: " + contadorNodosCreados);
+                        System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                        System.out.println("Tiempo total: " + tiempoTotal + "ms");
+                        System.out.println("Heurística inicial: " + heuristicaInicial);
 
-                Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
-                mostrarResultados(rutaCompleta, puntajeTotal);
-                return rutaCompleta;
+                        Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                        double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
+                        mostrarResultados(rutaCompleta, puntajeTotal, progreso);
+                        return rutaCompleta;
+                    }
+                }
             }
 
             String claveEstado = generarClaveEstado(nodoActual.getProgresoActual(), nodoActual.getSemestreActual());
