@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class Progreso {
+    //Nueva version
     private List<MateriaDTO> materias;
     private List<String> lineasRequisitosGrado;
     private List<MateriaDTO> cursosElectivas;
