@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.grupo7.tesis.dtos.SimulacionDTO;
 import com.grupo7.tesis.models.Materia;
-import com.grupo7.tesis.models.PlanSemestre;
+import com.grupo7.tesis.models.Simulacion;
 import com.grupo7.tesis.services.SimulacionService;
 import com.grupo7.tesis.services.pensumService;
 
@@ -29,9 +29,9 @@ public class SimulacionController {
 
     @PostMapping("/generar")
     @ResponseBody
-    public Map<Integer, PlanSemestre> generarSimulacion(@RequestBody SimulacionDTO simulacionDTO) throws Exception {
+    public Map<Integer, Simulacion> generarSimulacion(@RequestBody SimulacionDTO simulacionDTO) throws Exception {
 
-        Map<Integer, PlanSemestre> simulacion = new HashMap<>();
+        Map<Integer, Simulacion> simulacion = new HashMap<>();
 
         List<Materia> materiasPensum = pensumService.obtenerPensum();
 

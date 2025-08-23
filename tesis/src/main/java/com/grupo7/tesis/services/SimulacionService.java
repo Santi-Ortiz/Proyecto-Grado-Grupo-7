@@ -1,5 +1,7 @@
 package com.grupo7.tesis.services;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,37 +13,49 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.MateriaConPuntajeDTO;
+import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.NodoA;
-import com.grupo7.tesis.models.PlanSemestre;
+import com.grupo7.tesis.models.Simulacion;
 import com.grupo7.tesis.models.Progreso;
 import com.grupo7.tesis.models.Proyeccion;
 
 @Service
 public class SimulacionService {
 
+    private int contadorCombinaciones = 0;
+    private int contadorNodosCreados = 0;
+
+    @Autowired
+    private pensumService pensumService; 
+
     // ALGORITMO A*
-    public Map<Integer, PlanSemestre> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
             int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades) {
+
+        contadorCombinaciones = 0;
+        contadorNodosCreados = 0;
 
         System.out.println("================ INICIO SIMULACIÓN A*  ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
         System.out.println("Semestre objetivo: " + semestreObjetivo);
 
         int maxNodos = 25000;
-        int maxCombinacionesPorNodo = 99999999;
+        int maxCombinacionesPorNodo = 65;
 
         PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
 
         Set<String> visitados = new HashSet<>();
 
-        Map<Integer, PlanSemestre> rutaInicial = new HashMap<>();
-        double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum);
+        Map<Integer, Simulacion> rutaInicial = new HashMap<>();
+        double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum, prioridades, progreso.getSemestre());
 
-        NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), 0.0, heuristicaInicial, progreso);
+        NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), heuristicaInicial, progreso);
+        contadorNodosCreados++;
 
         frontera.offer(nodoInicial);
 
@@ -54,31 +68,53 @@ public class SimulacionService {
 
             if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
                 long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
-                System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Termino antes)");
+                System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Todas las materias completadas)");
                 System.out.println("Semestre de finalización: " + nodoActual.getSemestreActual());
                 System.out.println("Semestre objetivo original: " + semestreObjetivo);
                 System.out.println("Semestres ahorrados: " + (semestreObjetivo - nodoActual.getSemestreActual()));
                 System.out.println("Nodos explorados: " + nodosExplorados);
+                System.out.println("Nodos creados: " + contadorNodosCreados);
+                System.out.println("Combinaciones generadas: " + contadorCombinaciones);
                 System.out.println("Tiempo total: " + tiempoTotal + "ms");
                 System.out.println("Heurística inicial: " + heuristicaInicial);
 
-                Map<Integer, PlanSemestre> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                 double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
-                mostrarResultados(rutaCompleta, puntajeTotal);
+                mostrarResultados(rutaCompleta, puntajeTotal, progreso);
                 return rutaCompleta;
             }
 
             if (nodoActual.getSemestreActual() == semestreObjetivo) {
-                long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
-                System.out.println("SOLUCION A* ENCONTRADA");
-                System.out.println("Nodos explorados: " + nodosExplorados);
-                System.out.println("Tiempo total: " + tiempoTotal + "ms");
-                System.out.println("Heurística inicial: " + heuristicaInicial);
+                double heuristicaActual = calcularHeuristica(nodoActual.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades, nodoActual.getSemestreActual());
+                
+                int nodosMinimosParaComparar = 50; 
+                
+                if (nodosExplorados >= nodosMinimosParaComparar) {
+                    boolean hayMejorOpcion = false;
+                    for (NodoA nodoFrontera : frontera) {
+                        double heuristicaFrontera = calcularHeuristica(nodoFrontera.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+                        if (heuristicaFrontera < heuristicaActual) {
+                            hayMejorOpcion = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!hayMejorOpcion || nodosExplorados >= maxNodos) {
+                        long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                        System.out.println("SOLUCION A* ENCONTRADA (Semestre objetivo alcanzado)");
+                        System.out.println("Heurística del nodo seleccionado: " + heuristicaActual);
+                        System.out.println("Nodos explorados: " + nodosExplorados);
+                        System.out.println("Nodos creados: " + contadorNodosCreados);
+                        System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                        System.out.println("Tiempo total: " + tiempoTotal + "ms");
+                        System.out.println("Heurística inicial: " + heuristicaInicial);
 
-                Map<Integer, PlanSemestre> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
-                mostrarResultados(rutaCompleta, puntajeTotal);
-                return rutaCompleta;
+                        Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                        double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
+                        mostrarResultados(rutaCompleta, puntajeTotal, progreso);
+                        return rutaCompleta;
+                    }
+                }
             }
 
             String claveEstado = generarClaveEstado(nodoActual.getProgresoActual(), nodoActual.getSemestreActual());
@@ -92,6 +128,8 @@ public class SimulacionService {
 
         long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
         System.out.println("A* alcanzó límite de nodos: " + maxNodos);
+        System.out.println("Nodos creados: " + contadorNodosCreados);
+        System.out.println("Combinaciones generadas: " + contadorCombinaciones);
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
         System.out.println("A* no pudo encontrar ninguna solución completa");
         return new HashMap<>();
@@ -106,36 +144,49 @@ public class SimulacionService {
 
         Proyeccion proyeccionSemestre = crearProyeccionParaSemestre(proyeccionBase, siguienteSemestre);
 
-        List<PlanSemestre> combinaciones = generarCombinaciones(nodoActual.getProgresoActual(), proyeccionSemestre,
+        Set<Simulacion> combinaciones = generarCombinaciones(nodoActual.getProgresoActual(), proyeccionSemestre,
                 materiasPensum, maxCombinaciones, prioridades);
 
-        for (PlanSemestre combinacion : combinaciones) {
-            Map<Integer, PlanSemestre> nuevaRuta = new HashMap<>(nodoActual.getRutaParcial());
+        for (Simulacion combinacion : combinaciones) {
+            Map<Integer, Simulacion> nuevaRuta = new HashMap<>(nodoActual.getRutaParcial());
 
-            PlanSemestre simulacionSemestre = new PlanSemestre();
+            Simulacion simulacionSemestre = new Simulacion();
             for (Materia materia : combinacion.getMaterias()) {
                 simulacionSemestre.agregarMateria(materia);
             }
+            
+            double puntajeSemestre = 0.0;
+            for (Materia materia : simulacionSemestre.getMaterias()) {
+                puntajeSemestre += calcularPuntajeMateria(materia, nodoActual.getProgresoActual(), proyeccionSemestre, prioridades);
+            }
+            simulacionSemestre.setPuntajeTotal(puntajeSemestre);
+            
             nuevaRuta.put(siguienteSemestre, simulacionSemestre);
 
             Progreso nuevoProgreso = nodoActual.getProgresoActual().copy();
+            
             nuevoProgreso = actualizarProgresoTemporal(nuevoProgreso, simulacionSemestre, siguienteSemestre);
+            
+            double nuevoCosto = nodoActual.getTotalCreditos() + calcularCostoTransicion(combinacion, nuevoProgreso, proyeccionSemestre, prioridades);
+            double nuevaHeuristica = calcularHeuristica(nuevoProgreso, semestreObjetivo, proyeccionBase,materiasPensum, prioridades, siguienteSemestre);
+            
+            //Funcion f(n)=h(n)+g(n)
+            double costoTotal = nuevoCosto + nuevaHeuristica;
 
-            double nuevoCosto = nodoActual.getCostoAcumulado() + calcularCostoTransicion(combinacion);
-            double nuevaHeuristica = calcularHeuristica(nuevoProgreso, semestreObjetivo, proyeccionBase,
-                    materiasPensum);
-
-            NodoA nuevoNodo = new NodoA(nuevaRuta, siguienteSemestre, nuevoCosto, nuevaHeuristica, nuevoProgreso);
+            NodoA nuevoNodo = new NodoA(nuevaRuta, siguienteSemestre, costoTotal, nuevoProgreso);
+            contadorNodosCreados++; // Contar cada nuevo nodo creado
             frontera.offer(nuevoNodo);
         }
     }
 
     // Nueva versión de actualizar progreso temporal para que sirva con A*
-    public Progreso actualizarProgresoTemporal(Progreso progreso, PlanSemestre simulacion, int semestreSimulado) {
+    public Progreso actualizarProgresoTemporal(Progreso progreso, Simulacion simulacion, int semestreSimulado) {
 
+        // Remover materias de núcleo que se simulan como cursadas
         List<Materia> materiasARemover = new ArrayList<>();
         for (Materia materiaSimulada : simulacion.getMaterias()) {
 
+            // Solo procesar materias de núcleo (no electivas especiales)
             if (!materiaSimulada.getCodigo().equals("0") && !materiaSimulada.getCodigo().equals("1")
                     && !materiaSimulada.getCodigo().equals("5") && !materiaSimulada.getCodigo().equals("6")) {
 
@@ -150,82 +201,154 @@ public class SimulacionService {
             }
         }
 
+        // Remover las materias de núcleo de la lista de faltantes
         progreso.getListaMateriasFaltantes().removeAll(materiasARemover);
+
+        // Simular que se cursaron las electivas/complementarias/énfasis agregándolas a las listas correspondientes
+        List<MateriaDTO> nuevasElectivas = new ArrayList<>(progreso.getCursosElectivas() != null ? progreso.getCursosElectivas() : new ArrayList<>());
+        List<MateriaDTO> nuevasComplementarias = new ArrayList<>();
+        if (progreso.getCursosComplementariaLenguas() != null) {
+            nuevasComplementarias.addAll(progreso.getCursosComplementariaLenguas());
+        }
+        if (progreso.getCursosComplementariaInformacion() != null) {
+            nuevasComplementarias.addAll(progreso.getCursosComplementariaInformacion());
+        }
+        List<MateriaDTO> nuevosEnfasis = new ArrayList<>(progreso.getCursosEnfasis() != null ? progreso.getCursosEnfasis() : new ArrayList<>());
+        List<MateriaDTO> nuevasElectivaBasicas = new ArrayList<>(progreso.getCursosElectivaBasicas() != null ? progreso.getCursosElectivaBasicas() : new ArrayList<>());
 
         for (Materia materia : simulacion.getMaterias()) {
             switch (materia.getCodigo()) {
                 case "0":
-                    int creditosElectiva = materia.getCreditos();
-                    progreso.setFaltanElectiva(Math.max(0, progreso.getFaltanElectiva() - creditosElectiva));
+                    // Agregar electiva simulada
+                    MateriaDTO electivaSimulada = new MateriaDTO(
+                        "SimSem" + semestreSimulado, // cicloLectivo
+                        "ELEC", // materia
+                        "000", // numeroCat
+                        "ELEC" + System.nanoTime(), // curso - ID único temporal
+                        materia.getNombre(), // titulo
+                        "3.0", // calif - Calificación aprobatoria
+                        String.valueOf(materia.getCreditos()), // cred
+                        "" // tipo
+                    );
+                    nuevasElectivas.add(electivaSimulada);
                     break;
                 case "1":
-                    progreso.setFaltanComplementaria(Math.max(0, progreso.getFaltanComplementaria() - 3));
+                    // Agregar complementaria simulada
+                    MateriaDTO complementariaSimulada = new MateriaDTO(
+                        "SimSem" + semestreSimulado,
+                        "COMP",
+                        "000",
+                        "COMP" + System.nanoTime(),
+                        materia.getNombre(),
+                        "3.0",
+                        String.valueOf(materia.getCreditos()), // Usar créditos reales de la materia
+                        ""
+                    );
+                    nuevasComplementarias.add(complementariaSimulada);
                     break;
                 case "5":
-                    progreso.setFaltanEnfasis(Math.max(0, progreso.getFaltanEnfasis() - 3));
+                    // Agregar énfasis simulado
+                    MateriaDTO enfasisSimulado = new MateriaDTO(
+                        "SimSem" + semestreSimulado,
+                        "ENF",
+                        "000",
+                        "ENF" + System.nanoTime(),
+                        materia.getNombre(),
+                        "3.0",
+                        String.valueOf(materia.getCreditos()), // Usar créditos reales de la materia
+                        ""
+                    );
+                    nuevosEnfasis.add(enfasisSimulado);
                     break;
                 case "6":
-                    progreso.setFaltanElectivaBasicas(Math.max(0, progreso.getFaltanElectivaBasicas() - 3));
+                    // Agregar electiva de ciencias básicas simulada
+                    MateriaDTO electivaCBSimulada = new MateriaDTO(
+                        "SimSem" + semestreSimulado,
+                        "ELCB",
+                        "000",
+                        "ELCB" + System.nanoTime(),
+                        materia.getNombre(),
+                        "3.0",
+                        String.valueOf(materia.getCreditos()), // Usar créditos reales de la materia
+                        ""
+                    );
+                    nuevasElectivaBasicas.add(electivaCBSimulada);
                     break;
             }
         }
 
-        progreso.setMateriasCursadas(progreso.getMateriasCursadas() + materiasARemover.size());
-        progreso.setMateriasFaltantes(progreso.getMateriasFaltantes() - materiasARemover.size());
-        progreso.setTotalFaltantes(progreso.getListaMateriasFaltantes().size());
+        progreso.setCursosElectivas(nuevasElectivas);
+        progreso.setCursosComplementariaLenguas(nuevasComplementarias);
+        progreso.setCursosEnfasis(nuevosEnfasis);
+        progreso.setCursosElectivaBasicas(nuevasElectivaBasicas);
 
-        int creditosNucleoSimulados = materiasARemover.stream().mapToInt(Materia::getCreditos).sum();
-        progreso.setCreditosPensum(progreso.getCreditosPensum() + creditosNucleoSimulados);
-        progreso.setTotalCreditos(progreso.getTotalCreditos() + creditosNucleoSimulados);
+        List<MateriaDTO> materiasActualizadas = new ArrayList<>(progreso.getMaterias() != null ? progreso.getMaterias() : new ArrayList<>());
+        
+        for (Materia materiaRemovida : materiasARemover) {
+            MateriaDTO materiaSimulada = new MateriaDTO(
+                "SimSem" + semestreSimulado, // cicloLectivo - Marcar como simulado
+                materiaRemovida.getCodigo(), // materia
+                "000", // numeroCat
+                materiaRemovida.getCodigo(), // curso
+                materiaRemovida.getNombre(), // titulo
+                "3.0", // calif - Calificación aprobatoria
+                String.valueOf(materiaRemovida.getCreditos()), // cred
+                "" // tipo
+            );
+            materiasActualizadas.add(materiaSimulada);
+        }
 
-        progreso.setSemestre(semestreSimulado);
+        progreso.setMaterias(materiasActualizadas);
 
         return progreso;
     }
 
-    // Heuristica (Lo que falta para llegar al objetivo)
+    // Heuristica
     public double calcularHeuristica(Progreso progreso, int semestreObjetivo, Proyeccion proyeccionBase,
-            List<Materia> materiasPensum) {
+            List<Materia> materiasPensum, boolean[] prioridades, int semestreActual) {
 
         if (haCompletadoTodasLasMaterias(progreso)) {
-            System.out.println("HEURISTICA: 0.0");
             return 0.0;
         }
 
-        int semestresRestantes = semestreObjetivo - progreso.getSemestre();
         double heuristica = 0.0;
-        double factorPeso;
 
-        factorPeso = Math.min(1.0, 0.2 + (semestresRestantes * 0.2));
-
-        int materiasNucleoFaltantes = contarCreditosNucleoFaltantes(progreso);
-        heuristica += materiasNucleoFaltantes * (1.0 * factorPeso);
+        int creditosNucleoCBFaltantes = contarCreditosNucleoCBFaltantes(progreso);
+        int creditosNucleoIngenieria = contarCreditosNucleoIngeFaltantes(progreso);
+        int creditosNucleoSociohumanisticas = contarCreditosNucleoSocioFaltantes(progreso);
 
         double electivasFaltantes = progreso.getFaltanElectiva();
-        heuristica += electivasFaltantes * (0.6 * factorPeso);
-
         double complementariasFaltantes = progreso.getFaltanComplementaria();
-        heuristica += complementariasFaltantes * (0.8 * factorPeso);
-
         double enfasisFaltantes = progreso.getFaltanEnfasis();
-        heuristica += enfasisFaltantes * (0.8 * factorPeso);
-
         double electivasCBFaltantes = progreso.getFaltanElectivaBasicas();
-        heuristica += electivasCBFaltantes * (1.0 * factorPeso);
 
-        System.out.println("HEURISTICA FINAL: " + String.format("%.2f", Math.max(heuristica, 1.0)));
+        double cbPrioridad = (prioridades != null && prioridades.length > 0 && prioridades[0]) ? 0.5 : 0;
+        double ingenieriaPrioridad = (prioridades != null && prioridades.length > 1 && prioridades[1]) ? 0.5 : 0;
+        double sociohumanisticasPrioridad = (prioridades != null && prioridades.length > 2 && prioridades[2]) ? 0.5 : 0;
+        double electivasPrioridad = (prioridades != null && prioridades.length > 3 && prioridades[3]) ? 0.5 : 0;
+        double complementariasPrioridad = (prioridades != null && prioridades.length > 4 && prioridades[4]) ? 0.5 : 0;
+        double enfasisPrioridad = (prioridades != null && prioridades.length > 5 && prioridades[5]) ? 0.5 : 0;
 
-        return Math.max(heuristica, 1.0);
+        //heuristica = creditosNucleoCBFaltantes * ( (1.1) + cbPrioridad) + creditosNucleoIngenieria * ( (1.1) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (1.1) + sociohumanisticasPrioridad) + electivasFaltantes * ((1.1) + electivasPrioridad) + complementariasFaltantes * ((1.1) + complementariasPrioridad) + enfasisFaltantes * ((1.1) + enfasisPrioridad) + electivasCBFaltantes * ((1.1) + cbPrioridad);
+        //heuristica = creditosNucleoCBFaltantes * ( (1.0) + cbPrioridad) + creditosNucleoIngenieria * ( (1.0) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (1.0) + sociohumanisticasPrioridad) + electivasFaltantes * ((1.0) + electivasPrioridad) + complementariasFaltantes * ((1.0) + complementariasPrioridad) + enfasisFaltantes * ((1.0) + enfasisPrioridad) + electivasCBFaltantes * ((1.0) + cbPrioridad);
+        heuristica = creditosNucleoCBFaltantes * ( (2.0) + cbPrioridad) + creditosNucleoIngenieria * ( (2.0) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (2.0) + sociohumanisticasPrioridad) + electivasFaltantes * ((2.0) + electivasPrioridad) + complementariasFaltantes * ((2.0) + complementariasPrioridad) + enfasisFaltantes * ((2.0) + enfasisPrioridad) + electivasCBFaltantes * ((2.0) + cbPrioridad);
+
+        return heuristica;
     }
 
-    // Calcular G
-    public double calcularCostoTransicion(PlanSemestre combinacion) {
+    // Método de compatibilidad para mantener las llamadas existentes
+    public double calcularHeuristica(Progreso progreso, int semestreObjetivo, Proyeccion proyeccionBase,
+            List<Materia> materiasPensum, boolean[] prioridades) {
+        // Usar el semestre calculado del progreso como fallback
+        return calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum, prioridades, progreso.getSemestre());
+    }
 
-        double costoBasePorSemestre = 400.0;
-        double puntajeTotal = combinacion.getPuntajeTotal();
-        double costoCalidad = 400.0 - 70.0 * Math.log(puntajeTotal + 1);
-
-        return costoBasePorSemestre + costoCalidad;
+    // Función G 
+    public double calcularCostoTransicion(Simulacion combinacion, Progreso progreso, Proyeccion proyeccion, boolean[] prioridades) {
+        
+        double costoCreditos = combinacion.getTotalCreditos();
+        
+        return costoCreditos;
     }
 
     // Puntaje de cada materia con prioridades
@@ -238,22 +361,22 @@ public class SimulacionService {
         String codigo = materia.getCodigo();
         String tipo = materia.getTipo();
 
-        double factorPrioridad = 1.0;
+        double factorPrioridad = 0.7;
         if (prioridades != null && prioridades.length >= 6) {
 
             if (tipo != null) {
                 switch (tipo) {
                     case "nucleoCienciasBasicas":
                         if (prioridades[0])
-                            factorPrioridad = 1.5;
+                            factorPrioridad = 1.0;
                         break;
                     case "nucleoIngenieria":
                         if (prioridades[1])
-                            factorPrioridad = 1.5;
+                            factorPrioridad = 1.0;
                         break;
                     case "nucleoSociohumanisticas":
                         if (prioridades[2])
-                            factorPrioridad = 1.5;
+                            factorPrioridad = 1.0;
                         break;
                 }
             }
@@ -261,23 +384,23 @@ public class SimulacionService {
             switch (codigo) {
                 case "0": // Electiva
                     if (prioridades[3])
-                        factorPrioridad = 1.5;
+                        factorPrioridad = 1.0;
                     break;
                 case "1": // Complementaria
                     if (prioridades[4])
-                        factorPrioridad = 1.5;
+                        factorPrioridad = 1.0;
                     break;
                 case "5": // Énfasis
                     if (prioridades[5])
-                        factorPrioridad = 1.5;
+                        factorPrioridad = 1.0;
                     break;
                 case "6": // ElectivaCB
                     if (prioridades[0])
-                        factorPrioridad = 1.5;
+                        factorPrioridad = 1.0;
                     break;
             }
         }
-
+    
         switch (codigo) {
             case "0": // Electiva
                 coeficienteMateria = 0.6 * factorPrioridad;
@@ -299,18 +422,18 @@ public class SimulacionService {
         distanciaSemestral = materia.getSemestre() - proyeccion.getSemestre();
 
         if (distanciaSemestral > 1) {
-            coeficienteDistancia = 0.3; // Materia de semestres posteriores
+            coeficienteDistancia = 0.2; // Materia de semestres posteriores (era 0.3)
         } else if (distanciaSemestral == 1) {
-            coeficienteDistancia = 0.7; // Materia de un semestre adelante
+            coeficienteDistancia = 0.6; // Materia de un semestre adelante (era 0.7)
         } else if (distanciaSemestral == 0) {
             coeficienteDistancia = 1.0; // Materia del semestre actual
         } else {
-            coeficienteDistancia = 1.3; // Materia de semestres anteriores
+            coeficienteDistancia = 1.8; // Materia de semestres anteriores (era 1.3)
         }
 
         puntaje = coeficienteMateria * coeficienteDistancia;
 
-        return Math.max(puntaje, 1);
+        return puntaje;
     }
 
     // Contar materias de núcleo faltantes
@@ -324,11 +447,50 @@ public class SimulacionService {
         return count;
     }
 
-    // Contar creditos de núcleo faltantes
     public int contarCreditosNucleoFaltantes(Progreso progreso) {
         int count = 0;
         for (Materia materia : progreso.getListaMateriasFaltantes()) {
             if (esMateriaNucleo(materia)) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosNucleoCBFaltantes(Progreso progreso) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getTipo().equals("nucleoCienciasBasicas")) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosNucleoIngeFaltantes(Progreso progreso) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getTipo().equals("nucleoIngenieria")) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosNucleoSocioFaltantes(Progreso progreso) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getTipo().equals("nucleoSociohumanisticas")) {
+                count += materia.getCreditos();
+            }
+        }
+        return count;
+    }
+
+    public int contarCreditosAtrasados(Progreso progreso, int semestreActual) {
+        int count = 0;
+        for (Materia materia : progreso.getListaMateriasFaltantes()) {
+            if (materia.getSemestre() <= semestreActual) {
                 count += materia.getCreditos();
             }
         }
@@ -360,7 +522,7 @@ public class SimulacionService {
     }
 
     // Ordenar la ruta por semestre
-    public Map<Integer, PlanSemestre> ordenarRuta(Map<Integer, PlanSemestre> ruta) {
+    public Map<Integer, Simulacion> ordenarRuta(Map<Integer, Simulacion> ruta) {
         return ruta.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(
@@ -504,7 +666,7 @@ public class SimulacionService {
     }
 
     public List<Materia> generarMateriasElectivas(Progreso progreso, List<Materia> materiasPensum, int semestre,
-            int creditosDisponibles, int materiasDisponibles, PlanSemestre simulacionActual) {
+            int creditosDisponibles, int materiasDisponibles, Simulacion simulacionActual) {
         List<Materia> materiasGeneradas = new ArrayList<>();
 
         // Calcular cuántos créditos de cada tipo ya están en la simulación
@@ -559,7 +721,7 @@ public class SimulacionService {
     }
 
     // Calcular cuántos créditos de un tipo específico ya están en la simulación
-    public int calcularCreditosUsadosEnSimulacion(PlanSemestre simulacion, String tipoCodigo) {
+    public int calcularCreditosUsadosEnSimulacion(Simulacion simulacion, String tipoCodigo) {
         int creditosUsados = 0;
         for (Materia materia : simulacion.getMaterias()) {
             if (materia.getCodigo().equals(tipoCodigo)) {
@@ -705,31 +867,35 @@ public class SimulacionService {
     }
 
     // Combinaciones
-    public List<PlanSemestre> generarMejoresCombinaciones(List<MateriaConPuntajeDTO> materiasConPuntaje,
-            int creditosMax,
-            int materiasMax) {
-        List<PlanSemestre> todasLasCombinaciones = new ArrayList<>();
-        List<Materia> combinacionActual = new ArrayList<>();
+    public Set<Simulacion> generarMejoresCombinacionesUnicas(List<MateriaConPuntajeDTO> materiasConPuntaje, int creditosMax,int materiasMax, int iteraciones) {
 
-        backtrackCombinaciones(materiasConPuntaje, combinacionActual, todasLasCombinaciones, 0, creditosMax,
+        Set<Simulacion> todasLasCombinaciones = new HashSet<>();
+        Set<Materia> combinacionActual = new HashSet<>();
+
+        backtrackCombinacionesUnicas(materiasConPuntaje, combinacionActual, todasLasCombinaciones, 0, creditosMax,
                 materiasMax, 0, 0);
 
-        // Ordenar por puntaje de mayor a menor
-        todasLasCombinaciones.sort((a, b) -> Double.compare(b.getPuntajeTotal(), a.getPuntajeTotal()));
+        //Ordenar las combinaciones de mayor puntaje a menor
+        todasLasCombinaciones = todasLasCombinaciones.stream()
+                .sorted((a, b) -> Double.compare(b.getPuntajeTotal(), a.getPuntajeTotal()))
+                .collect(Collectors.toSet());
 
-        return todasLasCombinaciones.stream().limit(5).collect(Collectors.toList());
+        return todasLasCombinaciones.stream().limit(iteraciones).collect(Collectors.toSet());
     }
 
-    // Backtracking para generar combinaciones de materias
-    public void backtrackCombinaciones(List<MateriaConPuntajeDTO> materias, List<Materia> combinacionActual,
-            List<PlanSemestre> resultado, int indice, int creditosMax, int materiasMax, int creditosActuales,
+    // Backtracking para generar combinaciones de materias únicas
+    public void backtrackCombinacionesUnicas(List<MateriaConPuntajeDTO> materias, Set<Materia> combinacionActual,
+            Set<Simulacion> resultado, int indice, int creditosMax, int materiasMax, int creditosActuales,
             int materiasActuales) {
 
         // Si se alcanzan los límites se guarda la combinación actual
         if (indice == materias.size() || materiasActuales == materiasMax || creditosActuales >= creditosMax) {
             if (!combinacionActual.isEmpty()) {
-                double puntajeTotal = calcularPuntajeCombinacion(combinacionActual, materias);
-                resultado.add(new PlanSemestre(combinacionActual, puntajeTotal, creditosActuales));
+                contadorCombinaciones++;
+                Set<Materia> setCombinacion = new HashSet<>(combinacionActual);
+                List<Materia> listaCombinacion = new ArrayList<>(combinacionActual);
+                double puntajeTotal = calcularPuntajeCombinacion(listaCombinacion, materias);
+                resultado.add(new Simulacion(setCombinacion, puntajeTotal));
             }
             return;
         }
@@ -738,15 +904,14 @@ public class SimulacionService {
 
         // Incluir la materia si es posible
         if (creditosActuales + materiaActual.getCreditos() <= creditosMax && materiasActuales + 1 <= materiasMax) {
-
             combinacionActual.add(materiaActual);
-            backtrackCombinaciones(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax,
+            backtrackCombinacionesUnicas(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax,
                     creditosActuales + materiaActual.getCreditos(), materiasActuales + 1);
-            combinacionActual.remove(combinacionActual.size() - 1);
+            combinacionActual.remove(materiaActual);
         }
 
         // No incluir la materia
-        backtrackCombinaciones(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax,
+        backtrackCombinacionesUnicas(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax,
                 creditosActuales, materiasActuales);
     }
 
@@ -772,32 +937,37 @@ public class SimulacionService {
         System.out.println("\nMATERIAS DISPONIBLES CON PUNTAJES");
         for (int i = 0; i < materiasConPuntaje.size(); i++) {
             MateriaConPuntajeDTO mp = materiasConPuntaje.get(i);
-            System.out.printf("%d. %s (%s) - %d créditos - Puntaje: %.1f%n",
+            System.out.printf("%d. %s (%s) - %d créditos - Sem %d - Puntaje: %.2f%n",
                     i + 1,
                     mp.getMateria().getNombre(),
                     mp.getMateria().getCodigo(),
                     mp.getMateria().getCreditos(),
+                    mp.getMateria().getSemestre(),
                     mp.getPuntaje());
         }
     }
-
+    
     // Resultados
-    public void mostrarResultadosCombinaciones(List<PlanSemestre> combinaciones) {
+    public void mostrarResultadosCombinaciones(Set<Simulacion> combinaciones) {
         System.out.println("\nMEJORES COMBINACIONES ENCONTRADAS");
 
-        for (int i = 0; i < combinaciones.size(); i++) {
-            PlanSemestre comb = combinaciones.get(i);
-            System.out.printf("\n--- COMBINACIÓN %d (Puntaje: %.1f, Créditos: %d) ---%n",
-                    i + 1, comb.getPuntajeTotal(), comb.getCreditosTotales());
+        List<Simulacion> listaOrdenada = new ArrayList<>(combinaciones);
+        listaOrdenada.sort((a, b) -> Double.compare(b.getPuntajeTotal(), a.getPuntajeTotal()));
 
-            for (int j = 0; j < comb.getMaterias().size(); j++) {
-                Materia materia = comb.getMaterias().get(j);
+        for (int i = 0; i < 5; i++) {
+            Simulacion comb = listaOrdenada.get(i);
+            System.out.printf("\n--- COMBINACIÓN %d (Puntaje: %.1f, Créditos: %d) ---%n",
+                    i + 1, comb.getPuntajeTotal(), comb.getTotalCreditos());
+
+            int contador = 1;
+            for (Materia materia : comb.getMaterias()) {
                 System.out.printf("  %d. %s (%s) - %d créditos - Semestre %d%n",
-                        j + 1,
+                        contador,
                         materia.getNombre(),
                         materia.getCodigo(),
                         materia.getCreditos(),
                         materia.getSemestre());
+                contador++;
             }
         }
 
@@ -806,21 +976,18 @@ public class SimulacionService {
         }
     }
 
-    public List<PlanSemestre> generarCombinaciones(Progreso progreso, Proyeccion proyeccion,
-            List<Materia> materiasPensum, int numCombinaciones, boolean[] prioridades) {
+    public Set<Simulacion> generarCombinaciones(Progreso progreso, Proyeccion proyeccion, List<Materia> materiasPensum, int numCombinaciones, boolean[] prioridades) {
+        
         List<Materia> materiasDisponibles = filtrarMateriasDisponibles(progreso, materiasPensum, proyeccion);
-        List<MateriaConPuntajeDTO> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion,
-                prioridades);
-        mostrarMateriasPuntajes(materiasConPuntaje);
-        List<PlanSemestre> mejoresCombinaciones = generarMejoresCombinaciones(materiasConPuntaje,
-                proyeccion.getCreditos(), proyeccion.getMaterias()).stream().limit(numCombinaciones)
-                .collect(Collectors.toList());
-        mostrarResultadosCombinaciones(mejoresCombinaciones);
+        List<MateriaConPuntajeDTO> materiasConPuntaje = calcularPuntajes(materiasDisponibles, progreso, proyeccion,prioridades);
+        //mostrarMateriasPuntajes(materiasConPuntaje);
+        Set<Simulacion> mejoresCombinacionesUnicas = generarMejoresCombinacionesUnicas(materiasConPuntaje, proyeccion.getCreditos(), proyeccion.getMaterias(), numCombinaciones);
+        //mostrarResultadosCombinaciones(mejoresCombinacionesUnicas);
 
-        return mejoresCombinaciones;
+        return mejoresCombinacionesUnicas;
     }
 
-    public double calcularPuntajeRuta(Map<Integer, PlanSemestre> ruta, Progreso progresoInicial,
+    public double calcularPuntajeRuta(Map<Integer, Simulacion> ruta, Progreso progresoInicial,
             boolean[] prioridades) {
         double puntajeTotal = 0.0;
         Progreso progresoTemporal = progresoInicial.copy();
@@ -830,7 +997,7 @@ public class SimulacionService {
                 .collect(Collectors.toList());
 
         for (Integer semestre : semestresOrdenados) {
-            PlanSemestre sim = ruta.get(semestre);
+            Simulacion sim = ruta.get(semestre);
 
             Proyeccion proyTemp = crearProyeccionParaSemestre(new Proyeccion(), semestre);
 
@@ -844,23 +1011,33 @@ public class SimulacionService {
         return puntajeTotal;
     }
 
-    public void mostrarResultados(Map<Integer, PlanSemestre> ruta, double puntajeTotal) {
-        for (Map.Entry<Integer, PlanSemestre> entry : ruta.entrySet()) {
+    public void mostrarResultados(Map<Integer, Simulacion> ruta, double puntajeTotal) {
+        for (Map.Entry<Integer, Simulacion> entry : ruta.entrySet()) {
             int semestre = entry.getKey();
-            PlanSemestre sim = entry.getValue();
+            Simulacion sim = entry.getValue();
 
             System.out.println("\n--- SEMESTRE " + semestre + " ---");
             System.out.println("Materias: " + sim.getMaterias().size());
             int creditosSemestre = sim.getMaterias().stream().mapToInt(Materia::getCreditos).sum();
             System.out.println("Créditos: " + creditosSemestre);
 
-            for (int i = 0; i < sim.getMaterias().size(); i++) {
-                Materia materia = sim.getMaterias().get(i);
+            int i = 1;
+            for (Materia materia : sim.getMaterias()) {
                 System.out.printf("  %d. %s (%s) - %d créditos%n",
-                        i + 1, materia.getNombre(), materia.getCodigo(), materia.getCreditos());
+                        i, materia.getNombre(), materia.getCodigo(), materia.getCreditos());
+                i++;
             }
         }
         System.out.println("\nPuntaje total de la ruta: " + puntajeTotal);
+    }
+    
+    // Versión sobrecargada que incluye análisis de pendientes
+    public void mostrarResultados(Map<Integer, Simulacion> ruta, double puntajeTotal, Progreso progresoInicial) {
+        // Mostrar los resultados normales
+        mostrarResultados(ruta, puntajeTotal);
+        
+        // Agregar análisis de materias pendientes
+        analizarMateriasPendientes(ruta, progresoInicial);
     }
 
     public Proyeccion crearProyeccionParaSemestre(Proyeccion base, int semestre) {
@@ -869,6 +1046,374 @@ public class SimulacionService {
         proyeccion.setCreditos(base.getCreditos());
         proyeccion.setMaterias(base.getMaterias());
         return proyeccion;
+    }
+
+    //Métodos para test
+    public Map<String, Object> generarSimulacionConEstadisticas(Progreso progreso, Proyeccion proyeccionBase,
+            int semestreObjetivo, boolean[] prioridades, int limiteCombinaciones) throws Exception {
+
+        // Guardar configuración original de salida
+        PrintStream originalOut = System.out;
+
+        List<Materia> materiasPensum = pensumService.obtenerPensum();
+        
+        try {
+            // Redirigir salida para evitar spam en tests
+            System.setOut(new PrintStream(new ByteArrayOutputStream()));
+            
+            // Resetear contadores
+            contadorCombinaciones = 0;
+            contadorNodosCreados = 0;
+            
+            long tiempoInicio = System.currentTimeMillis();
+            
+            // Usar la versión con límite personalizable
+            Map<Integer, Simulacion> resultado = generarSimulacionMultiSemestreAStarConLimite(
+                progreso, proyeccionBase, semestreObjetivo, materiasPensum, prioridades, limiteCombinaciones);
+            
+            long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+            
+            // Crear estadísticas
+            Map<String, Object> estadisticas = new HashMap<>();
+            estadisticas.put("tiempoMs", tiempoTotal);
+            estadisticas.put("nodosCreados", contadorNodosCreados);
+            estadisticas.put("combinacionesGeneradas", contadorCombinaciones);
+            estadisticas.put("solucionEncontrada", !resultado.isEmpty());
+            estadisticas.put("semestresSimulados", resultado.size());
+            estadisticas.put("limiteCombinaciones", limiteCombinaciones);
+            
+            return estadisticas;
+            
+        } finally {
+            // Restaurar salida original
+            System.setOut(originalOut);
+        }
+    }
+
+    
+    // ALGORITMO A* CON LÍMITE PERSONALIZABLE
+    public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStarConLimite(Progreso progreso, Proyeccion proyeccionBase,
+            int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades, int limiteCombinaciones) {
+
+        // Resetear contadores
+        contadorCombinaciones = 0;
+        contadorNodosCreados = 0;
+
+        System.out.println("================ INICIO SIMULACIÓN A* (Límite: " + limiteCombinaciones + ") ================");
+        System.out.println("Semestre actual: " + progreso.getSemestre());
+        System.out.println("Semestre objetivo: " + semestreObjetivo);
+
+        int maxNodos = 25000;
+        
+        PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
+        Set<String> visitados = new HashSet<>();
+
+        Map<Integer, Simulacion> rutaInicial = new HashMap<>();
+        double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+
+        NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), heuristicaInicial, progreso);
+        contadorNodosCreados++; // Contar el nodo inicial
+
+        frontera.offer(nodoInicial);
+
+        int nodosExplorados = 0;
+        long tiempoInicio = System.currentTimeMillis();
+
+        while (!frontera.isEmpty() && nodosExplorados < maxNodos) {
+            NodoA nodoActual = frontera.poll();
+            nodosExplorados++;
+
+            if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
+                long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Termino antes)");
+                System.out.println("Semestre de finalización: " + nodoActual.getSemestreActual());
+                System.out.println("Semestre objetivo original: " + semestreObjetivo);
+                System.out.println("Semestres ahorrados: " + (semestreObjetivo - nodoActual.getSemestreActual()));
+                System.out.println("Nodos explorados: " + nodosExplorados);
+                System.out.println("Nodos creados: " + contadorNodosCreados);
+                System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                System.out.println("Tiempo total: " + tiempoTotal + "ms");
+                System.out.println("Heurística inicial: " + heuristicaInicial);
+
+                Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
+                mostrarResultados(rutaCompleta, puntajeTotal);
+                return rutaCompleta;
+            }
+
+            if (nodoActual.getSemestreActual() == semestreObjetivo) {
+                double heuristicaActual = calcularHeuristica(nodoActual.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+                
+                int nodosMinimosParaComparar = Math.min(50, maxNodos / 10); 
+                
+                if (nodosExplorados >= nodosMinimosParaComparar) {
+                    boolean hayMejorOpcion = false;
+                    for (NodoA nodoFrontera : frontera) {
+                        double heuristicaFrontera = calcularHeuristica(nodoFrontera.getProgresoActual(), semestreObjetivo, proyeccionBase, materiasPensum, prioridades);
+                        if (heuristicaFrontera < heuristicaActual) {
+                            hayMejorOpcion = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!hayMejorOpcion || nodosExplorados >= maxNodos / 2) {
+                        long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                        System.out.println("SOLUCION A* ENCONTRADA (Semestre objetivo alcanzado)");
+                        System.out.println("Heurística del nodo seleccionado: " + heuristicaActual);
+                        System.out.println("Nodos explorados: " + nodosExplorados);
+                        System.out.println("Nodos creados: " + contadorNodosCreados);
+                        System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                        System.out.println("Tiempo total: " + tiempoTotal + "ms");
+                        System.out.println("Heurística inicial: " + heuristicaInicial);
+
+                        Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                        double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
+                        mostrarResultados(rutaCompleta, puntajeTotal, progreso);
+                        return rutaCompleta;
+                    }
+                }
+            }
+
+            String claveEstado = generarClaveEstado(nodoActual.getProgresoActual(), nodoActual.getSemestreActual());
+            if (visitados.contains(claveEstado))
+                continue;
+            visitados.add(claveEstado);
+
+            expandirNodo(nodoActual, frontera, semestreObjetivo, proyeccionBase, materiasPensum,
+                    limiteCombinaciones, prioridades);
+        }
+
+        long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+        System.out.println("A* alcanzó límite de nodos: " + maxNodos);
+        System.out.println("Nodos creados: " + contadorNodosCreados);
+        System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+        System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
+        System.out.println("A* no pudo encontrar ninguna solución completa");
+        return new HashMap<>();
+    }
+
+    // Método para probar actualizarProgresoTemporal de forma aislada
+    public void probarActualizacionProgreso(Progreso progreso, Simulacion simulacion, int semestre) {
+        System.out.println("=== PRUEBA DE ACTUALIZACIÓN DE PROGRESO ===");
+        System.out.println("Semestre: " + semestre);
+        
+        // Estado inicial
+        System.out.println("\n--- ESTADO INICIAL ---");
+        System.out.println("Materias faltantes: " + progreso.getListaMateriasFaltantes().size());
+        System.out.println("Faltan electivas: " + progreso.getFaltanElectiva());
+        System.out.println("Faltan complementarias: " + progreso.getFaltanComplementaria());
+        System.out.println("Faltan énfasis: " + progreso.getFaltanEnfasis());
+        System.out.println("Faltan electivas CB: " + progreso.getFaltanElectivaBasicas());
+        
+        if (progreso.getCursosElectivas() != null) {
+            System.out.println("Electivas cursadas: " + progreso.getCursosElectivas().size());
+        }
+        if (progreso.getCursosEnfasis() != null) {
+            System.out.println("Énfasis cursados: " + progreso.getCursosEnfasis().size());
+        }
+        
+        // Materias a simular
+        System.out.println("\n--- MATERIAS A SIMULAR ---");
+        for (Materia m : simulacion.getMaterias()) {
+            System.out.println("- " + m.getNombre() + " (" + m.getCodigo() + ") - " + m.getCreditos() + " créditos");
+        }
+        
+        // Hacer copia y actualizar
+        Progreso progresoActualizado = progreso.copy();
+        progresoActualizado = actualizarProgresoTemporal(progresoActualizado, simulacion, semestre);
+        
+        // Estado final
+        System.out.println("\n--- ESTADO DESPUÉS DE ACTUALIZAR ---");
+        System.out.println("Materias faltantes: " + progresoActualizado.getListaMateriasFaltantes().size());
+        System.out.println("Faltan electivas: " + progresoActualizado.getFaltanElectiva());
+        System.out.println("Faltan complementarias: " + progresoActualizado.getFaltanComplementaria());
+        System.out.println("Faltan énfasis: " + progresoActualizado.getFaltanEnfasis());
+        System.out.println("Faltan electivas CB: " + progresoActualizado.getFaltanElectivaBasicas());
+        
+        if (progresoActualizado.getCursosElectivas() != null) {
+            System.out.println("Electivas cursadas: " + progresoActualizado.getCursosElectivas().size());
+        }
+        if (progresoActualizado.getCursosEnfasis() != null) {
+            System.out.println("Énfasis cursados: " + progresoActualizado.getCursosEnfasis().size());
+        }
+        
+        System.out.println("===========================================\n");
+    }
+
+    // Función para analizar materias y créditos pendientes después de una solución
+    public void analizarMateriasPendientes(Map<Integer, Simulacion> solucion, Progreso progresoInicial) {
+        System.out.println("\n================ ANÁLISIS DE MATERIAS PENDIENTES ================");
+        
+        // Crear una copia del progreso inicial para simular toda la ruta
+        Progreso progresoFinal = progresoInicial.copy();
+        
+        // Aplicar todas las simulaciones de la solución
+        for (Map.Entry<Integer, Simulacion> entry : solucion.entrySet()) {
+            int semestre = entry.getKey();
+            Simulacion sim = entry.getValue();
+            progresoFinal = actualizarProgresoTemporal(progresoFinal, sim, semestre);
+        }
+        
+        // Contar materias de núcleo faltantes
+        int materiasNucleoFaltantes = contarMateriasNucleoFaltantes(progresoFinal);
+        int creditosNucleoFaltantes = contarCreditosNucleoFaltantes(progresoFinal);
+        
+        // Contar créditos faltantes por tipo
+        int creditosElectivasFaltantes = Math.max((int)progresoFinal.getFaltanElectiva(), 0);
+        int creditosComplementariasFaltantes = Math.max((int)progresoFinal.getFaltanComplementaria(), 0);
+        int creditosEnfasisFaltantes = Math.max((int)progresoFinal.getFaltanEnfasis(), 0);
+        int creditosElectivasCBFaltantes = Math.max((int)progresoFinal.getFaltanElectivaBasicas(), 0);
+        
+        // Mostrar resumen
+        System.out.println("--- MATERIAS DE NÚCLEO PENDIENTES ---");
+        System.out.println("Materias faltantes: " + materiasNucleoFaltantes);
+        System.out.println("Créditos faltantes: " + creditosNucleoFaltantes);
+        
+        if (materiasNucleoFaltantes > 0) {
+            System.out.println("Materias específicas pendientes:");
+            int contador = 1;
+            for (Materia materia : progresoFinal.getListaMateriasFaltantes()) {
+                if (esMateriaNucleo(materia)) {
+                    System.out.printf("  %d. %s (%s) - %d créditos - Sem %d%n",
+                            contador, materia.getNombre(), materia.getCodigo(), 
+                            materia.getCreditos(), materia.getSemestre());
+                    contador++;
+                }
+            }
+        }
+        
+        System.out.println("\n--- CRÉDITOS ELECTIVOS PENDIENTES ---");
+        System.out.println("Electivas generales: " + creditosElectivasFaltantes + " créditos");
+        System.out.println("Complementarias: " + creditosComplementariasFaltantes + " créditos");
+        System.out.println("Énfasis: " + creditosEnfasisFaltantes + " créditos");
+        System.out.println("Electivas Ciencias Básicas: " + creditosElectivasCBFaltantes + " créditos");
+        
+        // Calcular total pendiente
+        int totalCreditosPendientes = creditosNucleoFaltantes + creditosElectivasFaltantes + 
+                                     creditosComplementariasFaltantes + creditosEnfasisFaltantes + 
+                                     creditosElectivasCBFaltantes;
+        
+        System.out.println("\n--- RESUMEN TOTAL ---");
+        System.out.println("Total créditos pendientes: " + totalCreditosPendientes);
+        System.out.println("Total materias de núcleo pendientes: " + materiasNucleoFaltantes);
+        
+        // Verificar si se completó el programa
+        if (haCompletadoTodasLasMaterias(progresoFinal)) {
+            System.out.println("🎉 ¡PROGRAMA ACADÉMICO COMPLETADO!");
+        } else {
+            System.out.println("⚠️  Aún faltan requisitos por cumplir");
+            
+            // Estimar semestres adicionales necesarios
+            if (totalCreditosPendientes > 0) {
+                int semestresPendientes = (int) Math.ceil(totalCreditosPendientes / 15.0); // Asumiendo 15 créditos por semestre
+                System.out.println("Estimado de semestres adicionales: " + semestresPendientes);
+            }
+        }
+        
+        System.out.println("================================================================\n");
+    }
+    
+    // Función sobrecargada que también acepta el progreso final calculado
+    public void analizarMateriasPendientes(Progreso progresoFinal) {
+        System.out.println("\n================ ANÁLISIS DE MATERIAS PENDIENTES ================");
+        
+        // Contar materias de núcleo faltantes
+        int materiasNucleoFaltantes = contarMateriasNucleoFaltantes(progresoFinal);
+        int creditosNucleoFaltantes = contarCreditosNucleoFaltantes(progresoFinal);
+        
+        // Contar créditos faltantes por tipo
+        int creditosElectivasFaltantes = Math.max((int)progresoFinal.getFaltanElectiva(), 0);
+        int creditosComplementariasFaltantes = Math.max((int)progresoFinal.getFaltanComplementaria(), 0);
+        int creditosEnfasisFaltantes = Math.max((int)progresoFinal.getFaltanEnfasis(), 0);
+        int creditosElectivasCBFaltantes = Math.max((int)progresoFinal.getFaltanElectivaBasicas(), 0);
+        
+        // Mostrar resumen
+        System.out.println("--- MATERIAS DE NÚCLEO PENDIENTES ---");
+        System.out.println("Materias faltantes: " + materiasNucleoFaltantes);
+        System.out.println("Créditos faltantes: " + creditosNucleoFaltantes);
+        
+        System.out.println("\n--- CRÉDITOS ELECTIVOS PENDIENTES ---");
+        System.out.println("Electivas generales: " + creditosElectivasFaltantes + " créditos");
+        System.out.println("Complementarias: " + creditosComplementariasFaltantes + " créditos");
+        System.out.println("Énfasis: " + creditosEnfasisFaltantes + " créditos");
+        System.out.println("Electivas Ciencias Básicas: " + creditosElectivasCBFaltantes + " créditos");
+        
+        // Calcular total pendiente
+        int totalCreditosPendientes = creditosNucleoFaltantes + creditosElectivasFaltantes + 
+                                     creditosComplementariasFaltantes + creditosEnfasisFaltantes + 
+                                     creditosElectivasCBFaltantes;
+        
+        System.out.println("\n--- RESUMEN TOTAL ---");
+        System.out.println("Total créditos pendientes: " + totalCreditosPendientes);
+        System.out.println("Total materias de núcleo pendientes: " + materiasNucleoFaltantes);
+        
+        if (haCompletadoTodasLasMaterias(progresoFinal)) {
+            System.out.println("🎉 ¡PROGRAMA ACADÉMICO COMPLETADO!");
+        } else {
+            System.out.println("⚠️  Aún faltan requisitos por cumplir");
+        }
+        
+        System.out.println("================================================================\n");
+    }
+    
+    // Función que devuelve los datos estructurados en lugar de solo imprimirlos
+    public Map<String, Object> calcularMateriasPendientes(Map<Integer, Simulacion> solucion, Progreso progresoInicial) {
+        // Crear una copia del progreso inicial para simular toda la ruta
+        Progreso progresoFinal = progresoInicial.copy();
+        
+        // Aplicar todas las simulaciones de la solución
+        for (Map.Entry<Integer, Simulacion> entry : solucion.entrySet()) {
+            int semestre = entry.getKey();
+            Simulacion sim = entry.getValue();
+            progresoFinal = actualizarProgresoTemporal(progresoFinal, sim, semestre);
+        }
+        
+        return calcularMateriasPendientes(progresoFinal);
+    }
+    
+    // Función sobrecargada que devuelve datos estructurados del progreso final
+    public Map<String, Object> calcularMateriasPendientes(Progreso progresoFinal) {
+        Map<String, Object> resultado = new HashMap<>();
+        
+        // Contar materias de núcleo faltantes
+        int materiasNucleoFaltantes = contarMateriasNucleoFaltantes(progresoFinal);
+        int creditosNucleoFaltantes = contarCreditosNucleoFaltantes(progresoFinal);
+        
+        // Contar créditos faltantes por tipo
+        int creditosElectivasFaltantes = Math.max((int)progresoFinal.getFaltanElectiva(), 0);
+        int creditosComplementariasFaltantes = Math.max((int)progresoFinal.getFaltanComplementaria(), 0);
+        int creditosEnfasisFaltantes = Math.max((int)progresoFinal.getFaltanEnfasis(), 0);
+        int creditosElectivasCBFaltantes = Math.max((int)progresoFinal.getFaltanElectivaBasicas(), 0);
+        
+        // Obtener lista de materias de núcleo pendientes
+        List<Materia> materiasNucleoPendientes = new ArrayList<>();
+        for (Materia materia : progresoFinal.getListaMateriasFaltantes()) {
+            if (esMateriaNucleo(materia)) {
+                materiasNucleoPendientes.add(materia);
+            }
+        }
+        
+        // Calcular total pendiente
+        int totalCreditosPendientes = creditosNucleoFaltantes + creditosElectivasFaltantes + 
+                                     creditosComplementariasFaltantes + creditosEnfasisFaltantes + 
+                                     creditosElectivasCBFaltantes;
+        
+        // Llenar el mapa de resultados
+        resultado.put("materiasNucleoFaltantes", materiasNucleoFaltantes);
+        resultado.put("creditosNucleoFaltantes", creditosNucleoFaltantes);
+        resultado.put("creditosElectivasFaltantes", creditosElectivasFaltantes);
+        resultado.put("creditosComplementariasFaltantes", creditosComplementariasFaltantes);
+        resultado.put("creditosEnfasisFaltantes", creditosEnfasisFaltantes);
+        resultado.put("creditosElectivasCBFaltantes", creditosElectivasCBFaltantes);
+        resultado.put("totalCreditosPendientes", totalCreditosPendientes);
+        resultado.put("materiasNucleoPendientes", materiasNucleoPendientes);
+        resultado.put("programaCompleto", haCompletadoTodasLasMaterias(progresoFinal));
+        
+        // Estimar semestres adicionales
+        int semestresPendientes = totalCreditosPendientes > 0 ? (int) Math.ceil(totalCreditosPendientes / 15.0) : 0;
+        resultado.put("semestresPendientesEstimados", semestresPendientes);
+        
+        return resultado;
     }
 
 }

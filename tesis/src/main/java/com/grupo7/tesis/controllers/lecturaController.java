@@ -31,7 +31,7 @@ public class lecturaController {
 
         @PostMapping("/subir-pdf")
         @ResponseBody
-        public Progreso procesarPDFSubido(@RequestParam("archivo") MultipartFile archivo) {
+        public ProgresoDTO procesarPDFSubido(@RequestParam("archivo") MultipartFile archivo) {
                 if (archivo.isEmpty() || !archivo.getOriginalFilename().endsWith(".pdf")) {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF válido.");
                 }
@@ -81,28 +81,26 @@ public class lecturaController {
 
                 List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado(archivo);
 
-                Progreso progreso = lecturaService.obtenerResumenAcademico(
-                                materias,
-                                tablaElectivas,
-                                cursosComplementariaLenguas,
-                                cursosComplementariaInfo,
-                                cursosEnfasis,
-                                cursosElectivaBasicas,
-                                cursosSeguridad,
-                                cursosIA,
-                                tablaDesarrolloComputacion,
-                                tablaDesarrolloGestion,
-                                tablaComputacionVisual,
-                                tablaCVtoIA,
-                                tablaSIGtoIA);
-
+                Progreso progreso = new Progreso();
                 progreso.setMaterias(materias);
+                progreso.setCursosElectivas(tablaElectivas);
+                progreso.setCursosEnfasis(cursosEnfasis);
+                progreso.setCursosComplementariaLenguas(cursosComplementariaLenguas);
+                progreso.setCursosComplementariaInformacion(cursosComplementariaInfo);
+                progreso.setCursosIA(cursosIA);
+                progreso.setCursosDesarrolloComputacion(tablaDesarrolloComputacion);
+                progreso.setCursosDesarrolloGestion(tablaDesarrolloGestion);
+                progreso.setCursosComputacionVisual(tablaComputacionVisual);
+                progreso.setCursosCVtoIA(tablaCVtoIA);
+                progreso.setCursosSIGtoIA(tablaSIGtoIA);
+                progreso.setCursosElectivaBasicas(cursosElectivaBasicas);
+                progreso.setCursosSeguridad(cursosSeguridad);
                 progreso.setLineasRequisitosGrado(lineasRequisitosGrado);
+                progreso.setMateriasFaltantes();
 
-                double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
-                progreso.setPorcentaje(porcentaje);
+                ProgresoDTO progresoDTO = new ProgresoDTO(progreso);
 
-                return progreso;
+                return progresoDTO;
         }
 
 }
