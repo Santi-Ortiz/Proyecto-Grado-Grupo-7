@@ -898,7 +898,7 @@ public class SimulacionService {
         // Guardar configuración original de salida
         PrintStream originalOut = System.out;
 
-        List<Materia> materiasPensum = pensumService.obtenerPensum();
+        List<Materia> materiasPensum = pensumService.obtenerPensumJson();
         
         try {
             // Redirigir salida para evitar spam en tests

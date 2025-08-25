@@ -46,7 +46,7 @@ public class SimulacionController {
 
         Map<Integer, Simulacion> simulacion = new HashMap<>();
 
-        List<Materia> materiasPensum = pensumService.obtenerPensum();
+        List<Materia> materiasPensum = pensumService.obtenerPensumJson();
 
         simulacion = simulacionService.generarSimulacionMultiSemestreAStar(simulacionDTO.getProgreso(),
                 simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum,

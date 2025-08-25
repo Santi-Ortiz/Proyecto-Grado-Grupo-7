@@ -79,5 +79,6 @@ public class DatabaseInit implements ApplicationRunner {
     }
 
     public void crearMateriasDesdeJson() throws Exception {
-        
+
     }
+}

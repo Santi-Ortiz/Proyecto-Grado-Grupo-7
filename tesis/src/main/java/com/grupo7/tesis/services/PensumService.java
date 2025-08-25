@@ -26,6 +26,9 @@ public class PensumService {
     @Autowired
     private MateriaRepository materiaRepository;
 
+    @Autowired
+    private MateriaService materiaService;
+
     public List<Pensum> obtenerPensums() {
         return pensumRepository.findAll();
     }
@@ -68,13 +71,12 @@ public class PensumService {
         return null;
     }
 
-    public List<Materia> obtenerPensum() throws Exception {
+    public List<Materia> obtenerPensumJson() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         InputStream is = getClass().getClassLoader().getResourceAsStream("plan_estudios_INGSIS.json");
         List<Materia> materias = mapper.readValue(is, new TypeReference<List<Materia>>() {
         });
 
-        // Setear requisitosJson para cada materia
         for (Materia materia : materias) {
             try {
                 String requisitosJson = mapper.writeValueAsString(materia.getRequisitos());

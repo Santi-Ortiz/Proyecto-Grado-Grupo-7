@@ -48,10 +48,10 @@ public class PensumController {
         pensumService.eliminarPensum(id);
     }
 
+    // Devuelve la lista de materias a partir de la lectura del archivo Json 
     @GetMapping
-    @ResponseBody
     public List<Materia> obtenerPensumJson() throws Exception {
-        return pensumService.obtenerPensum();
+        return pensumService.obtenerPensumJson();
     }
 
 }

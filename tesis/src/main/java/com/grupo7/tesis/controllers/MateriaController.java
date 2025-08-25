@@ -1,5 +1,6 @@
 package com.grupo7.tesis.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,16 @@ public class MateriaController {
     @PostMapping
     public Materia crearMateria(@RequestBody Materia materia) {
         return materiaService.crearMateria(materia);
+    }
+
+    @PostMapping("/cargar-desde-json")
+    public List<Materia> cargarMateriasDesdeJson() {
+        try {
+            return materiaService.crearMateriasDesdeJson();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
     @GetMapping("/{id}")
