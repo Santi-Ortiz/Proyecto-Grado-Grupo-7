@@ -74,22 +74,23 @@ public class MateriaService {
                     Optional<Materia> materiaRequisito = materiaRepository.findAll().stream()
                             .filter(m -> m.getCodigo() != null && m.getCodigo().equals(codigoRequisito))
                             .findFirst();
-                    
+
                     if (materiaRequisito.isPresent()) {
                         boolean existeRequisito = requisitoMateriaRepository.findAll().stream()
-                                .anyMatch(rm -> rm.getMateria().getId().equals(materia.getId()) && 
-                                            rm.getMateriaRequisito().getId().equals(materiaRequisito.get().getId()));
-                        
+                                .anyMatch(rm -> rm.getMateria().getId().equals(materia.getId()) &&
+                                        rm.getMateriaRequisito().getId().equals(materiaRequisito.get().getId()));
+
                         if (!existeRequisito) {
                             RequisitoMateria requisito = new RequisitoMateria(materia, materiaRequisito.get());
                             requisitoMateriaRepository.save(requisito);
-                            System.out.println("   Requisito agregado: " + materia.getCodigo() + " requiere " + codigoRequisito);
+                            System.out.println(
+                                    "   Requisito agregado: " + materia.getCodigo() + " requiere " + codigoRequisito);
                         }
                     } else {
-                        System.out.println("   ⚠️ Materia requisito no encontrada: " + codigoRequisito);
+                        System.out.println("Materia requisito no encontrada: " + codigoRequisito);
                     }
                 } catch (Exception e) {
-                    System.out.println("   ❌ Error al procesar requisito " + codigoRequisito + ": " + e.getMessage());
+                    System.out.println("Error al procesar requisito " + codigoRequisito + ": " + e.getMessage());
                 }
             }
         }
@@ -97,13 +98,12 @@ public class MateriaService {
 
     public void procesarTodosRequisitos() {
         List<Materia> todasLasMaterias = materiaRepository.findAll();
-        System.out.println("🔗 Procesando requisitos para " + todasLasMaterias.size() + " materias...");
-        
+
         for (Materia materia : todasLasMaterias) {
             procesarRequisitosMateria(materia);
         }
-        
-        System.out.println("✅ Procesamiento de requisitos completado");
+
+        System.out.println("Procesamiento de requisitos completado");
     }
 
 }

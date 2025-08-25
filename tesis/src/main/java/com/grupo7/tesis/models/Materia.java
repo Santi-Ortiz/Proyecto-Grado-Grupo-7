@@ -2,9 +2,11 @@ package com.grupo7.tesis.models;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,7 +41,7 @@ public class Materia {
 
     @OneToMany(mappedBy = "materia")
     @JsonIgnore
-    private Set<RequisitoMateria> requisitosMateria;
+    private Set<RequisitoMateria> requisitosMateria; // Se almacenan los ids de la materias que son requisitos de otras 
 
     @Transient
     private String requisitosJson;
@@ -184,6 +186,28 @@ public class Materia {
 
     public void setRequisitosMateria(Set<RequisitoMateria> requisitosMateria) {
         this.requisitosMateria = requisitosMateria;
+    }
+
+    @JsonProperty("requisitos")
+    public List<Long> getRequisitosIds() {
+        if (this.requisitosMateria == null || this.requisitosMateria.isEmpty()) {
+            return List.of();
+        }
+        
+        return this.requisitosMateria.stream()
+            .map(requisitoMateria -> requisitoMateria.getMateriaRequisito().getId())
+            .collect(Collectors.toList());
+    }
+
+    @JsonProperty("pensumsAsociados")
+    public List<Long> getPensumsIds() {
+        if (this.pensumsAsociados == null || this.pensumsAsociados.isEmpty()) {
+            return List.of();
+        }
+
+        return this.pensumsAsociados.stream()
+            .map(pensumMateria -> pensumMateria.getPensum().getId())
+            .collect(Collectors.toList());
     }
 
 }

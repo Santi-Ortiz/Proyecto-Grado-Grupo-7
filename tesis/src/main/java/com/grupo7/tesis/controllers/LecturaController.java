@@ -102,7 +102,7 @@ public class LecturaController {
 
                 double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
                 progreso.setPorcentaje(porcentaje);
-                //guardarInformeAvance(archivo);
+                guardarInformeAvance(archivo);
 
                 return progreso;
         }
