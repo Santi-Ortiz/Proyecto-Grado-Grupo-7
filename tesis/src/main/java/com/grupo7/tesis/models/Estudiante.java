@@ -17,8 +17,10 @@ public class Estudiante {
     @Column(name = "estudiante_id")
     private Long id;
 
+    @Column(name = "codigo", unique = true)
     private String codigo;
 
+    @Column(name = "correo", unique = true)
     private String correo;
 
     private String contrasenia;

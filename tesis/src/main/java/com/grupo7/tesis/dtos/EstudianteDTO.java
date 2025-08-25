@@ -16,6 +16,31 @@ public class EstudianteDTO {
     public EstudianteDTO() {
     }
 
+    public EstudianteDTO(String codigo, String correo, String contrasenia, String primerNombre, String segundoNombre,
+            String primerApellido, String segundoApellido, String carrera, Long anioIngreso) {
+        this.codigo = codigo;
+        this.correo = correo;
+        this.contrasenia = contrasenia;
+        this.primerNombre = primerNombre;
+        this.segundoNombre = segundoNombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
+        this.carrera = carrera;
+        this.anioIngreso = anioIngreso;
+    }
+
+    public EstudianteDTO(String codigo, String correo, String contrasenia, String primerNombre, String primerApellido,
+            String segundoApellido, String carrera, Long anioIngreso) {
+        this.codigo = codigo;
+        this.correo = correo;
+        this.contrasenia = contrasenia;
+        this.primerNombre = primerNombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
+        this.carrera = carrera;
+        this.anioIngreso = anioIngreso;
+    }
+
     public EstudianteDTO(String codigo, String correo, String contrasenia, String primerNombre,
             String segundoNombre, String primerApellido, String segundoApellido, String carrera, Long anioIngreso,
             Long pensumId, Long facultadId) {
