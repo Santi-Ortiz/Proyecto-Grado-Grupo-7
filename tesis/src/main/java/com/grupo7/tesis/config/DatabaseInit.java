@@ -1,6 +1,8 @@
 package com.grupo7.tesis.config;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -8,11 +10,14 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Controller;
 
 import com.grupo7.tesis.models.Facultad;
+import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Pensum;
 import com.grupo7.tesis.repositories.EstudianteRepository;
 import com.grupo7.tesis.repositories.FacultadRepository;
 import com.grupo7.tesis.repositories.MateriaRepository;
 import com.grupo7.tesis.repositories.PensumRepository;
+import com.grupo7.tesis.services.MateriaService;
+import com.grupo7.tesis.services.PensumService;
 
 import jakarta.transaction.Transactional;
 
@@ -32,17 +37,30 @@ public class DatabaseInit implements ApplicationRunner {
     @Autowired
     private EstudianteRepository estudianteRepository;
 
+    @Autowired
+    private MateriaService materiaService;
+
+    @Autowired
+    private PensumService pensumService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
         if (pensumRepository.count() != 0) {
             return;
-        } else if(facultadRepository.count() != 0) {
+        } else if (facultadRepository.count() != 0) {
+            return;
+        } else if (materiaRepository.count() != 0) {
+            return;
+        } else if (pensumRepository.count() != 0) {
             return;
         }
 
         crearFacultades();
         crearPensums();
+
+        crearMateriasDesdeJson();
+        asociarMateriasAPensum();
 
     }
 
@@ -68,7 +86,7 @@ public class DatabaseInit implements ApplicationRunner {
     }
 
     public void crearFacultades() {
-        
+
         Facultad facultadIngenieria = new Facultad("Facultad de Ingeniería");
         Facultad facultadCiencias = new Facultad("Facultad de Ciencias");
         Facultad facultadCienciasEcon = new Facultad("Facultad de Ciencias Económicas y Administrativas");
@@ -79,6 +97,57 @@ public class DatabaseInit implements ApplicationRunner {
     }
 
     public void crearMateriasDesdeJson() throws Exception {
+        try {
+            List<Materia> materiasCreadas = materiaService.crearMateriasDesdeJson();
+            System.out.println("Se crearon " + materiasCreadas.size() + " materias exitosamente");
+        } catch (Exception e) {
+            System.err.println("Error al crear materias desde JSON: " + e.getMessage());
+            throw e;
+        }
+    }
 
+    public void asociarMateriasAPensum() throws Exception {
+
+        try {
+            Pensum pensum = pensumRepository.findByCarrera("Ingeniería de Sistemas");
+
+            if (pensum == null) {
+                System.err.println("No se encontró el pensum de Ingeniería de Sistemas");
+                return;
+            }
+
+            List<Materia> todasLasMaterias = materiaService.obtenerMaterias();
+
+            if (todasLasMaterias.isEmpty()) {
+                System.err.println("No se encontraron materias para asociar");
+                return;
+            }
+
+            // Se extraen los ID de todas las materias
+            List<Long> materiaIds = todasLasMaterias.stream()
+                    .map(Materia::getId)
+                    .collect(Collectors.toList());
+
+            // Se asocian todas las materias al pensum
+            int asociacionesExitosas = 0;
+            for (Long materiaId : materiaIds) {
+                try {
+                    pensumService.asociarMateriaAPensum(pensum.getId(), materiaId);
+                    asociacionesExitosas++;
+                } catch (Exception e) {
+                    System.err.println("Error al asociar materia ID " + materiaId + ": " + e.getMessage());
+                }
+            }
+
+            System.out.println("Se asociaron " + asociacionesExitosas + " de " + materiaIds.size()
+                    + " materias al pensum de Ingeniería de Sistemas");
+
+            List<Materia> materiasAsociadas = pensumService.obtenerMateriasPorPensumId(pensum.getId());
+            System.out.println("Verificación: " + materiasAsociadas.size() + " materias asociadas al pensum");
+
+        } catch (Exception e) {
+            System.err.println("Error al asociar materias al pensum: " + e.getMessage());
+            throw e;
+        }
     }
 }

@@ -7,5 +7,7 @@ import com.grupo7.tesis.models.Pensum;
 
 @Repository
 public interface PensumRepository extends JpaRepository<Pensum, Long> {
+
+    public Pensum findByCarrera(String carrera);
     
 }
