@@ -1,11 +1,14 @@
 // En un nuevo archivo: PensumMateria.java
 package com.grupo7.tesis.models;
 
-import jakarta.persistence.EmbeddedId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 /* Tabla intermedia entre Pensum y materia para almacenar las materias de un pensum */
@@ -13,16 +16,16 @@ import jakarta.persistence.Table;
 @Table(name = "pensum_materia")
 public class PensumMateria {
 
-    @EmbeddedId
-    private PensumMateriaId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
-    @MapsId("pensumId") // Mapea el atributo 'pensumId' de PensumMateriaId
     @JoinColumn(name = "pensum_id")
+    @JsonIgnore
     private Pensum pensum;
 
     @ManyToOne
-    @MapsId("materiaId") // Mapea el atributo 'materiaId' de PensumMateriaId
     @JoinColumn(name = "materia_id")
     private Materia materia;
 
@@ -37,19 +40,11 @@ public class PensumMateria {
         this.semestreEsperado = semestreEsperado;
     }
 
-    public PensumMateria(PensumMateriaId id, Pensum pensum, Materia materia, int semestreEsperado) {
+    public PensumMateria(Long id, Pensum pensum, Materia materia, int semestreEsperado) {
         this.id = id;
         this.pensum = pensum;
         this.materia = materia;
         this.semestreEsperado = semestreEsperado;
-    }
-
-    public PensumMateriaId getId() {
-        return id;
-    }
-
-    public void setId(PensumMateriaId id) {
-        this.id = id;
     }
 
     public Pensum getPensum() {
@@ -76,6 +71,12 @@ public class PensumMateria {
         this.semestreEsperado = semestreEsperado;
     }
 
-    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
 }

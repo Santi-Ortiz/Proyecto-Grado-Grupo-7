@@ -10,24 +10,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Pensum;
-import com.grupo7.tesis.repositories.MateriaRepository;
-import com.grupo7.tesis.repositories.PensumMateriaRepository;
+import com.grupo7.tesis.models.PensumMateria;
 import com.grupo7.tesis.repositories.PensumRepository;
 
 @Service
 public class PensumService {
 
-    @Autowired 
+    @Autowired
     private PensumRepository pensumRepository;
 
     @Autowired
-    private PensumMateriaRepository pensumMateriaRepository;
-
-    @Autowired
-    private MateriaRepository materiaRepository;
-
-    @Autowired
-    private MateriaService materiaService;
+    private PensumMateriaService pensumMateriaService;
 
     public List<Pensum> obtenerPensums() {
         return pensumRepository.findAll();
@@ -45,7 +38,7 @@ public class PensumService {
         Pensum pensumExistente = pensumRepository.findById(id).orElse(null);
         if (pensumExistente != null) {
 
-            if(pensumActualizado.getCarrera() != null) {
+            if (pensumActualizado.getCarrera() != null) {
                 pensumExistente.setCarrera(pensumActualizado.getCarrera());
             }
             if (pensumActualizado.getCreditosTotales() != null) {
@@ -54,7 +47,7 @@ public class PensumService {
             if (pensumActualizado.getNumeroSemestres() != null) {
                 pensumExistente.setNumeroSemestres(pensumActualizado.getNumeroSemestres());
             }
-            if(pensumActualizado.getMateriasAsociadas() != null) {
+            if (pensumActualizado.getMateriasAsociadas() != null) {
                 pensumExistente.setMateriasAsociadas(pensumActualizado.getMateriasAsociadas());
             }
             return pensumRepository.save(pensumExistente);
@@ -87,6 +80,51 @@ public class PensumService {
         }
 
         return materias;
+    }
+
+    /* MÉTODOS PARA ASOCIAR MATERIAS A PENSUMS */
+
+    public List<Materia> obtenerMateriasPorPensumId(Long pensumId) {
+        Pensum pensum = obtenerPensumPorId(pensumId);
+        if (pensum == null) {
+            throw new RuntimeException("Pensum no encontrado con ID: " + pensumId);
+        }
+
+        return pensumMateriaService.obtenerSoloMateriasDePensum(pensumId);
+    }
+
+    public List<PensumMateria> obtenerPensumMateriasPorPensumId(Long pensumId) {
+        Pensum pensum = obtenerPensumPorId(pensumId);
+        if (pensum == null) {
+            throw new RuntimeException("Pensum no encontrado con ID: " + pensumId);
+        }
+
+        return pensumMateriaService.obtenerMateriasPensum(pensumId);
+    }
+
+    public Pensum crearPensumConMaterias(Pensum pensum, List<Long> materiaIds) {
+        Pensum pensumGuardado = pensumRepository.save(pensum);
+
+        if (materiaIds != null && !materiaIds.isEmpty()) {
+            pensumMateriaService.asociarMateriasAPensum(pensumGuardado.getId(), materiaIds);
+        }
+
+        return pensumGuardado;
+    }
+
+    public void asociarMateriaAPensum(Long pensumId, Long materiaId) {
+        pensumMateriaService.asociarMateriaAPensum(pensumId, materiaId);
+    }
+
+    public void eliminarMateriaDepensum(Long pensumId, Long materiaId) {
+        List<com.grupo7.tesis.models.PensumMateria> pensumMaterias = pensumMateriaService
+                .obtenerMateriasPensum(pensumId);
+        com.grupo7.tesis.models.PensumMateria pensumMateria = pensumMaterias.stream()
+                .filter(pm -> pm.getMateria().getId().equals(materiaId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No se encontró la asociación entre el pensum y la materia"));
+
+        pensumMateriaService.eliminarMateriaPensum(pensumMateria.getId());
     }
 
 }

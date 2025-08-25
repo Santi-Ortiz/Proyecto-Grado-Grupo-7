@@ -2,6 +2,8 @@ package com.grupo7.tesis.models;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +15,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "pensum")
 public class Pensum {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pensum_id", unique = true)
@@ -84,6 +86,4 @@ public class Pensum {
         this.materiasAsociadas = materiasAsociadas;
     }
 
-    
-     
 }

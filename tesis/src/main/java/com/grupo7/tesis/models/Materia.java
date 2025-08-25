@@ -3,6 +3,7 @@ package com.grupo7.tesis.models;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -37,6 +38,7 @@ public class Materia {
     private List<String> requisitos;
 
     @OneToMany(mappedBy = "materia")
+    @JsonIgnore
     private Set<RequisitoMateria> requisitosMateria;
 
     @Transient
@@ -45,12 +47,15 @@ public class Materia {
     private String tipo;
 
     @OneToMany(mappedBy = "materia")
+    @JsonIgnore
     private Set<PensumMateria> pensumsAsociados;
 
     @OneToMany(mappedBy = "materia")
+    @JsonIgnore
     private Set<SimulacionMateria> simulacionesAsociadas;
 
     @OneToMany(mappedBy = "materia")
+    @JsonIgnore
     private Set<InformeAvanceMateria> informesAsociados;
 
     public Materia() {

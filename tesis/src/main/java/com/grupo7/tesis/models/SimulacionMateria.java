@@ -2,6 +2,9 @@ package com.grupo7.tesis.models;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -12,34 +15,30 @@ import jakarta.persistence.Table;
 @Table(name = "simulacion_materia")
 public class SimulacionMateria {
 
-    @EmbeddedId
-    private SimulacionMateriaId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
-    @MapsId("simulacionId")
     @JoinColumn(name = "simulacion_id")
     private Simulacion simulacion;
 
     @ManyToOne
-    @MapsId("materiaId")
     @JoinColumn(name = "materia_id")
     private Materia materia;
 
     public SimulacionMateria() {
     }
 
+    public SimulacionMateria(Long id, Simulacion simulacion, Materia materia) {
+        this.id = id;
+        this.simulacion = simulacion;
+        this.materia = materia;
+    }
+
     public SimulacionMateria(Simulacion simulacion, Materia materia) {
         this.simulacion = simulacion;
         this.materia = materia;
-        this.id = new SimulacionMateriaId(simulacion.getId(), materia.getId());
-    }
-
-    public SimulacionMateriaId getId() {
-        return id;
-    }
-
-    public void setId(SimulacionMateriaId id) {
-        this.id = id;
     }
 
     public Simulacion getSimulacion() {
@@ -56,5 +55,13 @@ public class SimulacionMateria {
 
     public void setMateria(Materia materia) {
         this.materia = materia;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
