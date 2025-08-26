@@ -37,8 +37,8 @@ public class LecturaService {
         informe.setNombreArchivo(archivo.getOriginalFilename());
         informe.setArchivo(archivo.getBytes());
         informe.setFechaPublicacion(fecha);
-        informe.setEstudianteId(estudiante);
-        informe.setPensumId(pensum);
+        informe.setEstudiante(estudiante);
+        informe.setPensum(pensum);
         
         return informeAvanceRepository.save(informe);
     }
