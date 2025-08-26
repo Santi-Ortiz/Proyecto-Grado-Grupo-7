@@ -41,34 +41,34 @@ public class InformeAvance {
 
     @ManyToOne
     @JoinColumn(name = "estudiante_id")
-    private Estudiante estudianteId;
+    private Estudiante estudiante;
 
     @ManyToOne
     @JoinColumn(name = "pensum_id")
-    private Pensum pensumId;
+    private Pensum pensum;
 
     public InformeAvance() {
     }
 
     public InformeAvance(Long id, String nombreArchivo, byte[] archivo, LocalDate fechaPublicacion,
-            Set<InformeAvanceMateria> materiasAsociadas, Estudiante estudianteId, Pensum pensumId) {
+            Set<InformeAvanceMateria> materiasAsociadas, Estudiante estudiante, Pensum pensum) {
         this.id = id;
         this.nombreArchivo = nombreArchivo;
         this.archivo = archivo;
         this.fechaPublicacion = fechaPublicacion;
         this.materiasAsociadas = materiasAsociadas;
-        this.estudianteId = estudianteId;
-        this.pensumId = pensumId;
+        this.estudiante = estudiante;
+        this.pensum = pensum;
     }
 
     public InformeAvance(String nombreArchivo, byte[] archivo, LocalDate fechaPublicacion,
-            Set<InformeAvanceMateria> materiasAsociadas, Estudiante estudianteId, Pensum pensumId) {
+            Set<InformeAvanceMateria> materiasAsociadas, Estudiante estudiante, Pensum pensum) {
         this.nombreArchivo = nombreArchivo;
         this.archivo = archivo;
         this.fechaPublicacion = fechaPublicacion;
         this.materiasAsociadas = materiasAsociadas;
-        this.estudianteId = estudianteId;
-        this.pensumId = pensumId;
+        this.estudiante = estudiante;
+        this.pensum = pensum;
     }
 
     public Long getId() {
@@ -103,20 +103,20 @@ public class InformeAvance {
         this.fechaPublicacion = fechaPublicacion;
     }
 
-    public Estudiante getEstudianteId() {
-        return estudianteId;
+    public Estudiante getEstudiante() {
+        return estudiante;
     }
 
-    public void setEstudianteId(Estudiante estudianteId) {
-        this.estudianteId = estudianteId;
+    public void setEstudiante(Estudiante estudiante) {
+        this.estudiante = estudiante;
     }
 
-    public Pensum getPensumId() {
-        return pensumId;
+    public Pensum getPensum() {
+        return pensum;
     }
 
-    public void setPensumId(Pensum pensumId) {
-        this.pensumId = pensumId;
+    public void setPensum(Pensum pensum) {
+        this.pensum = pensum;
     }
 
     public Set<InformeAvanceMateria> getMateriasAsociadas() {
