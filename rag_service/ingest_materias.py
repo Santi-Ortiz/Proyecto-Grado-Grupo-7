@@ -4,7 +4,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # Cargar el PDF con las materias
-loader = PyPDFLoader("../data/CursosIS_Javeriana.pdf")
+loader = PyPDFLoader("../data/Complementarias/Materias_Complementarias.pdf")
 pages = loader.load()
 
 # Dividir texto en fragmentos manejables
@@ -16,5 +16,5 @@ embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 # Crear índice FAISS
 faiss_index = FAISS.from_documents(docs, embeddings)
-faiss_index.save_local("faiss_materias")
+faiss_index.save_local("faiss_complementarias")
 print("✅ Índice de materias creado correctamente.")

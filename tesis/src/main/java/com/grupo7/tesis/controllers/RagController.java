@@ -2,7 +2,6 @@ package com.grupo7.tesis.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import com.grupo7.tesis.services.RagService;
 
 @RestController
@@ -23,60 +22,30 @@ public class RagController {
     }
 
     @PostMapping("/recomendar")
-    public String recomendarMaterias(@RequestBody InteresesDTO interesesDTO) {
-        return ragService.recomendarMaterias(interesesDTO.getIntereses());
+    public String recomendarMaterias(@RequestBody FiltroDTO dto) {
+        return ragService.recomendarMaterias(dto.getIntereses(), dto.getCreditos(), dto.getTipo());
     }
 
-    // DTO para preguntas sobre el reglamento
+    // DTO reglamento
     public static class QuestionDTO {
         private String question;
-
-        public String getQuestion() {
-            return question;
-        }
-
-        public void setQuestion(String question) {
-            this.question = question;
-        }
+        public String getQuestion() { return question; }
+        public void setQuestion(String question) { this.question = question; }
     }
 
-    // DTO para recomendación de materias (clave debe ser "intereses")
-    public static class InteresesDTO {
+    // DTO filtros para recomendación
+    public static class FiltroDTO {
         private String intereses;
+        private Object creditos; // puede venir número o "cualquiera"
+        private String tipo;     // "cualquiera", "énfasis", "electivas", "complementarias"
 
-        public String getIntereses() {
-            return intereses;
-        }
+        public String getIntereses() { return intereses; }
+        public void setIntereses(String intereses) { this.intereses = intereses; }
 
-        public void setIntereses(String intereses) {
-            this.intereses = intereses;
-        }
+        public Object getCreditos() { return creditos; }
+        public void setCreditos(Object creditos) { this.creditos = creditos; }
+
+        public String getTipo() { return tipo; }
+        public void setTipo(String tipo) { this.tipo = tipo; }
     }
 }
-/*
- * package com.grupo7.tesis.controller;
- * 
- * import com.grupo7.tesis.service.RagService;
- * import org.springframework.beans.factory.annotation.Autowired;
- * import org.springframework.web.bind.annotation.*;
- * 
- * @RestController
- * 
- * @RequestMapping("/rag")
- * 
- * @CrossOrigin(origins = "*") // Permite acceso desde el frontend
- * public class RagController {
- * 
- * private final RagService ragService;
- * 
- * @Autowired
- * public RagController(RagService ragService) {
- * this.ragService = ragService;
- * }
- * 
- * @PostMapping("/consulta")
- * public String consultaRag(@RequestBody String pregunta) {
- * return ragService.obtenerRespuestaRag(pregunta);
- * }
- * }
- */
