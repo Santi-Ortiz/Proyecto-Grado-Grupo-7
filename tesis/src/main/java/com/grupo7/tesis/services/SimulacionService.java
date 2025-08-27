@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.grupo7.tesis.config.CustomProperties;
 import com.grupo7.tesis.dtos.MateriaConPuntajeDTO;
 import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.Materia;
@@ -33,6 +34,10 @@ public class SimulacionService {
     @Autowired
     private pensumService pensumService; 
 
+    @Autowired
+    private CustomProperties customProperties;
+
+
     // ALGORITMO A*
     public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
             int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades) {
@@ -44,8 +49,9 @@ public class SimulacionService {
         System.out.println("Semestre actual: " + progreso.getSemestre());
         System.out.println("Semestre objetivo: " + semestreObjetivo);
 
-        int maxNodos = 25000;
-        int maxCombinacionesPorNodo = 65;
+        int maxCombinacionesPorNodo = customProperties.getCombinaciones();
+
+        System.out.println("Máximo de combinaciones por nodo: " + maxCombinacionesPorNodo);
 
         PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
 
@@ -62,7 +68,7 @@ public class SimulacionService {
         int nodosExplorados = 0;
         long tiempoInicio = System.currentTimeMillis();
 
-        while (!frontera.isEmpty() && nodosExplorados < maxNodos) {
+        while (!frontera.isEmpty() && nodosExplorados < 25000) {
             NodoA nodoActual = frontera.poll();
             nodosExplorados++;
 
@@ -71,12 +77,10 @@ public class SimulacionService {
                 System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Todas las materias completadas)");
                 System.out.println("Semestre de finalización: " + nodoActual.getSemestreActual());
                 System.out.println("Semestre objetivo original: " + semestreObjetivo);
-                System.out.println("Semestres ahorrados: " + (semestreObjetivo - nodoActual.getSemestreActual()));
                 System.out.println("Nodos explorados: " + nodosExplorados);
                 System.out.println("Nodos creados: " + contadorNodosCreados);
                 System.out.println("Combinaciones generadas: " + contadorCombinaciones);
                 System.out.println("Tiempo total: " + tiempoTotal + "ms");
-                System.out.println("Heurística inicial: " + heuristicaInicial);
 
                 Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                 double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
@@ -98,8 +102,8 @@ public class SimulacionService {
                             break;
                         }
                     }
-                    
-                    if (!hayMejorOpcion || nodosExplorados >= maxNodos) {
+
+                    if (!hayMejorOpcion || nodosExplorados >= 25000) {
                         long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
                         System.out.println("SOLUCION A* ENCONTRADA (Semestre objetivo alcanzado)");
                         System.out.println("Heurística del nodo seleccionado: " + heuristicaActual);
@@ -107,7 +111,6 @@ public class SimulacionService {
                         System.out.println("Nodos creados: " + contadorNodosCreados);
                         System.out.println("Combinaciones generadas: " + contadorCombinaciones);
                         System.out.println("Tiempo total: " + tiempoTotal + "ms");
-                        System.out.println("Heurística inicial: " + heuristicaInicial);
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                         double puntajeTotal = calcularPuntajeRuta(rutaCompleta, progreso, prioridades);
@@ -127,7 +130,7 @@ public class SimulacionService {
         }
 
         long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
-        System.out.println("A* alcanzó límite de nodos: " + maxNodos);
+        System.out.println("A* alcanzó límite de nodos: ");
         System.out.println("Nodos creados: " + contadorNodosCreados);
         System.out.println("Combinaciones generadas: " + contadorCombinaciones);
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
