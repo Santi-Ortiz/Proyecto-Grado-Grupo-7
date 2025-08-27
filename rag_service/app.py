@@ -1,6 +1,7 @@
 # app.py
 from typing import List, Dict, Any
 import json
+import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,23 +31,26 @@ app.add_middleware(
 # =========================
 # Globales
 # =========================
-embeddings = None
-
-# Reglamentos
 qa_reglamento = None
-
-# Índices por tipo (materias)
 vector_all = None
 vector_enfasis = None
 vector_electivas = None
 vector_complementarias = None
-
-# LLM único (usado para /query y para explicaciones)
 llm = None
+embeddings = None
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        v = float(os.getenv(name, default))
+        return max(0.0, min(1.0, v))  # acotar por seguridad
+    except Exception:
+        return default
+
+SCORE_MIN = _env_float("RAG_SCORE_MIN", 0.45)
 
 
 # =========================
-# Startup: carga de modelos e índices
+# Startup
 # =========================
 @app.on_event("startup")
 def load_rag():
@@ -63,7 +67,7 @@ def load_rag():
         vectorstore_reglamento = None
 
     prompt_reglamento = PromptTemplate.from_template(
-        """Responde la siguiente pregunta en español de forma clara y precisa usando únicamente la información del contexto:
+        """Responde la siguiente pregunta en español de forma clara y precisa usando la información disponible:
 
 {context}
 
@@ -87,139 +91,136 @@ Respuesta:"""
         return FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
 
     try:
-        vector_all = load_index("faiss_materias")  # TODAS (por defecto)
+        vector_all = load_index("faiss_materias")
     except Exception:
         vector_all = None
     try:
-        vector_enfasis = load_index("faiss_enfasis")  # Énfasis
+        vector_enfasis = load_index("faiss_enfasis")
     except Exception:
         vector_enfasis = None
     try:
-        vector_electivas = load_index("faiss_electivas")  # Electivas
+        vector_electivas = load_index("faiss_electivas")
     except Exception:
         vector_electivas = None
     try:
-        vector_complementarias = load_index("faiss_complementarias")  # Complementarias
+        vector_complementarias = load_index("faiss_complementarias")
     except Exception:
         vector_complementarias = None
 
-    print("✅ Servicios RAG cargados correctamente")
+    print(f"✅ Servicios RAG cargados correctamente (RAG_SCORE_MIN={SCORE_MIN})")
 
 
 # =========================
-# Utilidades de recuperación/filtrado (materias)
+# Utilidades materias
 # =========================
 def get_store(tipo: str):
     t = (tipo or "cualquiera").strip().lower()
-    mapping = {
-        "cualquiera": vector_all or vector_all,  # fallback a vector_all
-        "énfasis": vector_enfasis or vector_all,
-        "enfasis": vector_enfasis or vector_all,
-        "electivas": vector_electivas or vector_all,
-        "complementarias": vector_complementarias or vector_all,
-    }
-    return mapping.get(t, vector_all)
+    return {
+        "cualquiera": vector_all,
+        "énfasis": vector_enfasis,
+        "enfasis": vector_enfasis,
+        "electivas": vector_electivas,
+        "complementarias": vector_complementarias,
+    }.get(t, vector_all)
 
-def recuperar_candidatos(intereses: str, store: FAISS, k: int = 30) -> List[Document]:
+def recuperar_candidatos(intereses: str, store, k=30) -> List[Document]:
+    """
+    Recupera por similitud y descarta resultados por debajo de SCORE_MIN.
+    Usa similarity_search_with_score para convertir distancia -> score (1/(1+dist)).
+    """
     if store is None:
         return []
-    # Recuperación semántica por descripción (page_content)
     try:
-        return store.similarity_search(intereses, k=k)
+        raw = store.similarity_search_with_score(intereses, k=k)
     except Exception:
         return []
 
-def filtrar_por_creditos(docs: List[Document], creditos_usuario) -> List[Document]:
-    # Si el usuario no restringe créditos, no filtramos
-    if creditos_usuario is None or str(creditos_usuario).strip().lower() == "cualquiera":
-        return docs
+    scored = []
+    for doc, dist in raw:
+        try:
+            score = 1.0 / (1.0 + float(dist))  # [0..1], mayor es mejor
+        except Exception:
+            score = 0.0
+        if score >= SCORE_MIN:
+            scored.append((doc, score))
 
+    scored.sort(key=lambda x: x[1], reverse=True)
+    return [d for d, _ in scored]
+
+def filtrar_por_creditos(docs: List[Document], creditos_usuario) -> List[Document]:
+    if creditos_usuario is None or str(creditos_usuario).lower() == "cualquiera":
+        return docs
     try:
         objetivo = float(creditos_usuario)
     except Exception:
         return []
-
-    filtrados = []
+    out = []
     for d in docs:
         c = d.metadata.get("creditos", None)
         try:
             if c is not None and float(c) == objetivo:
-                filtrados.append(d)
+                out.append(d)
         except Exception:
             continue
-    return filtrados
+    return out
 
 def dedupe_por_id(docs: List[Document]) -> List[Document]:
     visto = set()
     out = []
     for d in docs:
-        _id = (d.metadata or {}).get("id")
+        _id = d.metadata.get("id")
         if _id and _id not in visto:
             visto.add(_id)
             out.append(d)
     return out
 
-def pedir_explicaciones(intereses: str, items: List[Dict[str, Any]]) -> Dict[str, str]:
+def pedir_explicacion_global(intereses: str, tipo: str, creditos, cursos: List[Dict[str, str]]) -> str:
     """
-    items: [{id, nombre, descripcion}]
-    devuelve: {id: explicacion}
+    Genera un párrafo corto (2–3 frases) explicando POR QUÉ se devolvieron esos cursos en conjunto.
+    No menciona números específicos salvo el filtro de créditos y tipo si existen.
     """
-    # Recorta descripciones largas para mantener al LLM enfocado
     payload = {
         "intereses": intereses,
-        "cursos": [
-            {
-                "id": it["id"],
-                "nombre": it.get("nombre", ""),
-                "descripcion": (it.get("descripcion", "") or "")[:1200],
-            }
-            for it in items
-            if it.get("id")
-        ],
+        "tipo": tipo,
+        "creditos": str(creditos),
+        "cursos": [{"nombre": c["nombre"], "descripcion": (c.get("descripcion","") or "")[:300]} for c in cursos]
     }
-
     prompt = (
-        "Eres un asistente que SOLO genera explicaciones breves por curso.\n"
-        "Devuelve JSON VÁLIDO con la forma exacta:\n"
-        "{ \"explanations\": [ {\"id\": \"...\", \"explicacion\": \"...\"}, ... ] }\n"
-        "- Usa exactamente los mismos ids que llegan en la entrada.\n"
-        "- Máximo 1–2 frases por curso conectando la descripción con los intereses del estudiante.\n"
-        "- NO inventes ni cites números (créditos, id, catálogo, oferta). Eso lo arma otro proceso.\n"
-        "- Responde SOLO con JSON, sin texto adicional.\n\n"
-        "Entrada JSON:\n"
-        f"{json.dumps(payload, ensure_ascii=False)}"
+        "Eres un asistente que resume POR QUÉ se recomendaron en conjunto los cursos listados.\n"
+        "- Escribe 2–3 frases claras en español.\n"
+        "- Menciona si se aplicó un filtro de créditos y/o tipo de materia.\n"
+        "- Conecta los intereses del estudiante con temas comunes en las descripciones.\n"
+        "- No inventes números ni datos fuera de lo dado.\n"
+        "- Responde SOLO con texto plano (sin JSON).\n\n"
+        f"ENTRADA:\n{json.dumps(payload, ensure_ascii=False)}"
     )
-
     try:
-        txt = llm.invoke(prompt).strip()
-        data = json.loads(txt)
-        pares = data.get("explanations", [])
-        return {p.get("id"): p.get("explicacion", "") for p in pares if p.get("id")}
+        texto = llm.invoke(prompt).strip()
+        return texto[:600]
     except Exception:
-        # Fallback simple si el LLM devuelve algo no parseable
-        return {it["id"]: f"Se alinea con tus intereses: {intereses}." for it in items if it.get("id")}
+        filtros = []
+        if str(creditos).lower() != "cualquiera":
+            filtros.append(f"{creditos} créditos")
+        if tipo and tipo != "cualquiera":
+            filtros.append(f"tipo {tipo}")
+        filtros_txt = (" con " + " y ".join(filtros)) if filtros else ""
+        return f"Se recomendaron cursos relacionados con tus intereses{filtros_txt}, priorizando descripciones que abordan temas afines y competencias asociadas."
 
 
 # =========================
 # Endpoints
 # =========================
-
-# ========= REGLAMENTO =========
 @app.post("/query")
 async def query(request: Request):
     data = await request.json()
-    question = data.get("question", "").strip()
+    question = data.get("question", "")
     if not question:
         return {"answer": "Debes enviar una pregunta en el campo 'question'."}
-
     if qa_reglamento is None:
         return {"answer": "El índice de reglamento no está disponible en este servidor."}
-
     result = qa_reglamento.invoke({"question": question})
     return {"answer": result.get("result", "")}
 
-
-# ========= RECOMENDACIÓN (elige índice por tipo) =========
 @app.post("/recomendar-materias")
 async def recomendar_materias(request: Request):
     data = await request.json()
@@ -231,11 +232,23 @@ async def recomendar_materias(request: Request):
     candidatos = recuperar_candidatos(intereses, store, k=30)
     candidatos = dedupe_por_id(candidatos)
 
-    # Filtrado determinista por créditos (si el usuario pidió un número)
+    # Si la recuperación no alcanzó el umbral, corta aquí con explicación clara
+    if not candidatos:
+        return {
+            "materias": [],
+            "explicacion": "No se encontraron materias con suficiente afinidad para los intereses proporcionados. Intenta ser más específico o prueba con otros términos.",
+            "observaciones": {
+                "filtros_aplicados": {"intereses": intereses, "creditos": str(creditos), "tipo": tipo},
+                "fuente": "faiss",
+                "advertencias": ["filtro_por_umbral_semantico"]
+            }
+        }
+
+    # Filtrado determinista por créditos (si corresponde)
     candidatos_filtrados = filtrar_por_creditos(candidatos, creditos)
 
-    # Caso sin coincidencias exactas con el filtro de créditos
-    if str(creditos).strip().lower() != "cualquiera" and len(candidatos_filtrados) == 0:
+    # Caso sin coincidencias exactas con filtro de créditos
+    if str(creditos).lower() != "cualquiera" and len(candidatos_filtrados) == 0:
         return {
             "materias": [],
             "explicacion": f"No hubo coincidencias exactas con {creditos} créditos para los intereses dados.",
@@ -246,13 +259,12 @@ async def recomendar_materias(request: Request):
             }
         }
 
-    # Si no hay filtro de créditos, quedarnos con top-N
-    seleccion_docs = candidatos_filtrados if str(creditos).strip().lower() != "cualquiera" else candidatos[:8]
+    # Selección final
+    seleccion = candidatos_filtrados if str(creditos).lower() != "cualquiera" else candidatos[:8]
 
-    # Preparar items con metadatos (los números SIEMPRE salen de aquí)
     items = []
-    for d in seleccion_docs:
-        md = d.metadata or {}
+    for d in seleccion:
+        md = d.metadata
         items.append({
             "id": md.get("id", ""),
             "nombre": md.get("nombre", ""),
@@ -263,28 +275,25 @@ async def recomendar_materias(request: Request):
             "descripcion": d.page_content or "",
         })
 
-    # El LLM SOLO genera explicaciones por id (no toca números)
-    explic_map = pedir_explicaciones(
+    explicacion_global = pedir_explicacion_global(
         intereses,
-        [{"id": it["id"], "nombre": it["nombre"], "descripcion": it["descripcion"]} for it in items if it.get("id")]
+        tipo,
+        creditos,
+        [{"nombre": it["nombre"], "descripcion": it["descripcion"]} for it in items]
     )
 
-    # Ensamblado final del JSON con números de metadatos
-    materias = []
-    for it in items:
-        materias.append({
-            "nombre": it["nombre"],
-            "grado": it["grado"],
-            "id": it["id"],
-            "creditos": it["creditos"],
-            "numero_catalogo": it["numero_catalogo"],
-            "numero_oferta": it["numero_oferta"],
-            "explicacion": explic_map.get(it["id"], f"Se alinea con tus intereses: {intereses}.")
-        })
+    materias = [{
+        "nombre": it["nombre"],
+        "grado": it["grado"],
+        "id": it["id"],
+        "creditos": it["creditos"],
+        "numero_catalogo": it["numero_catalogo"],
+        "numero_oferta": it["numero_oferta"],
+    } for it in items]
 
     return {
         "materias": materias,
-        "explicacion": "Resultados generados por recuperación semántica + filtrado determinista por metadatos.",
+        "explicacion": explicacion_global,
         "observaciones": {
             "filtros_aplicados": {"intereses": intereses, "creditos": str(creditos), "tipo": tipo},
             "fuente": "faiss",
