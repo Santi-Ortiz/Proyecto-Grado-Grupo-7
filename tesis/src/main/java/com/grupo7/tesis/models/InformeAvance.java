@@ -29,7 +29,6 @@ public class InformeAvance {
 
     private String nombreArchivo;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "archivo", columnDefinition = "BYTEA")
     private byte[] archivo;

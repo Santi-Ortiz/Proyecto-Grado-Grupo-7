@@ -8,12 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.*;
-import com.grupo7.tesis.repositories.InformeAvanceRepository;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
@@ -29,14 +26,14 @@ public class LecturaService {
     @Autowired
     private InformeAvanceService informeAvanceService;
     
-
     public InformeAvance guardarInformeAvance(byte[]  archivo, Estudiante estudiante, Pensum pensum) throws IOException {
         //LocalDate fecha = extraerFecha(archivo);
         LocalDate fecha = LocalDate.now();
         InformeAvance informeAvance = new InformeAvance();
-        String nombreArchivo = "informe_" + estudiante.getCodigo() + System.currentTimeMillis() + ".pdf";
+        String nombreArchivo = "informeAvance_" + estudiante.getCodigo() + "_" + fecha + ".pdf";
 
         informeAvance.setNombreArchivo(nombreArchivo);
+        informeAvance.setArchivo(archivo);
         informeAvance.setFechaPublicacion(fecha);
         informeAvance.setPensum(pensum);
         informeAvance.setEstudiante(estudiante);
