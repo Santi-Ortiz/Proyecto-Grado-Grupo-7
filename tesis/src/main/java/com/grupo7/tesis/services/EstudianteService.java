@@ -35,6 +35,11 @@ public class EstudianteService {
         return estudianteRepository.findByCorreo(correo);
     }
 
+    public Estudiante obtenerEstudiantePorCodigo(String codigo) {
+    return estudianteRepository.findByCodigo(codigo);
+    }
+
+
     public Estudiante obtenerEstudiantePorId(Long id) {
         return estudianteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con ID: " + id));

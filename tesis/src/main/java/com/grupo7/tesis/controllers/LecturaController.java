@@ -6,8 +6,6 @@ import com.grupo7.tesis.services.LecturaService;
 import com.grupo7.tesis.services.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -109,28 +107,27 @@ public class LecturaController {
         
         @PostMapping("/guardar-informe")
         public String guardarInformeAvance(@RequestParam("archivo") MultipartFile archivo) {
-                try {
-                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                        String correo = authentication.getName();
-                        Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
-
-                        if (estudiante == null) {
-                        throw new RuntimeException("Estudiante no encontrado");
-                        }
-
-                        Pensum pensum = estudiante.getPensum();
-
-                        if (pensum == null) {
-                        throw new RuntimeException("El estudiante no tiene un pensum asociado");
-                        }
-
-                        lecturaService.guardarInformeAvance(archivo, estudiante, pensum);
-
-                        return "/historial"; 
-                } catch (IOException e) {
-                        e.printStackTrace(); 
-                        throw new RuntimeException("Error al guardar el archivo");
+        try {
+                // Buscar estudiante quemado por código
+                Estudiante estudiante = estudianteService.obtenerEstudiantePorCodigo("00020492003");
+                if (estudiante == null) {
+                throw new RuntimeException("Estudiante no encontrado con código 00020492003");
                 }
+
+                Pensum pensum = estudiante.getPensum();
+                if (pensum == null) {
+                        throw new RuntimeException("El estudiante no tiene un pensum asociado");
+                }
+
+                byte[]  archivoBytes = archivo.getBytes();
+
+                lecturaService.guardarInformeAvance(archivoBytes, estudiante, pensum);
+
+                return "redirect:/historial";
+        } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Error al guardar el archivo");
+        }
         }
 
         

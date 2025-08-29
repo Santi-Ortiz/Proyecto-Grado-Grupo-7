@@ -10,6 +10,7 @@ import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.models.*;
 import com.grupo7.tesis.repositories.InformeAvanceRepository;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,44 +25,35 @@ public class LecturaService {
 
     @Autowired
     private ProgresoService progresoService;
+
     @Autowired
-    private InformeAvanceRepository informeAvanceRepository;
+    private InformeAvanceService informeAvanceService;
+    
 
-    public LecturaService(InformeAvanceRepository informeAvanceRepository) {
-        this.informeAvanceRepository = informeAvanceRepository;
-    }
+    public InformeAvance guardarInformeAvance(byte[]  archivo, Estudiante estudiante, Pensum pensum) throws IOException {
+        //LocalDate fecha = extraerFecha(archivo);
+        LocalDate fecha = LocalDate.now();
+        InformeAvance informeAvance = new InformeAvance();
+        String nombreArchivo = "informe_" + estudiante.getCodigo() + System.currentTimeMillis() + ".pdf";
 
-    public InformeAvance guardarInformeAvance(MultipartFile archivo, Estudiante estudiante, Pensum pensum) throws IOException {
-        LocalDate fecha = extraerFecha(archivo);
-        InformeAvance informe = new InformeAvance();
-        informe.setNombreArchivo(archivo.getOriginalFilename());
-        informe.setArchivo(archivo.getBytes());
-        informe.setFechaPublicacion(fecha);
-        informe.setEstudiante(estudiante);
-        informe.setPensum(pensum);
+        informeAvance.setNombreArchivo(nombreArchivo);
+        informeAvance.setFechaPublicacion(fecha);
+        informeAvance.setPensum(pensum);
+        informeAvance.setEstudiante(estudiante);
+
+        informeAvanceService.crearInformeAvance(informeAvance);
+
+        /*String textoCompleto = lector.getText(documento);
         
-        return informeAvanceRepository.save(informe);
-    }
-
-
-    public LocalDate extraerFecha(MultipartFile archivo) throws IOException {
-        if (archivo == null || archivo.isEmpty()) {
-            throw new IllegalArgumentException("El archivo no puede ser nulo o vacío");
-        }
+        Pattern pattern = Pattern.compile("expedido el (\\d{1,2}/\\d{1,2}/\\d{4})");
+        Matcher matcher = pattern.matcher(textoCompleto);
         
-        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
-            PDFTextStripper lector = new PDFTextStripper();
-            String textoCompleto = lector.getText(documento);
-            
-            Pattern pattern = Pattern.compile("expedido el (\\d{1,2}/\\d{1,2}/\\d{4})");
-            Matcher matcher = pattern.matcher(textoCompleto);
-            
-            if (matcher.find()) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                return LocalDate.parse(matcher.group(1), formatter);
-            }
-            return null;
+        if (matcher.find()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            return LocalDate.parse(matcher.group(1), formatter);
         }
+        return null;*/
+        return informeAvance;
     }
 
     public List<MateriaDTO> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
