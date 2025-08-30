@@ -1,31 +1,17 @@
 package com.grupo7.tesis.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "estudiante")
 public class Estudiante {
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JsonIgnore
-    private UserEntity user;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,12 +45,6 @@ public class Estudiante {
     @ManyToOne
     @JoinColumn(name = "facultad_id")
     private Facultad facultad;
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "estudiante_roles",
-               joinColumns = @JoinColumn(name = "estudiante_id"),
-               inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<Role> roles = new ArrayList<>();
 
     public Estudiante() {
     }
@@ -100,22 +80,6 @@ public class Estudiante {
         this.anioIngreso = anioIngreso;
         this.pensum = pensum;
         this.facultad = facultad;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
     }
 
     public Long getId() {

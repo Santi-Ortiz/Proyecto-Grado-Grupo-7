@@ -12,12 +12,11 @@ import org.springframework.stereotype.Controller;
 import com.grupo7.tesis.models.Facultad;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Pensum;
-import com.grupo7.tesis.models.Role;
 import com.grupo7.tesis.repositories.EstudianteRepository;
 import com.grupo7.tesis.repositories.FacultadRepository;
 import com.grupo7.tesis.repositories.MateriaRepository;
+import com.grupo7.tesis.repositories.PensumMateriaRepository;
 import com.grupo7.tesis.repositories.PensumRepository;
-import com.grupo7.tesis.repositories.RoleRepository;
 import com.grupo7.tesis.services.MateriaService;
 import com.grupo7.tesis.services.PensumService;
 
@@ -37,16 +36,13 @@ public class DatabaseInit implements ApplicationRunner {
     private MateriaRepository materiaRepository;
 
     @Autowired
-    private EstudianteRepository estudianteRepository;
+    private PensumMateriaRepository pensumMateriaRepository;
 
     @Autowired
     private MateriaService materiaService;
 
     @Autowired
     private PensumService pensumService;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -57,7 +53,6 @@ public class DatabaseInit implements ApplicationRunner {
         crearMateriasDesdeJson();
         asociarMateriasAPensum();
 
-        crearRoles();
     }
 
     public void crearPensums() {
@@ -130,12 +125,15 @@ public class DatabaseInit implements ApplicationRunner {
 
             // Se asocian todas las materias al pensum
             int asociacionesExitosas = 0;
-            for (Long materiaId : materiaIds) {
-                try {
-                    pensumService.asociarMateriaAPensum(pensum.getId(), materiaId);
-                    asociacionesExitosas++;
-                } catch (Exception e) {
-                    System.err.println("Error al asociar materia ID " + materiaId + ": " + e.getMessage());
+
+            if (pensumMateriaRepository.count() == 0) {
+                for (Long materiaId : materiaIds) {
+                    try {
+                        pensumService.asociarMateriaAPensum(pensum.getId(), materiaId);
+                        asociacionesExitosas++;
+                    } catch (Exception e) {
+                        System.err.println("Error al asociar materia ID " + materiaId + ": " + e.getMessage());
+                    }
                 }
             }
 
@@ -151,10 +149,4 @@ public class DatabaseInit implements ApplicationRunner {
         }
     }
 
-    public void crearRoles() {
-        if (roleRepository.count() == 0) {
-            roleRepository.save(new Role("USER"));
-            roleRepository.save(new Role("ADMIN"));
-        }
-    }
 }
