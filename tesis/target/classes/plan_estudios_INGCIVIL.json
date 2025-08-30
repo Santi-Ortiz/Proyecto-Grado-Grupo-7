@@ -1,0 +1,368 @@
+[
+    {
+        "codigo": "1295",
+        "nombre": "Cálculo Diferencial",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1290",
+        "nombre": "Álgebra Lineal",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "",
+        "nombre": "Química de Materiales",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "",
+        "nombre": "Geometría Descriptiva",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Construcción Sostenible",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "33763",
+        "nombre": "Introducción a la Ingeniería",
+        "creditos": 2,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1297",
+        "nombre": "Cálculo Integral",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [
+            "1295"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1340",
+        "nombre": "Física Mecánica",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": ["1295"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33698",
+        "nombre": "Introducción a la Programación",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Geomática",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Geología",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Proyecto de Diseño en Ingeniería 1",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1300",
+        "nombre": "Ecuaciones Diferenciales",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [
+        "1297", "1290"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1299",
+        "nombre": "Cálculo Vectorial",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [
+        "1297"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "",
+        "nombre": "Análisis de Amenaza y Confiabilidad en IC",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Mecánica Estructural 1",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "2544",
+        "nombre": "Significación Teológica",
+        "creditos": 2,
+        "semestre": 3,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "",
+        "nombre": "Matemática Financiera en Proyectos de Obra Civil",
+        "creditos": 2,
+        "semestre": 3,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Mecánica de Fluidos",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Métodos Numéricos Aplicados a IC",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Mecánica Estructural 2",
+        "creditos": 5,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Ingeniería de Transporte y Tránsito",
+        "creditos": 4,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Proyecto de Diseño en Ingeniería Civil",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Mecánica de Suelos",
+        "creditos": 4,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Hidrología",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Hidráulica",
+        "creditos": 5,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Mecánica Estructural 3",
+        "creditos": 4,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "2356",
+        "nombre": "Epistemología de la ingeniería",
+        "creditos": 2,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "",
+        "nombre": "Diseño de Acueducto y Alcantarillado",
+        "creditos": 2,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 4,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "",
+        "nombre": "Diseño Geométrico de Vías",
+        "creditos": 2,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 2,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Proyecto de Diseño de Énfasis",
+        "creditos": 6,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "",
+        "nombre": "Materiales de Construcción",
+        "creditos": 4,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicasIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Fundamentos de Pavimentos",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "2476",
+        "nombre": "Fe y compromiso del Ingeniero",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "",
+        "nombre": "Constitución y Derecho Público",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Diseño y Construcción de Edificaciones de Concreto Reforzado",
+        "creditos": 6,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    }, 
+    {
+        "codigo": "",
+        "nombre": "Proyecto Social Universitario",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    }, 
+    {
+        "codigo": "1",
+        "nombre": "Complementaria",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "complementaria"
+    }, 
+    {
+        "codigo": "",
+        "nombre": "Ética en la Ingeniería",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    }
+]
