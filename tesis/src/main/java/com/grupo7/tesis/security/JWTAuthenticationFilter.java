@@ -26,14 +26,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-
-        // No procesar JWT para endpoints públicos
-        if (path.startsWith("/api/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String token = getJWT(request);
         if (token != null && jwtGenerator.validateToken(token)) {
             String username = jwtGenerator.getUserFromJwt(token);

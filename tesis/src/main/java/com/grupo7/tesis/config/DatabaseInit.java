@@ -1,7 +1,6 @@
 package com.grupo7.tesis.config;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import com.grupo7.tesis.models.Facultad;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Pensum;
-import com.grupo7.tesis.repositories.EstudianteRepository;
 import com.grupo7.tesis.repositories.FacultadRepository;
 import com.grupo7.tesis.repositories.MateriaRepository;
 import com.grupo7.tesis.repositories.PensumMateriaRepository;

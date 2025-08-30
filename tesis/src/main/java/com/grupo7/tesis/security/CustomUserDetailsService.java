@@ -33,8 +33,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 getAuthorities());
     }
 
-    // Todos los usuarios son estudiantes, así que siempre devolvemos
-    // ROLE_ESTUDIANTE
     private Collection<GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_ESTUDIANTE"));
     }
