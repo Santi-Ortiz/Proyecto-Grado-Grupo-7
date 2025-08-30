@@ -11,6 +11,6 @@ import com.grupo7.tesis.models.Estudiante;
 public interface EstudianteRepository extends JpaRepository<Estudiante, Long> {
     
     Estudiante findByCorreo(String correo);
-
     Estudiante findByCodigo(String codigo);
+    Boolean existsByCorreo(String correo);
 }
