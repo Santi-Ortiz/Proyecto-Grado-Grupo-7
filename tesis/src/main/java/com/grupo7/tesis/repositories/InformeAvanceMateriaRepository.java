@@ -6,11 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.grupo7.tesis.models.InformeAvanceMateria;
-import com.grupo7.tesis.models.InformeAvanceMateriaId;
 
 @Repository
-public interface InformeAvanceMateriaRepository extends JpaRepository<InformeAvanceMateria, InformeAvanceMateriaId> {
-  
+public interface InformeAvanceMateriaRepository extends JpaRepository<InformeAvanceMateria, Long> {
+
     List<InformeAvanceMateria> findByInformeAvanceId(Long informeAvanceId);
     List<InformeAvanceMateria> findByMateriaId(Long materiaId);
 }

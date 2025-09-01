@@ -2,6 +2,9 @@ package com.grupo7.tesis.models;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -12,16 +15,15 @@ import jakarta.persistence.Table;
 @Table(name = "informe_avance_materia")
 public class InformeAvanceMateria {
 
-    @EmbeddedId
-    private InformeAvanceMateriaId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
-    @MapsId("informeAvanceId")
     @JoinColumn(name = "informe_avance_id")
     private InformeAvance informeAvance;
 
     @ManyToOne
-    @MapsId("materiaId")
     @JoinColumn(name = "materia_id")
     private Materia materia;
 
@@ -34,17 +36,16 @@ public class InformeAvanceMateria {
         this.informeAvance = informeAvance;
         this.materia = materia;
         this.nota = nota;
-        this.id = new InformeAvanceMateriaId(informeAvance.getId(), materia.getId());
     }
 
-    public InformeAvanceMateriaId getId() {
-        return id;
-    }
-
-    public void setId(InformeAvanceMateriaId id) {
+    public InformeAvanceMateria(Long id, InformeAvance informeAvance, Materia materia, Double nota) {
         this.id = id;
+        this.informeAvance = informeAvance;
+        this.materia = materia;
+        this.nota = nota;
     }
 
+    
     public InformeAvance getInformeAvance() {
         return informeAvance;
     }
@@ -67,5 +68,13 @@ public class InformeAvanceMateria {
 
     public void setNota(Double nota) {
         this.nota = nota;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
