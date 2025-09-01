@@ -46,7 +46,7 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                .requestMatchers( "/api/auth/**").permitAll()
                 .anyRequest().authenticated()
             ).exceptionHandling( exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint));
 
