@@ -2,6 +2,10 @@ package com.grupo7.tesis.services;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+/*import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;*/
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,6 +35,12 @@ public class SimulacionService {
     private int contadorCombinaciones = 0;
     private int contadorNodosCreados = 0;
 
+    //Para el txt
+    /*private int contadorIdNodos = 0;
+    private FileWriter logWriter = null;
+    private String logFileName = "";
+    private Map<NodoA, Integer> mapaNodosIds = new HashMap<>(); */
+
     @Autowired
     private pensumService pensumService; 
 
@@ -44,23 +54,33 @@ public class SimulacionService {
         contadorCombinaciones = 0;
         contadorNodosCreados = 0;
 
+        //Para el txt
+        /*contadorIdNodos = 0;
+        mapaNodosIds.clear();*/
+
+        // Inicializar logging
+        //inicializarLog(progreso.getSemestre(), semestreObjetivo);
+
         System.out.println("================ INICIO SIMULACIÓN A*  ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
         System.out.println("Semestre objetivo: " + semestreObjetivo);
 
         int maxCombinacionesPorNodo = customProperties.getCombinaciones();
 
-        System.out.println("Máximo de combinaciones por nodo: " + maxCombinacionesPorNodo);
-
         PriorityQueue<NodoA> frontera = new PriorityQueue<>(Comparator.comparingDouble(NodoA::getCostoTotal));
-
         Set<String> visitados = new HashSet<>();
-
         Map<Integer, Simulacion> rutaInicial = new HashMap<>();
         double heuristicaInicial = calcularHeuristica(progreso, semestreObjetivo, proyeccionBase, materiasPensum, prioridades, progreso.getSemestre());
-
         NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), heuristicaInicial, progreso);
         contadorNodosCreados++;
+
+        /* 
+        // Asignar ID al nodo inicial
+        int idNodoInicial = ++contadorIdNodos;
+        mapaNodosIds.put(nodoInicial, idNodoInicial);
+
+        // Log del nodo inicial
+        logNodoDetallado(nodoInicial, 0.0, heuristicaInicial, "INICIAL", null, idNodoInicial, -1);*/
 
         frontera.offer(nodoInicial);
 
@@ -70,6 +90,19 @@ public class SimulacionService {
         while (!frontera.isEmpty() && nodosExplorados < 25000) {
             NodoA nodoActual = frontera.poll();
             nodosExplorados++;
+
+            /*// Log del nodo que se está explorando
+            double funcionG = nodoActual.getTotalCreditos();
+            double heuristicaNodo = nodoActual.getCostoTotal() - funcionG;
+            Simulacion ultimaSimulacion = null;
+            if (!nodoActual.getRutaParcial().isEmpty()) {
+                int ultimoSemestre = nodoActual.getRutaParcial().keySet().stream().max(Integer::compareTo).orElse(0);
+                ultimaSimulacion = nodoActual.getRutaParcial().get(ultimoSemestre);
+            }
+            
+            int idNodoActual = mapaNodosIds.get(nodoActual);
+            
+            logNodoDetallado(nodoActual, funcionG, heuristicaNodo, "EXPLORADO", ultimaSimulacion, idNodoActual, -1);*/
 
             if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
                 long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
@@ -83,6 +116,7 @@ public class SimulacionService {
 
                 Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                 mostrarResultados(rutaCompleta, progreso);
+                //cerrarLog();
                 return rutaCompleta;
             }
 
@@ -112,6 +146,7 @@ public class SimulacionService {
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                         mostrarResultados(rutaCompleta, progreso);
+                        //cerrarLog();
                         return rutaCompleta;
                     }
                 }
@@ -132,6 +167,7 @@ public class SimulacionService {
         System.out.println("Combinaciones generadas: " + contadorCombinaciones);
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
         System.out.println("A* no pudo encontrar ninguna solución completa");
+        //cerrarLog();
         return new HashMap<>();
     }
 
@@ -175,6 +211,15 @@ public class SimulacionService {
 
             NodoA nuevoNodo = new NodoA(nuevaRuta, siguienteSemestre, costoTotal, nuevoProgreso);
             contadorNodosCreados++;
+            
+            /*// Asignar ID al nodo hijo y establecer relación padre-hijo
+            int idNuevoNodo = ++contadorIdNodos;
+            mapaNodosIds.put(nuevoNodo, idNuevoNodo);
+            int idPadre = mapaNodosIds.get(nodoActual);
+            
+            // Log del nodo hijo creado
+            logNodoDetallado(nuevoNodo, nuevoCosto, nuevaHeuristica, "HIJO", simulacionSemestre, idNuevoNodo, idPadre);*/
+            
             frontera.offer(nuevoNodo);
         }
     }
@@ -1004,6 +1049,9 @@ public class SimulacionService {
         // Resetear contadores
         contadorCombinaciones = 0;
         contadorNodosCreados = 0;
+        
+        /*contadorIdNodos = 0;
+        mapaNodosIds.clear();*/
 
         System.out.println("================ INICIO SIMULACIÓN A* (Límite: " + limiteCombinaciones + ") ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
@@ -1320,4 +1368,176 @@ public class SimulacionService {
         return resultado;
     }
 
+    //Para archivo txt
+    /* 
+    private void inicializarLog(int semestreInicial, int semestreObjetivo) {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            logFileName = "simulacion_astar_" + timestamp + ".txt";
+            logWriter = new FileWriter(logFileName, false);
+            
+            logWriter.write("===============================================\n");
+            logWriter.write("ANÁLISIS DE SIMULACIÓN A*\n");
+            logWriter.write("===============================================\n");
+            logWriter.write("Fecha: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "\n");
+            logWriter.write("Semestre inicial: " + semestreInicial + "\n");
+            logWriter.write("Semestre objetivo: " + semestreObjetivo + "\n");
+            logWriter.write("===============================================\n\n");
+            
+            // Encabezados de las columnas
+            logWriter.write(String.format("%-8s %-10s %-8s %-10s %-12s %-12s %-12s %-8s %-8s %-60s\n", 
+                "ID_NODO", "TIPO_NODO", "ID_PADRE", "SEMESTRE", "F(n)=G+H", "G(n)", "H(n)", "CREDITOS", "N_MATS", "MATERIAS_SIMULACION"));
+            logWriter.write("=".repeat(160) + "\n");
+            
+            logWriter.flush();
+            System.out.println("Log de simulación iniciado: " + logFileName);
+        } catch (IOException e) {
+            System.err.println("Error al inicializar el log: " + e.getMessage());
+        }
+    }
+    
+    private void logNodoDetallado(NodoA nodo, double funcionG, double heuristica, String tipo, Simulacion simulacion, int idNodo, int idPadre) {
+        if (logWriter == null) return;
+        
+        try {
+            String materiasSimulacionStr = "";
+            int creditosSimulacion = 0;
+            
+            // Construir string de materias de la simulación actual
+            if (simulacion != null && simulacion.getMaterias() != null && !simulacion.getMaterias().isEmpty()) {
+                List<String> nombresMaterias = new ArrayList<>();
+                for (Materia materia : simulacion.getMaterias()) {
+                    String nombre = materia.getNombre();
+                    if (nombre.length() > 20) {
+                        nombre = nombre.substring(0, 17) + "...";
+                    }
+                    nombresMaterias.add(nombre + "(" + materia.getCreditos() + "c)");
+                    creditosSimulacion += materia.getCreditos();
+                }
+                materiasSimulacionStr = String.join(", ", nombresMaterias);
+            } else if ("INICIAL".equals(tipo)) {
+                materiasSimulacionStr = "NODO_INICIAL";
+            } else {
+                materiasSimulacionStr = "SIN_MATERIAS";
+            }
+            
+            if (materiasSimulacionStr.length() > 55) {
+                materiasSimulacionStr = materiasSimulacionStr.substring(0, 52) + "...";
+            }
+            
+            double funcionF = funcionG + heuristica;
+            String idPadreStr = (idPadre == -1) ? "ROOT" : String.valueOf(idPadre);
+            
+            int numeroMaterias = 0;
+            if (simulacion != null && simulacion.getMaterias() != null) {
+                numeroMaterias = simulacion.getMaterias().size();
+            }
+            
+            logWriter.write(String.format("%-8d %-10s %-8s %-10d %-12.2f %-12.2f %-12.2f %-8d %-8d %-60s\n",
+                idNodo,
+                tipo,
+                idPadreStr,
+                nodo.getSemestreActual(),
+                funcionF,
+                funcionG,
+                heuristica,
+                creditosSimulacion,
+                numeroMaterias,
+                materiasSimulacionStr
+            ));
+            
+            if ("EXPLORADO".equals(tipo) || "INICIAL".equals(tipo)) {
+                logWriter.write("  PROGRESO ACTUAL:\n");
+                
+                List<Materia> materiasFaltantes = nodo.getProgresoActual().getListaMateriasFaltantes();
+                logWriter.write("    Materias núcleo faltantes (" + materiasFaltantes.size() + "): ");
+                if (materiasFaltantes.size() <= 5) {
+                    List<String> nombresFaltantes = new ArrayList<>();
+                    for (Materia m : materiasFaltantes) {
+                        String nombre = m.getNombre();
+                        if (nombre.length() > 15) {
+                            nombre = nombre.substring(0, 12) + "...";
+                        }
+                        nombresFaltantes.add(nombre + "(" + m.getCreditos() + "c)");
+                    }
+                    logWriter.write(String.join(", ", nombresFaltantes) + "\n");
+                } else {
+                    logWriter.write(materiasFaltantes.size() + " materias (mostrando primeras 3): ");
+                    for (int i = 0; i < Math.min(3, materiasFaltantes.size()); i++) {
+                        Materia m = materiasFaltantes.get(i);
+                        String nombre = m.getNombre();
+                        if (nombre.length() > 15) {
+                            nombre = nombre.substring(0, 12) + "...";
+                        }
+                        logWriter.write(nombre + "(" + m.getCreditos() + "c)");
+                        if (i < 2 && i < materiasFaltantes.size() - 1) logWriter.write(", ");
+                    }
+                    logWriter.write("...\n");
+                }
+                
+                logWriter.write("    Créditos faltantes - Electivas: " + (int)nodo.getProgresoActual().getFaltanElectiva() + 
+                               ", Complementarias: " + (int)nodo.getProgresoActual().getFaltanComplementaria() + 
+                               ", Énfasis: " + (int)nodo.getProgresoActual().getFaltanEnfasis() + 
+                               ", ElectivasCB: " + (int)nodo.getProgresoActual().getFaltanElectivaBasicas() + "\n");
+                
+                List<MateriaDTO> materiasCursadas = nodo.getProgresoActual().getMaterias();
+                if (materiasCursadas != null && !materiasCursadas.isEmpty()) {
+                    logWriter.write("    Total materias cursadas: " + materiasCursadas.size());
+                    if (materiasCursadas.size() <= 3) {
+                        logWriter.write(" - ");
+                        List<String> nombresUltimas = new ArrayList<>();
+                        for (MateriaDTO m : materiasCursadas) {
+                            String nombre = m.getTitulo();
+                            if (nombre.length() > 15) {
+                                nombre = nombre.substring(0, 12) + "...";
+                            }
+                            nombresUltimas.add(nombre);
+                        }
+                        logWriter.write(String.join(", ", nombresUltimas));
+                    }
+                    logWriter.write("\n");
+                }
+                
+                logWriter.write("\n");
+            }
+            
+            logWriter.flush();
+        } catch (IOException e) {
+            System.err.println("Error al escribir en el log: " + e.getMessage());
+        }
+    }
+    
+    private void cerrarLog() {
+        if (logWriter != null) {
+            try {
+                logWriter.write("\n===============================================\n");
+                logWriter.write("ESTADÍSTICAS FINALES\n");
+                logWriter.write("===============================================\n");
+                logWriter.write("Total nodos creados: " + contadorNodosCreados + "\n");
+                logWriter.write("Total IDs asignados: " + contadorIdNodos + "\n");
+                logWriter.write("Total combinaciones generadas: " + contadorCombinaciones + "\n");
+                logWriter.write("Relaciones padre-hijo registradas en el log\n");
+                logWriter.write("Archivo de log guardado en: " + logFileName + "\n");
+                logWriter.write("===============================================\n");
+                logWriter.write("\nINSTRUCCIONES DE ANÁLISIS:\n");
+                logWriter.write("- ID_NODO: Identificador único de cada nodo\n");
+                logWriter.write("- ID_PADRE: ID del nodo padre (ROOT para nodo inicial)\n");
+                logWriter.write("- F(n): Función de evaluación total (G + H)\n");
+                logWriter.write("- G(n): Costo acumulado desde el inicio\n");
+                logWriter.write("- H(n): Heurística (estimación del costo restante)\n");
+                logWriter.write("- CREDITOS: Total de créditos de las materias simuladas\n");
+                logWriter.write("- N_MATS: Número de materias en la simulación actual\n");
+                logWriter.write("- MATERIAS_SIMULACION: Materias de la simulación actual del nodo\n");
+                logWriter.write("- PROGRESO ACTUAL: Estado detallado del progreso en nodos explorados\n");
+                logWriter.write("===============================================\n");
+                
+                logWriter.close();
+                logWriter = null;
+                mapaNodosIds.clear();
+                System.out.println("Log cerrado exitosamente: " + logFileName);
+            } catch (IOException e) {
+                System.err.println("Error al cerrar el log: " + e.getMessage());
+            }
+        }
+    }*/
 }

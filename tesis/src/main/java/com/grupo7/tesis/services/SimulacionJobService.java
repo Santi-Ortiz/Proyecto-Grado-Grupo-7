@@ -54,16 +54,4 @@ public class SimulacionJobService {
         }
     }
     
-    // Limpieza de trabajos antiguos (opcional, puedes ejecutar esto periódicamente)
-    public void limpiarTrabajosAntiguos() {
-        long ahora = System.currentTimeMillis();
-        long dosHoras = 2 * 60 * 60 * 1000; // 2 horas en millisegundos
-        
-        trabajos.entrySet().removeIf(entry -> {
-            SimulacionJob job = entry.getValue();
-            return (job.getEstado() == SimulacionJob.Estado.COMPLETADA || 
-                   job.getEstado() == SimulacionJob.Estado.ERROR) &&
-                   (ahora - job.getTiempoFin()) > dosHoras;
-        });
-    }
 }
