@@ -6,6 +6,8 @@ import com.grupo7.tesis.services.LecturaService;
 import com.grupo7.tesis.services.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,53 +34,79 @@ public class LecturaController {
                 return "lecturaInforme";
         }
 
+        @PostMapping("/guardarInforme")
+        @ResponseBody
+        public Progreso guardarInformeAvance(@RequestParam("archivo") MultipartFile archivo) {
+        if (archivo.isEmpty() || !archivo.getOriginalFilename().endsWith(".pdf")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF válido.");
+        }
+        try {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                String correo = authentication.getName();
+
+                Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
+                if (estudiante == null) {
+                throw new RuntimeException("Estudiante autenticado no encontrado");
+                }
+
+                Pensum pensum = estudiante.getPensum();
+                if (pensum == null) {
+                throw new RuntimeException("El estudiante no tiene un pensum asociado");
+                }
+
+                byte[] archivoBytes = archivo.getBytes();
+                lecturaService.guardarInformeAvance(archivoBytes, estudiante, pensum);
+
+                return procesarPDFSubido();
+
+        } catch (IOException e) {
+                throw new RuntimeException("Error al guardar el archivo", e);
+        }
+        }
 
         @PostMapping("/subir-pdf")
         @ResponseBody
-        public Progreso procesarPDFSubido(@RequestParam("archivo") MultipartFile archivo) {
-                if (archivo.isEmpty() || !archivo.getOriginalFilename().endsWith(".pdf")) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF válido.");
-                }
+        public Progreso procesarPDFSubido() {
 
-                List<MateriaDTO> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
+                List<MateriaDTO> materias = lecturaService.obtenerMateriasDesdeArchivo();
                 
                 List<MateriaDTO> cursosElectivaBasicas = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoElectivaBasicasBruto(archivo));
+                                lecturaService.extraerTextoElectivaBasicas());
 
                 List<MateriaDTO> cursosEnfasis = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoEnfasisBruto(archivo));
+                                lecturaService.extraerTextoEnfasis());
 
                 List<MateriaDTO> cursosSeguridad = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoDesarrolloYSeguridadBruto(archivo));
+                                lecturaService.extraerTextoDesarrolloYSeguridad());
 
                 List<MateriaDTO> cursosComplementariaLenguas = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComplementariaLenguasBruto(archivo));
+                                lecturaService.extraerTextoComplementariaLenguas());
 
                 List<MateriaDTO> cursosComplementariaInfo = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComplementariaInformacionBruto(archivo));
+                                lecturaService.extraerTextoComplementariaInformacion());
 
                 List<MateriaDTO> tablaElectivas = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoElectivasBruto(archivo));
+                                lecturaService.extraerTextoElectivas());
 
                 List<MateriaDTO> cursosIA = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoInteligenciaArtificialBruto(archivo));
+                                lecturaService.extraerTextoInteligenciaArtificial());
 
                 List<MateriaDTO> tablaDesarrolloComputacion = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoDesarrolloSeguridadAComputacionBruto(archivo));
+                                lecturaService.extraerTextoDesarrolloSeguridadAComputacion());
 
                 List<MateriaDTO> tablaDesarrolloGestion = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoDesarrolloYGestionBruto(archivo));
+                                lecturaService.extraerTextoDesarrolloYGestion());
 
                 List<MateriaDTO> tablaComputacionVisual = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComputacionVisualBruto(archivo));
+                                lecturaService.extraerTextoComputacionVisual());
 
                 List<MateriaDTO> tablaCVtoIA = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComputacionVisualAInteligenciaArtificialBruto(archivo));
+                                lecturaService.extraerTextoComputacionVisualAInteligenciaArtificial());
 
                 List<MateriaDTO> tablaSIGtoIA = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoSistemasGestionAInteligenciaArtificialBruto(archivo));
+                                lecturaService.extraerTextoSistemasGestionAInteligenciaArtificial());
 
-                List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado(archivo);
+                List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado();
 
                 Progreso progreso = lecturaService.obtenerResumenAcademico(
                                 materias,
@@ -100,35 +128,9 @@ public class LecturaController {
 
                 double porcentaje = (progreso.getCreditosPensum() * 100.0) / 138.0;
                 progreso.setPorcentaje(porcentaje);
-                guardarInformeAvance(archivo);
 
                 return progreso;
         }
         
-        @PostMapping("/guardar-informe")
-        public String guardarInformeAvance(@RequestParam("archivo") MultipartFile archivo) {
-        try {
-                // Buscar estudiante quemado por código
-                Estudiante estudiante = estudianteService.obtenerEstudiantePorCodigo("00020492003");
-                if (estudiante == null) {
-                throw new RuntimeException("Estudiante no encontrado con código 00020492003");
-                }
 
-                Pensum pensum = estudiante.getPensum();
-                if (pensum == null) {
-                        throw new RuntimeException("El estudiante no tiene un pensum asociado");
-                }
-
-                byte[]  archivoBytes = archivo.getBytes();
-
-                lecturaService.guardarInformeAvance(archivoBytes, estudiante, pensum);
-
-                return "redirect:/historial";
-        } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Error al guardar el archivo");
-        }
-        }
-
-        
 }

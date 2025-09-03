@@ -7,5 +7,6 @@ import com.grupo7.tesis.models.InformeAvance;
 
 @Repository
 public interface InformeAvanceRepository extends JpaRepository<InformeAvance, Long>{
-
+    InformeAvance findFirstByEstudianteIdOrderByFechaPublicacionDesc(Long estudianteId);
+    InformeAvance findByEstudianteId(Long estudianteId);
 }
