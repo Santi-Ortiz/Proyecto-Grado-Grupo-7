@@ -371,6 +371,16 @@ public class Progreso {
 
     @JsonIgnore
     public int getCreditosCursados() {
+        List<MateriaDTO> materiasCursadas = getMateriasCursadas();
+        int creditosCursados = materiasCursadas.stream()
+                .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
+                .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
+                .sum();
+        return creditosCursados;
+    }
+
+    @JsonIgnore
+    public int getCreditosCursando() {
         if (materias == null) return 0;
         
         int creditosCursando = materias.stream()
@@ -379,16 +389,6 @@ public class Progreso {
                 .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
                 .sum();
         return creditosCursando;
-    }
-
-    @JsonIgnore
-    public int getCreditosCursando() {
-        List<MateriaDTO> materiasCursadas = getMateriasCursadas();
-        int creditosCursados = materiasCursadas.stream()
-                .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
-                .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
-                .sum();
-        return creditosCursados;
     }
 
     @JsonIgnore
