@@ -75,7 +75,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        logger.debug("No se encontró token JWT en headers ni cookies");
+        logger.debug("❌ No se encontró token JWT en headers ni cookies");
         return null;
     }
 

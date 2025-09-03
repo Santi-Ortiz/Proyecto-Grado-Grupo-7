@@ -3,7 +3,6 @@ package com.grupo7.tesis.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.EstudianteDTO;
@@ -15,18 +14,9 @@ import com.grupo7.tesis.repositories.EstudianteRepository;
 @Service
 public class EstudianteService {
 
-    @Autowired
-
-    private EstudianteRepository estudianteRepository;
-
-    @Autowired
-    private PensumService pensumService;
-
-    @Autowired
-    private FacultadService facultadService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final EstudianteRepository estudianteRepository;
+    private final PensumService pensumService;
+    private final FacultadService facultadService;
 
     @Autowired
     public EstudianteService(EstudianteRepository estudianteRepository,
@@ -121,7 +111,7 @@ public class EstudianteService {
         Estudiante estudiante = new Estudiante(
                 estudianteDTO.getCodigo(),
                 estudianteDTO.getCorreo(),
-                passwordEncoder.encode(estudianteDTO.getContrasenia()),
+                estudianteDTO.getContrasenia(),
                 estudianteDTO.getPrimerNombre(),
                 estudianteDTO.getSegundoNombre(),
                 estudianteDTO.getPrimerApellido(),

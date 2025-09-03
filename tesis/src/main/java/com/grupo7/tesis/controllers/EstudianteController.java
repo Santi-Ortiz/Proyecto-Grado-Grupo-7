@@ -2,7 +2,6 @@ package com.grupo7.tesis.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,8 +21,7 @@ import com.grupo7.tesis.services.EstudianteService;
 @RequestMapping("/api/estudiantes")
 public class EstudianteController {
 
-    @Autowired
-    private EstudianteService estudianteService;
+    private final EstudianteService estudianteService;
 
     public EstudianteController(EstudianteService estudianteService) {
         this.estudianteService = estudianteService;
