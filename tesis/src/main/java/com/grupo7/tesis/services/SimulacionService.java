@@ -361,6 +361,8 @@ public class SimulacionService {
         int creditosNucleoCBFaltantes = contarCreditosNucleoCBFaltantes(progreso);
         int creditosNucleoIngenieria = contarCreditosNucleoIngeFaltantes(progreso);
         int creditosNucleoSociohumanisticas = contarCreditosNucleoSocioFaltantes(progreso);
+        int materiasQueDesbloquean = calcularMateriasQueDesbloquean(progreso, materiasPensum);
+        int contarCreditosAtrasados = contarCreditosAtrasados(progreso, semestreActual);
 
         double electivasFaltantes = progreso.getFaltanElectiva();
         double complementariasFaltantes = progreso.getFaltanComplementaria();
@@ -374,7 +376,7 @@ public class SimulacionService {
         double complementariasPrioridad = (prioridades != null && prioridades.length > 4 && prioridades[4]) ? 0.5 : 0;
         double enfasisPrioridad = (prioridades != null && prioridades.length > 5 && prioridades[5]) ? 0.5 : 0;
 
-        heuristica = creditosNucleoCBFaltantes * ( (peso) + cbPrioridad) + creditosNucleoIngenieria * ( (peso) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (peso) + sociohumanisticasPrioridad) + electivasFaltantes * ((peso) + electivasPrioridad) + complementariasFaltantes * ((peso) + complementariasPrioridad) + enfasisFaltantes * ((peso) + enfasisPrioridad) + electivasCBFaltantes * ((peso) + cbPrioridad);
+        heuristica = creditosNucleoCBFaltantes * ( (peso) + cbPrioridad) + creditosNucleoIngenieria * ( (peso) + ingenieriaPrioridad) + creditosNucleoSociohumanisticas * ( (peso) + sociohumanisticasPrioridad) + electivasFaltantes * ((peso) + electivasPrioridad) + complementariasFaltantes * ((peso) + complementariasPrioridad) + enfasisFaltantes * ((peso) + enfasisPrioridad) + electivasCBFaltantes * ((peso) + cbPrioridad) + materiasQueDesbloquean * peso + contarCreditosAtrasados * 3.0;
 
         return heuristica;
     }
@@ -536,6 +538,23 @@ public class SimulacionService {
             }
         }
         return count;
+    }
+
+    public int calcularMateriasQueDesbloquean(Progreso progreso, List<Materia> materiasPensum) {
+        List<Materia> materiasFaltantes = progreso.getMateriasFaltantes();
+        int contadorDesbloqueos = 0;
+        
+        for (Materia materiaFaltante : materiasFaltantes) {
+            for (Materia otraMateria : materiasFaltantes) {
+                if (!materiaFaltante.equals(otraMateria) && 
+                    otraMateria.getRequisitos() != null && 
+                    otraMateria.getRequisitos().contains(materiaFaltante.getCodigo())) {
+                    contadorDesbloqueos++;
+                }
+            }
+        }
+        
+        return contadorDesbloqueos;
     }
 
     // Validar si una materia es de cualquier tipo de núcleo
