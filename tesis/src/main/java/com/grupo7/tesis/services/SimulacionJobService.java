@@ -40,7 +40,7 @@ public class SimulacionJobService {
             job.setResultado(resultado);
             job.setEstado(SimulacionJob.Estado.COMPLETADA);
             job.setTiempoFin(System.currentTimeMillis());
-            job.setMensaje("Simulación completada exitosamente");
+            job.setMensaje("Simulación completada   ");
         }
     }
     

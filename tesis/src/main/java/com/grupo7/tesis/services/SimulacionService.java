@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -549,7 +550,7 @@ public class SimulacionService {
                 if (!materiaFaltante.equals(otraMateria) && 
                     otraMateria.getRequisitos() != null && 
                     otraMateria.getRequisitos().contains(materiaFaltante.getCodigo())) {
-                    contadorDesbloqueos++;
+                    contadorDesbloqueos+= otraMateria.getCreditos();
                 }
             }
         }
@@ -871,10 +872,8 @@ public class SimulacionService {
         backtrackCombinacionesUnicas(materiasConPuntaje, combinacionActual, todasLasCombinaciones, 0, creditosMax,
                 materiasMax, 0, 0);
 
-        //Ordenar las combinaciones de mayor puntaje a menor
-        todasLasCombinaciones = todasLasCombinaciones.stream()
-                .sorted((a, b) -> Double.compare(b.getPuntajeTotal(), a.getPuntajeTotal()))
-                .collect(Collectors.toSet());
+        //Filtrar combinaciones que aprovechen bien los límites y ordenar
+        todasLasCombinaciones = filtrarYOrdenarCombinaciones(todasLasCombinaciones, creditosMax, materiasMax);
 
         return todasLasCombinaciones.stream().limit(iteraciones).collect(Collectors.toSet());
     }
@@ -884,8 +883,20 @@ public class SimulacionService {
             Set<Simulacion> resultado, int indice, int creditosMax, int materiasMax, int creditosActuales,
             int materiasActuales) {
 
-        // Si se alcanzan los límites se guarda la combinación actual
-        if (indice == materias.size() || materiasActuales == materiasMax || creditosActuales >= creditosMax) {
+        // Condición de parada: hemos revisado todas las materias
+        if (indice == materias.size()) {
+            if (!combinacionActual.isEmpty()) {
+                contadorCombinaciones++;
+                Set<Materia> setCombinacion = new HashSet<>(combinacionActual);
+                List<Materia> listaCombinacion = new ArrayList<>(combinacionActual);
+                double puntajeTotal = calcularPuntajeCombinacion(listaCombinacion, materias);
+                resultado.add(new Simulacion(setCombinacion, puntajeTotal));
+            }
+            return;
+        }
+
+        // Condición de parada temprana: ya alcanzamos ambos límites
+        if (materiasActuales == materiasMax && creditosActuales >= creditosMax) {
             if (!combinacionActual.isEmpty()) {
                 contadorCombinaciones++;
                 Set<Materia> setCombinacion = new HashSet<>(combinacionActual);
@@ -898,7 +909,7 @@ public class SimulacionService {
 
         Materia materiaActual = materias.get(indice).getMateria();
 
-        // Incluir la materia si es posible
+        // Incluir la materia si es posible (no exceder ningún límite)
         if (creditosActuales + materiaActual.getCreditos() <= creditosMax && materiasActuales + 1 <= materiasMax) {
             combinacionActual.add(materiaActual);
             backtrackCombinacionesUnicas(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax,
@@ -906,9 +917,58 @@ public class SimulacionService {
             combinacionActual.remove(materiaActual);
         }
 
-        // No incluir la materia
+        // No incluir la materia (continuar explorando)
         backtrackCombinacionesUnicas(materias, combinacionActual, resultado, indice + 1, creditosMax, materiasMax,
                 creditosActuales, materiasActuales);
+    }
+
+    // Filtrar y ordenar combinaciones priorizando las que mejor aprovechan los límites
+    public Set<Simulacion> filtrarYOrdenarCombinaciones(Set<Simulacion> combinaciones, int creditosMax, int materiasMax) {
+        return combinaciones.stream()
+                .sorted((a, b) -> {
+                    // Calcular qué tan cerca están de los límites (factor de aprovechamiento)
+                    double aprovechamientoA = calcularAprovechamientoLimites(a, creditosMax, materiasMax);
+                    double aprovechamientoB = calcularAprovechamientoLimites(b, creditosMax, materiasMax);
+                    
+                    // Primero comparar por aprovechamiento de límites
+                    int comparacionAprovechamiento = Double.compare(aprovechamientoB, aprovechamientoA);
+                    if (comparacionAprovechamiento != 0) {
+                        return comparacionAprovechamiento;
+                    }
+                    
+                    // Si el aprovechamiento es similar, comparar por puntaje
+                    return Double.compare(b.getPuntajeTotal(), a.getPuntajeTotal());
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    // Calcular qué tan bien aprovecha una combinación los límites disponibles
+    public double calcularAprovechamientoLimites(Simulacion simulacion, int creditosMax, int materiasMax) {
+        int creditos = simulacion.getTotalCreditos();
+        int materias = simulacion.getMaterias().size();
+        
+        // Porcentaje de aprovechamiento de créditos (0.0 a 1.0)
+        double aprovechamientoCreditos = (double) creditos / creditosMax;
+        
+        // Porcentaje de aprovechamiento de materias (0.0 a 1.0)
+        double aprovechamientoMaterias = (double) materias / materiasMax;
+        
+        // Promedio ponderado dando más peso a los créditos (típicamente más restrictivo)
+        double aprovechamientoTotal = (aprovechamientoCreditos * 0.6) + (aprovechamientoMaterias * 0.4);
+        
+        // Bonificación por alcanzar exactamente los límites
+        double bonificacion = 0.0;
+        if (creditos == creditosMax || materias == materiasMax) {
+            bonificacion = 0.1; // 10% de bonificación
+        }
+        
+        // Penalización por estar muy por debajo de los límites
+        double penalizacion = 0.0;
+        if (aprovechamientoCreditos < 0.7 && aprovechamientoMaterias < 0.7) {
+            penalizacion = 0.1; // 10% de penalización si ambos están por debajo del 70%
+        }
+        
+        return Math.min(1.0, aprovechamientoTotal + bonificacion - penalizacion);
     }
 
     // Puntaje de la combinación de materias
