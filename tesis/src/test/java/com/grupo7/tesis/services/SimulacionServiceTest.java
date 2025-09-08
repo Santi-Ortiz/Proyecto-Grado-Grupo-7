@@ -42,7 +42,7 @@ public class SimulacionServiceTest {
         for (int limite : limites) {
             try {
                 Map<String, Object> stats = simulacionService.generarSimulacionConEstadisticas(
-                    progreso, proyeccion, proyeccion.getSemestre(), prioridades, limite);
+                    progreso, proyeccion, proyeccion.getSemestre(), prioridades, limite, true);
                 
                 long tiempo = (Long) stats.get("tiempoMs");
                 int nodos = (Integer) stats.get("nodosCreados");

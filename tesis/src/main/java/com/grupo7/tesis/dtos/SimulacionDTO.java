@@ -7,6 +7,7 @@ public class SimulacionDTO {
     private Progreso progreso;
     private Proyeccion proyeccion;
     private boolean[] priorizaciones;
+    private boolean practicaProfesional;
 
     public boolean[] getPriorizaciones() {
         return this.priorizaciones;
@@ -30,6 +31,13 @@ public class SimulacionDTO {
 
     public void setProyeccion(Proyeccion proyeccion) {
         this.proyeccion = proyeccion;
+    }
+    public boolean getPracticaProfesional() {
+        return practicaProfesional;
+    }
+
+    public void setPracticaProfesional(boolean practicaProfesional) {
+        this.practicaProfesional = practicaProfesional;
     }
 
 }
