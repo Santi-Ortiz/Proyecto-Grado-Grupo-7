@@ -25,6 +25,7 @@ public class LecturaController {
 
         @Autowired
         private LecturaService lecturaService;
+        
         @Autowired
         private EstudianteService estudianteService;
 

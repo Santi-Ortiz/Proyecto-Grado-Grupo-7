@@ -19,7 +19,7 @@ public class SimulacionAsyncService {
     private SimulacionService simulacionService;
     
     @Autowired
-    private pensumService pensumService;
+    private PensumService pensumService;
     
     @Autowired
     private SimulacionJobService jobService;
