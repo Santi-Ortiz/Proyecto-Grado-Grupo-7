@@ -37,7 +37,7 @@ public class LecturaController {
 
         @PostMapping("/guardarInforme")
         @ResponseBody
-        public Progreso guardarInformeAvance(@RequestParam("archivo") MultipartFile archivo) {
+        public ProgresoDTO guardarInformeAvance(@RequestParam("archivo") MultipartFile archivo) {
         if (archivo.isEmpty() || !archivo.getOriginalFilename().endsWith(".pdf")) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF válido.");
         }
@@ -58,7 +58,7 @@ public class LecturaController {
                 byte[] archivoBytes = archivo.getBytes();
                 lecturaService.guardarInformeAvance(archivoBytes, estudiante, pensum);
 
-                return procesarPDFSubido();
+                return procesarPDFSubido(archivo);
 
         } catch (IOException e) {
                 throw new RuntimeException("Error al guardar el archivo", e);
@@ -67,47 +67,55 @@ public class LecturaController {
 
         @PostMapping("/subir-pdf")
         @ResponseBody
-        public Progreso procesarPDFSubido() {
+        public ProgresoDTO procesarPDFSubido(@RequestParam("archivo") MultipartFile archivo) {
+                if (archivo.isEmpty() || !archivo.getOriginalFilename().endsWith(".pdf")) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF válido.");
+                }
 
-                List<MateriaDTO> materias = lecturaService.obtenerMateriasDesdeArchivo();
-                
+                List<MateriaDTO> materias = lecturaService.obtenerMateriasDesdeArchivo(archivo);
+
+                if (materias == null || materias.isEmpty()) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                                "El archivo no corresponde a un informe de avance válido.");
+                }
+
                 List<MateriaDTO> cursosElectivaBasicas = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoElectivaBasicas());
+                                lecturaService.extraerTextoElectivaBasicasBruto(archivo));
 
                 List<MateriaDTO> cursosEnfasis = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoEnfasis());
+                                lecturaService.extraerTextoEnfasisBruto(archivo));
 
                 List<MateriaDTO> cursosSeguridad = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoDesarrolloYSeguridad());
+                                lecturaService.extraerTextoDesarrolloYSeguridadBruto(archivo));
 
                 List<MateriaDTO> cursosComplementariaLenguas = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComplementariaLenguas());
+                                lecturaService.extraerTextoComplementariaLenguasBruto(archivo));
 
                 List<MateriaDTO> cursosComplementariaInfo = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComplementariaInformacion());
+                                lecturaService.extraerTextoComplementariaInformacionBruto(archivo));
 
                 List<MateriaDTO> tablaElectivas = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoElectivas());
+                                lecturaService.extraerTextoElectivasBruto(archivo));
 
                 List<MateriaDTO> cursosIA = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoInteligenciaArtificial());
+                                lecturaService.extraerTextoInteligenciaArtificialBruto(archivo));
 
                 List<MateriaDTO> tablaDesarrolloComputacion = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoDesarrolloSeguridadAComputacion());
+                                lecturaService.extraerTextoDesarrolloSeguridadAComputacionBruto(archivo));
 
                 List<MateriaDTO> tablaDesarrolloGestion = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoDesarrolloYGestion());
+                                lecturaService.extraerTextoDesarrolloYGestionBruto(archivo));
 
                 List<MateriaDTO> tablaComputacionVisual = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComputacionVisual());
+                                lecturaService.extraerTextoComputacionVisualBruto(archivo));
 
                 List<MateriaDTO> tablaCVtoIA = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComputacionVisualAInteligenciaArtificial());
+                                lecturaService.extraerTextoComputacionVisualAInteligenciaArtificialBruto(archivo));
 
                 List<MateriaDTO> tablaSIGtoIA = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoSistemasGestionAInteligenciaArtificial());
+                                lecturaService.extraerTextoSistemasGestionAInteligenciaArtificialBruto(archivo));
 
-                List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado();
+                List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado(archivo);
 
                 Progreso progreso = new Progreso();
                 progreso.setMaterias(materias);

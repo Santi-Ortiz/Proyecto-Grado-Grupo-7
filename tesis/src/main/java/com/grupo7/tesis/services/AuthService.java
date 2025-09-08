@@ -11,9 +11,6 @@ import com.grupo7.tesis.dtos.RegisterDTO;
 public class AuthService {
     
     @Autowired
-    private EstudianteService estudianteService;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public EstudianteDTO registrarEstudiante(RegisterDTO registerDTO) {

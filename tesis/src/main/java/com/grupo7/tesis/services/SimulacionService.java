@@ -114,7 +114,7 @@ public class SimulacionService {
                 // Si se completaron todas las materias pero aún no llegamos al semestre objetivo
                 if (nodoActual.getSemestreActual() < semestreObjetivo && practicaProfesional) {
                     try {
-                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensum())) {
+                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensumJson())) {
                             System.out.println("Todas las materias completadas pero continuando hasta semestre objetivo para práctica profesional");
                         } else {
                             // No puede tomar práctica profesional, terminar aquí
@@ -228,9 +228,9 @@ public class SimulacionService {
         boolean aplicarPracticaProfesional = false;
         if (practicaProfesional && siguienteSemestre == semestreObjetivo) {
             try {
-                if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensum())) {
-                    proyeccionSemestre.setCreditos(4);
-                    proyeccionSemestre.setMaterias(3);
+                if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensumJson())) {
+                    proyeccionSemestre.setNumMaxCreditos(4);
+                    proyeccionSemestre.setNumMaxMaterias(3);
                     aplicarPracticaProfesional = true;
                 }
             } catch (Exception e) {

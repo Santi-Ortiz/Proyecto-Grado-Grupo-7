@@ -19,6 +19,7 @@ import jakarta.persistence.Transient;
 @Entity
 @Table(name = "simulacion")
 public class Simulacion {
+    @Transient
     private Set<Materia> materias;
 
     @Id

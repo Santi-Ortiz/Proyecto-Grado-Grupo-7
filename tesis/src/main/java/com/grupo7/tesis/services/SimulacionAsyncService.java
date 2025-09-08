@@ -32,7 +32,7 @@ public class SimulacionAsyncService {
                 "Iniciando simulación...");
             
             // Obtener datos necesarios
-            List<Materia> materiasPensum = pensumService.obtenerPensum();
+            List<Materia> materiasPensum = pensumService.obtenerPensumJson();
             
             // Actualizar progreso
             jobService.actualizarEstado(jobId, SimulacionJob.Estado.EN_PROCESO, 

@@ -3,8 +3,6 @@ package com.grupo7.tesis.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.EstudianteDTO;
