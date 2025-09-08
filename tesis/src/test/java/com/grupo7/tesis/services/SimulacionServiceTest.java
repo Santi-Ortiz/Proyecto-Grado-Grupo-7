@@ -22,51 +22,51 @@ public class SimulacionServiceTest {
     private SimulacionService simulacionService;
 
     @Test 
-public void testJUnit() {
-    ejecutarTest();
-}
+    public void testJUnit() {
+        ejecutarTest();
+    }
 
-public void ejecutarTest() {
-    System.out.println("TEST DE LÍMITES DE COMBINACIONES");
-    System.out.println("===============================================");
-    
-    Progreso progreso = crearProgresoWorstCase();
-    Proyeccion proyeccion = crearProyeccion();
-    boolean[] prioridades = {false, false, false, false, false, false};
+    public void ejecutarTest() {
+        System.out.println("TEST DE LÍMITES DE COMBINACIONES");
+        System.out.println("===============================================");
+        
+        Progreso progreso = crearProgresoWorstCase();
+        Proyeccion proyeccion = crearProyeccion();
+        boolean[] prioridades = {false, false, false, false, false, false};
 
-    int[] limites = {1, 3, 5, 10, 15, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 150, 200};
+        int[] limites = {1, 3, 5, 10, 15, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 150, 200};
 
-    System.out.printf("%-8s %-12s %-15s %-20s%n", "Limite", "Tiempo(ms)", "Nodos Creados", "Combinaciones");
-    System.out.println("-------------------------------------------------------------------");
+        System.out.printf("%-8s %-12s %-15s %-20s%n", "Limite", "Tiempo(ms)", "Nodos Creados", "Combinaciones");
+        System.out.println("-------------------------------------------------------------------");
 
-    for (int limite : limites) {
-        try {
-            Map<String, Object> stats = simulacionService.generarSimulacionConEstadisticas(
-                progreso, proyeccion, proyeccion.getSemestre(), prioridades, limite);
-            
-            long tiempo = (Long) stats.get("tiempoMs");
-            int nodos = (Integer) stats.get("nodosCreados");
-            int combinaciones = (Integer) stats.get("combinacionesGeneradas");
+        for (int limite : limites) {
+            try {
+                Map<String, Object> stats = simulacionService.generarSimulacionConEstadisticas(
+                    progreso, proyeccion, proyeccion.getSemestre(), prioridades, limite, true);
+                
+                long tiempo = (Long) stats.get("tiempoMs");
+                int nodos = (Integer) stats.get("nodosCreados");
+                int combinaciones = (Integer) stats.get("combinacionesGeneradas");
 
-            System.out.printf("%-8d %-12d %-15d %-20d%n",
-                             limite, tiempo, nodos, combinaciones);
+                System.out.printf("%-8d %-12d %-15d %-20d%n",
+                                limite, tiempo, nodos, combinaciones);
 
-            Assertions.assertTrue(tiempo < 300000, 
-                "El tiempo excede el máximo permitido para el límite " + limite);
+                Assertions.assertTrue(tiempo < 300000, 
+                    "El tiempo excede el máximo permitido para el límite " + limite);
 
-            if (tiempo > 300000) {
-                System.out.println("Tiempo excesivo, interrumpiendo pruebas...");
-                break;
+                if (tiempo > 300000) {
+                    System.out.println("Tiempo excesivo, interrumpiendo pruebas...");
+                    break;
+                }
+
+            } catch (Exception e) {
+                System.out.printf("%-8d %-12s %-15s %-20s%n",
+                                limite, "ERROR", "ERROR", "ERROR");
+                System.out.println("Error: " + e.getMessage());
+                Assertions.fail("Error inesperado al ejecutar con límite " + limite + ": " + e.getMessage());
             }
-
-        } catch (Exception e) {
-            System.out.printf("%-8d %-12s %-15s %-20s%n",
-                             limite, "ERROR", "ERROR", "ERROR");
-            System.out.println("Error: " + e.getMessage());
-            Assertions.fail("Error inesperado al ejecutar con límite " + limite + ": " + e.getMessage());
         }
     }
-}
 
 
     private Progreso crearProgresoWorstCase() {
@@ -114,28 +114,21 @@ public void ejecutarTest() {
         materiasFaltantes.add(createMateria("2356", "Epistemología de la ingeniería", 2, 8, Arrays.asList(), "nucleoSociohumanisticas"));
 
         List<MateriaDTO> cursosVacios = new ArrayList<>();
+        List<String> lineasVacias = new ArrayList<>();
         
+        List<MateriaDTO> materias = new ArrayList<>();
+        
+        materias.add(new MateriaDTO("PrimPe2022", "SALUD", "20000", "031179", "Celebra La Vida", "A", "0.00", "Ma"));
+        materias.add(new MateriaDTO("PrimPe2022", "FILOSOF", "4400", "002356", "Epistemología de la ingeniería", "4.6", "2.00", "Ma"));
+        materias.add(new MateriaDTO("PrimPe2022", "MATEMÁT", "1700", "001295", "Cálculo Diferencial", "2.7", "3.00", "Ma"));
+        materias.add(new MateriaDTO("PrimPe2022", "MATEMÁT", "1700", "033518", "Lógica y Matemáticas Discretas", "4.9", "3.00", "Ma"));
+        materias.add(new MateriaDTO("PrimPe2022", "PROCESOS", "4900", "033763", "Introducción a la ingeniería", "4.4", "2.00", "Ma"));
+        materias.add(new MateriaDTO("PrimPe2022", "SISTEMAS", "4800", "004075", "Pensamiento Sistémico", "4.6", "3.00", "Ma"));
+        materias.add(new MateriaDTO("PrimPe2022", "SISTEMAS", "4800", "034809", "Seguridad de la información", "4.7", "2.00", "Ma"));
+
         Progreso progreso = new Progreso(
-            4.24,           // promedio
-            35,             // materiasCursadas
-            38,             // materiasFaltantes  
-            materiasFaltantes, // listaMateriasFaltantes
-            52,             // totalMaterias
-            38,             // totalFaltantes
-            7,              // totalCursando
-            98,             // totalCreditos
-            92,             // creditosCursados
-            6,              // creditosCursando
-            110,            // creditosFaltantes
-            92,             // creditosPensum
-            6,              // creditosExtra
-            8,              // faltanElectiva
-            6,              // faltanComplementaria
-            6,              // faltanEnfasis
-            3,              // faltanElectivaBasicas
-            1,              // semestre (peor caso: empezando desde semestre 1)
-            cursosVacios,   // cursosElectivas
-            cursosVacios,   // cursosEnfasis
+            materias,   // cursosElectivas
+            lineasVacias,   // cursosEnfasis
             cursosVacios,   // cursosComplementariaLenguas
             cursosVacios,   // cursosComplementariaInformacion
             cursosVacios,   // cursosIA
@@ -144,7 +137,12 @@ public void ejecutarTest() {
             cursosVacios,   // cursosComputacionVisual
             cursosVacios,   // cursosCVtoIA
             cursosVacios,   // cursosSIGtoIA
-            cursosVacios    // cursosElectivaBasicas
+            cursosVacios,    // cursosElectivaBasicas
+            cursosVacios,
+            cursosVacios,
+            cursosVacios,
+            cursosVacios,
+            materiasFaltantes
         );
         
         return progreso;

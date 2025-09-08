@@ -39,6 +39,9 @@ __pycache__/
 *.so
 rag_service/faiss_index/
 rag_service/faiss_materias/
+rag_service/faiss_enfasis/
+rag_service/faiss_electivas/
+rag_service/faiss_complementarias/
 rag_service/.mypy_cache/
 rag_service/.pytest_cache/
 

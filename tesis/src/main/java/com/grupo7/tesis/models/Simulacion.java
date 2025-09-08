@@ -1,5 +1,10 @@
 package com.grupo7.tesis.models;
 
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.Objects;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +24,8 @@ import jakarta.persistence.Transient;
 @Entity
 @Table(name = "simulacion")
 public class Simulacion {
+    private Set<Materia> materias;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "simulacion_id")
@@ -31,9 +38,6 @@ public class Simulacion {
 
     private Long creditosTotales; // Representa la cantidad de creditos que contiene la simulación 
 
-    @Transient
-    private List<Materia> materias;
-
     @ManyToOne
     @JoinColumn(name = "proyeccion_id")
     private Proyeccion proyeccionId;
@@ -42,6 +46,11 @@ public class Simulacion {
     private double puntajeTotal;
 
     public Simulacion() {
+    }
+
+    public Simulacion(Set<Materia> materias, double puntaje) {
+        this.materias = new HashSet<>(materias);
+        this.puntajeTotal = puntaje;
     }
 
     public Simulacion(Proyeccion proyeccionId) {
@@ -55,13 +64,8 @@ public class Simulacion {
         this.proyeccionId = proyeccionId;
     }
 
-    public Simulacion(List<Materia> materias, double puntajeTotal) {
-        this.materias = materias;
-        this.puntajeTotal = puntajeTotal;
-    }
-
-    public List<Materia> getMaterias() {
-        List<Materia> materias = new ArrayList<>();
+    public Set<Materia> getMaterias() {
+        Set<Materia> materias = new HashSet<>();
         if (this.materiasAsociadas != null) {
             for (SimulacionMateria sm : this.materiasAsociadas) {
                 materias.add(sm.getMateria());
@@ -75,6 +79,9 @@ public class Simulacion {
         return puntajeTotal;
     }
 
+    public void setMaterias(Set<Materia> materias) {
+        this.materias = materias;
+    }
     public Set<SimulacionMateria> getMateriasAsociadas() {
         return materiasAsociadas;
     }
@@ -120,6 +127,9 @@ public class Simulacion {
     }
 
     public void agregarMateria(Materia materia) {
+        if (this.materias == null) {
+            this.materias = new HashSet<>();
+        }
         if (this.materiasAsociadas == null) {
             this.materiasAsociadas = new HashSet<>();
         }
@@ -135,6 +145,38 @@ public class Simulacion {
             }
         }
         return total;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        
+        Simulacion that = (Simulacion) obj;
+
+        if (this.materias == null && that.materias == null) return true;
+        if (this.materias == null || that.materias == null) return false;
+        if (this.materias.size() != that.materias.size()) return false;
+        
+        Set<String> thisCodigos = this.materias.stream()
+                .map(Materia::getCodigo)
+                .collect(Collectors.toSet());
+        Set<String> thatCodigos = that.materias.stream()
+                .map(Materia::getCodigo)
+                .collect(Collectors.toSet());
+        
+        return thisCodigos.equals(thatCodigos);
+    }
+
+    @Override
+    public int hashCode() {
+        if (materias == null) return 0;
+
+        Set<String> codigos = materias.stream()
+                .map(Materia::getCodigo)
+                .collect(Collectors.toSet());
+        
+        return Objects.hash(codigos);
     }
 
 }
