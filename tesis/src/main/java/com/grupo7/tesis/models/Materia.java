@@ -44,6 +44,7 @@ public class Materia {
     private Set<RequisitoMateria> requisitosMateria; // Se almacenan los ids de la materias que son requisitos de otras 
 
     @Transient
+    @JsonIgnore
     private String requisitosJson;
 
     private String tipo;

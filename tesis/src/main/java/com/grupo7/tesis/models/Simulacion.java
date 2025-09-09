@@ -2,6 +2,9 @@ package com.grupo7.tesis.models;
 
 import java.util.HashSet;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Set;
 import java.util.Objects;
 
@@ -20,6 +23,7 @@ import jakarta.persistence.Transient;
 @Table(name = "simulacion")
 public class Simulacion {
     @Transient
+    @JsonIgnore
     private Set<Materia> materias;
 
     @Id
@@ -32,7 +36,7 @@ public class Simulacion {
 
     private Long semestre; // Representa el semestre al que se está simulando
 
-    private Long creditosTotales; // Representa la cantidad de creditos que contiene la simulación 
+    private Long creditosTotales; // Representa la cantidad de creditos que contiene la simulación
 
     @ManyToOne
     @JoinColumn(name = "proyeccion_id")
@@ -61,15 +65,20 @@ public class Simulacion {
     }
 
     public Set<Materia> getMaterias() {
-        Set<Materia> materias = new HashSet<>();
+        // Si el campo @Transient tiene materias, usarlo (caso del algoritmo A*)
+        if (this.materias != null && !this.materias.isEmpty()) {
+            return this.materias;
+        }
+
+        // Si no, construir desde materiasAsociadas (caso de entidad desde BD)
+        Set<Materia> materiasFromAsociadas = new HashSet<>();
         if (this.materiasAsociadas != null) {
             for (SimulacionMateria sm : this.materiasAsociadas) {
-                materias.add(sm.getMateria());
+                materiasFromAsociadas.add(sm.getMateria());
             }
         }
-        return materias;
+        return materiasFromAsociadas;
     }
-
 
     public double getPuntajeTotal() {
         return puntajeTotal;
@@ -78,6 +87,7 @@ public class Simulacion {
     public void setMaterias(Set<Materia> materias) {
         this.materias = materias;
     }
+
     public Set<SimulacionMateria> getMateriasAsociadas() {
         return materiasAsociadas;
     }
@@ -129,12 +139,27 @@ public class Simulacion {
         if (this.materiasAsociadas == null) {
             this.materiasAsociadas = new HashSet<>();
         }
+
+        // Agregar al campo @Transient (usado por el algoritmo A*)
+        this.materias.add(materia);
+
+        // Agregar a la asociación JPA (para persistencia en BD)
         SimulacionMateria asociacion = new SimulacionMateria(this, materia);
         this.materiasAsociadas.add(asociacion);
     }
 
     public int getTotalCreditos() {
         int total = 0;
+
+        // Usar el campo @Transient si está disponible (algoritmo A*)
+        if (this.materias != null && !this.materias.isEmpty()) {
+            for (Materia materia : this.materias) {
+                total += materia.getCreditos();
+            }
+            return total;
+        }
+
+        // Si no, usar materiasAsociadas (entidad desde BD)
         if (materiasAsociadas != null) {
             for (SimulacionMateria sm : materiasAsociadas) {
                 total += sm.getMateria().getCreditos();
@@ -145,33 +170,39 @@ public class Simulacion {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
         Simulacion that = (Simulacion) obj;
 
-        if (this.materias == null && that.materias == null) return true;
-        if (this.materias == null || that.materias == null) return false;
-        if (this.materias.size() != that.materias.size()) return false;
-        
+        if (this.materias == null && that.materias == null)
+            return true;
+        if (this.materias == null || that.materias == null)
+            return false;
+        if (this.materias.size() != that.materias.size())
+            return false;
+
         Set<String> thisCodigos = this.materias.stream()
                 .map(Materia::getCodigo)
                 .collect(Collectors.toSet());
         Set<String> thatCodigos = that.materias.stream()
                 .map(Materia::getCodigo)
                 .collect(Collectors.toSet());
-        
+
         return thisCodigos.equals(thatCodigos);
     }
 
     @Override
     public int hashCode() {
-        if (materias == null) return 0;
+        if (materias == null)
+            return 0;
 
         Set<String> codigos = materias.stream()
                 .map(Materia::getCodigo)
                 .collect(Collectors.toSet());
-        
+
         return Objects.hash(codigos);
     }
 

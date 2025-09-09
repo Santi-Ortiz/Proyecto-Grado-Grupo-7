@@ -20,23 +20,42 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.config.CustomProperties;
 import com.grupo7.tesis.dtos.MateriaConPuntajeDTO;
 import com.grupo7.tesis.dtos.MateriaDTO;
+import com.grupo7.tesis.models.Estudiante;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.NodoA;
 import com.grupo7.tesis.models.Simulacion;
+import com.grupo7.tesis.models.SimulacionMateria;
 import com.grupo7.tesis.models.Progreso;
 import com.grupo7.tesis.models.Proyeccion;
 import com.grupo7.tesis.repositories.SimulacionRepository;
+import com.grupo7.tesis.repositories.ProyeccionRepository;
+import com.grupo7.tesis.repositories.SimulacionMateriaRepository;
+import com.grupo7.tesis.repositories.MateriaRepository;
 
 @Service
 public class SimulacionService {
 
     @Autowired
     private SimulacionRepository simulacionRepository;
+
+    @Autowired
+    private ProyeccionRepository proyeccionRepository;
+
+    @Autowired
+    private SimulacionMateriaRepository simulacionMateriaRepository;
+
+    @Autowired
+    private MateriaRepository materiaRepository;
+
+    @Autowired
+    private EstudianteService estudianteService;
 
     private int contadorCombinaciones = 0;
     private int contadorNodosCreados = 0;
@@ -128,6 +147,7 @@ public class SimulacionService {
                             System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                             Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                            rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
                             mostrarResultados(rutaCompleta, progreso);
                             return rutaCompleta;
                         }
@@ -143,6 +163,7 @@ public class SimulacionService {
                         System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
                         mostrarResultados(rutaCompleta, progreso);
                         //cerrarLog();
                         return rutaCompleta;
@@ -158,6 +179,7 @@ public class SimulacionService {
                     System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                     Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                    rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
                     mostrarResultados(rutaCompleta, progreso);
                     //cerrarLog();
                     return rutaCompleta;
@@ -189,6 +211,7 @@ public class SimulacionService {
                         System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
                         mostrarResultados(rutaCompleta, progreso);
                         //cerrarLog();
                         return rutaCompleta;
@@ -1215,7 +1238,6 @@ public class SimulacionService {
         }
     }
 
-    
     // ALGORITMO A* CON LÍMITE PERSONALIZABLE
     public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStarConLimite(Progreso progreso, Proyeccion proyeccionBase,
             int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades, int limiteCombinaciones, boolean practicaProfesional) {
@@ -1264,6 +1286,7 @@ public class SimulacionService {
                 System.out.println("Heurística inicial: " + heuristicaInicial);
 
                 Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
                 mostrarResultados(rutaCompleta);
                 return rutaCompleta;
             }
@@ -1294,6 +1317,7 @@ public class SimulacionService {
                         System.out.println("Heurística inicial: " + heuristicaInicial);
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
+                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
                         mostrarResultados(rutaCompleta, progreso);
                         return rutaCompleta;
                     }
@@ -1493,7 +1517,7 @@ public class SimulacionService {
             Simulacion sim = entry.getValue();
             progresoFinal = actualizarProgresoTemporal(progresoFinal, sim, semestre);
         }
-        
+
         return calcularMateriasPendientes(progresoFinal);
     }
     
@@ -1567,7 +1591,31 @@ public class SimulacionService {
             System.out.println("Log de simulación iniciado: " + logFileName);
         } catch (IOException e) {
             System.err.println("Error al inicializar el log: " + e.getMessage());
+    // Verifica si una materia existe en la BD y la guarda si no existe
+    private Materia verificarYGuardarMateria(Materia materia) {
+        // Si la materia ya tiene ID, es que ya existe en la BD
+        if (materia.getId() != null) {
+            return materia;
         }
+
+        // Para materias especiales (electivas, complementarias, etc.) se crea una nueva materia simulada
+        if (materia.getCodigo().equals("0") || materia.getCodigo().equals("1") ||
+                materia.getCodigo().equals("5") || materia.getCodigo().equals("6") ||
+                materia.getCodigo().equals("Practica")) {
+
+            // Estas son materias simuladas, se guardan como nuevas entidades
+            return materiaRepository.save(materia);
+        }
+
+        // Para las materias que ya existen en el pensum, se busca por el código
+        Optional<Materia> materiaExistente = materiaRepository.findByCodigo(materia.getCodigo());
+
+        if (materiaExistente.isPresent()) {
+            return materiaExistente.get();
+        }
+
+        // Si no existe, se guarda
+        return materiaRepository.save(materia);
     }
     
     private void logNodoDetallado(NodoA nodo, double funcionG, double heuristica, String tipo, Simulacion simulacion, int idNodo, int idPadre) {
@@ -1670,15 +1718,76 @@ public class SimulacionService {
                         logWriter.write(String.join(", ", nombresUltimas));
                     }
                     logWriter.write("\n");
-                }
-                
-                logWriter.write("\n");
-            }
-            
-            logWriter.flush();
-        } catch (IOException e) {
-            System.err.println("Error al escribir en el log: " + e.getMessage());
+    // Convierte las simulaciones al modelo Simulacion para guardar en la BD
+    private Map<Integer, Simulacion> convertirSimulaciones(Map<Integer, Simulacion> rutaOriginal,
+            Proyeccion proyeccionBase) {
+        Map<Integer, Simulacion> rutaConvertida = new HashMap<>();
+
+        if (rutaOriginal.isEmpty()) {
+            return rutaConvertida;
         }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                String correo = authentication.getName();
+
+        Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
+
+        // Se crea el objeto de la proyección en la tabla de la BD
+        Proyeccion proyeccion = new Proyeccion();
+        proyeccion.setSemestre(
+                rutaOriginal.keySet().stream().min(Integer::compareTo).orElse(proyeccionBase.getSemestre()));
+        proyeccion.setNumMaxCreditos(proyeccionBase.getNumMaxCreditos());
+        proyeccion.setNumMaxMaterias(proyeccionBase.getNumMaxMaterias());
+        proyeccion.setEstudianteId(estudiante);
+
+        // Se almacena en la BD
+        proyeccionRepository.save(proyeccion);
+
+        for (Map.Entry<Integer, Simulacion> entry : rutaOriginal.entrySet()) {
+            Integer semestre = entry.getKey();
+            Simulacion simulacionOriginal = entry.getValue();
+
+            // Se crea una nueva simulación con los campos de la entidad Simulación
+            Simulacion simulacionConvertida = new Simulacion();
+
+            simulacionConvertida.setSemestre(semestre.longValue());
+            simulacionConvertida.setPuntajeTotal(simulacionOriginal.getPuntajeTotal());
+            simulacionConvertida.setProyeccionId(proyeccion);
+
+            int creditosTotales = 0;
+
+            // Guardar la simulación primero para obtener el ID
+            simulacionConvertida.setCreditosTotales(0L);
+            Simulacion simulacionGuardada = simulacionRepository.save(simulacionConvertida);
+
+            // Se crean y guardan las asociaciones en la tabla intermedia SimulacionMateria
+            Set<SimulacionMateria> materiasAsociadas = new HashSet<>();
+            if (simulacionOriginal.getMaterias() != null && !simulacionOriginal.getMaterias().isEmpty()) {
+                for (Materia materia : simulacionOriginal.getMaterias()) {
+                    creditosTotales += materia.getCreditos();
+
+                    // Se verifica y guarda la materia en la BD si no existe
+                    Materia materiaGuardada = verificarYGuardarMateria(materia);
+
+                    // Se agrega la asociación SimulacionMateria
+                    SimulacionMateria asociacion = new SimulacionMateria();
+                    asociacion.setSimulacion(simulacionGuardada);
+                    asociacion.setMateria(materiaGuardada);
+
+                    SimulacionMateria asociacionGuardada = simulacionMateriaRepository.save(asociacion);
+                    materiasAsociadas.add(asociacionGuardada);
+                }
+            }
+
+            // Se actualiza la simulación con los créditos totales finales
+            simulacionGuardada.setCreditosTotales((long) creditosTotales);
+            simulacionGuardada.setMateriasAsociadas(materiasAsociadas);
+            simulacionGuardada = simulacionRepository.save(simulacionGuardada);
+
+            rutaConvertida.put(semestre, simulacionGuardada);
+        }
+
+        return rutaConvertida;
     }
     
     private void cerrarLog() {

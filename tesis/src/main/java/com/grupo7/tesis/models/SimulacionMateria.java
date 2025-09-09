@@ -1,5 +1,7 @@
 package com.grupo7.tesis.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,6 +21,7 @@ public class SimulacionMateria {
 
     @ManyToOne
     @JoinColumn(name = "simulacion_id")
+    @JsonIgnore
     private Simulacion simulacion;
 
     @ManyToOne
@@ -39,6 +42,7 @@ public class SimulacionMateria {
         this.materia = materia;
     }
 
+    @JsonIgnore
     public Simulacion getSimulacion() {
         return simulacion;
     }
