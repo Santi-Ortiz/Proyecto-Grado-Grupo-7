@@ -1591,32 +1591,10 @@ public class SimulacionService {
             System.out.println("Log de simulación iniciado: " + logFileName);
         } catch (IOException e) {
             System.err.println("Error al inicializar el log: " + e.getMessage());
-    // Verifica si una materia existe en la BD y la guarda si no existe
-    private Materia verificarYGuardarMateria(Materia materia) {
-        // Si la materia ya tiene ID, es que ya existe en la BD
-        if (materia.getId() != null) {
-            return materia;
         }
+    } */
 
-        // Para materias especiales (electivas, complementarias, etc.) se crea una nueva materia simulada
-        if (materia.getCodigo().equals("0") || materia.getCodigo().equals("1") ||
-                materia.getCodigo().equals("5") || materia.getCodigo().equals("6") ||
-                materia.getCodigo().equals("Practica")) {
-
-            // Estas son materias simuladas, se guardan como nuevas entidades
-            return materiaRepository.save(materia);
-        }
-
-        // Para las materias que ya existen en el pensum, se busca por el código
-        Optional<Materia> materiaExistente = materiaRepository.findByCodigo(materia.getCodigo());
-
-        if (materiaExistente.isPresent()) {
-            return materiaExistente.get();
-        }
-
-        // Si no existe, se guarda
-        return materiaRepository.save(materia);
-    }
+    /*
     
     private void logNodoDetallado(NodoA nodo, double funcionG, double heuristica, String tipo, Simulacion simulacion, int idNodo, int idPadre) {
         if (logWriter == null) return;
@@ -1718,6 +1696,72 @@ public class SimulacionService {
                         logWriter.write(String.join(", ", nombresUltimas));
                     }
                     logWriter.write("\n");
+
+    */
+
+    
+    /*/
+    private void cerrarLog() {
+        if (logWriter != null) {
+            try {
+                logWriter.write("\n===============================================\n");
+                logWriter.write("ESTADÍSTICAS FINALES\n");
+                logWriter.write("===============================================\n");
+                logWriter.write("Total nodos creados: " + contadorNodosCreados + "\n");
+                logWriter.write("Total IDs asignados: " + contadorIdNodos + "\n");
+                logWriter.write("Total combinaciones generadas: " + contadorCombinaciones + "\n");
+                logWriter.write("Relaciones padre-hijo registradas en el log\n");
+                logWriter.write("Archivo de log guardado en: " + logFileName + "\n");
+                logWriter.write("===============================================\n");
+                logWriter.write("\nINSTRUCCIONES DE ANÁLISIS:\n");
+                logWriter.write("- ID_NODO: Identificador único de cada nodo\n");
+                logWriter.write("- ID_PADRE: ID del nodo padre (ROOT para nodo inicial)\n");
+                logWriter.write("- F(n): Función de evaluación total (G + H)\n");
+                logWriter.write("- G(n): Costo acumulado desde el inicio\n");
+                logWriter.write("- H(n): Heurística (estimación del costo restante)\n");
+                logWriter.write("- CREDITOS: Total de créditos de las materias simuladas\n");
+                logWriter.write("- N_MATS: Número de materias en la simulación actual\n");
+                logWriter.write("- MATERIAS_SIMULACION: Materias de la simulación actual del nodo\n");
+                logWriter.write("- PROGRESO ACTUAL: Estado detallado del progreso en nodos explorados\n");
+                logWriter.write("===============================================\n");
+                
+                logWriter.close();
+                logWriter = null;
+                mapaNodosIds.clear();
+                System.out.println("Log cerrado exitosamente: " + logFileName);
+            } catch (IOException e) {
+                System.err.println("Error al cerrar el log: " + e.getMessage());
+            }
+        }
+    }*/
+
+    // Verifica si una materia existe en la BD y la guarda si no existe
+    private Materia verificarYGuardarMateria(Materia materia) {
+        // Si la materia ya tiene ID, es que ya existe en la BD
+        if (materia.getId() != null) {
+            return materia;
+        }
+
+        // Para materias especiales (electivas, complementarias, etc.) se crea una nueva materia simulada
+        if (materia.getCodigo().equals("0") || materia.getCodigo().equals("1") ||
+                materia.getCodigo().equals("5") || materia.getCodigo().equals("6") ||
+                materia.getCodigo().equals("Practica")) {
+
+            // Estas son materias simuladas, se guardan como nuevas entidades
+            return materiaRepository.save(materia);
+        }
+
+        // Para las materias que ya existen en el pensum, se busca por el código
+        Optional<Materia> materiaExistente = materiaRepository.findByCodigo(materia.getCodigo());
+
+        if (materiaExistente.isPresent()) {
+            return materiaExistente.get();
+        }
+
+        // Si no existe, se guarda
+        return materiaRepository.save(materia);
+    }
+
     // Convierte las simulaciones al modelo Simulacion para guardar en la BD
     private Map<Integer, Simulacion> convertirSimulaciones(Map<Integer, Simulacion> rutaOriginal,
             Proyeccion proyeccionBase) {
@@ -1789,40 +1833,7 @@ public class SimulacionService {
 
         return rutaConvertida;
     }
-    
-    private void cerrarLog() {
-        if (logWriter != null) {
-            try {
-                logWriter.write("\n===============================================\n");
-                logWriter.write("ESTADÍSTICAS FINALES\n");
-                logWriter.write("===============================================\n");
-                logWriter.write("Total nodos creados: " + contadorNodosCreados + "\n");
-                logWriter.write("Total IDs asignados: " + contadorIdNodos + "\n");
-                logWriter.write("Total combinaciones generadas: " + contadorCombinaciones + "\n");
-                logWriter.write("Relaciones padre-hijo registradas en el log\n");
-                logWriter.write("Archivo de log guardado en: " + logFileName + "\n");
-                logWriter.write("===============================================\n");
-                logWriter.write("\nINSTRUCCIONES DE ANÁLISIS:\n");
-                logWriter.write("- ID_NODO: Identificador único de cada nodo\n");
-                logWriter.write("- ID_PADRE: ID del nodo padre (ROOT para nodo inicial)\n");
-                logWriter.write("- F(n): Función de evaluación total (G + H)\n");
-                logWriter.write("- G(n): Costo acumulado desde el inicio\n");
-                logWriter.write("- H(n): Heurística (estimación del costo restante)\n");
-                logWriter.write("- CREDITOS: Total de créditos de las materias simuladas\n");
-                logWriter.write("- N_MATS: Número de materias en la simulación actual\n");
-                logWriter.write("- MATERIAS_SIMULACION: Materias de la simulación actual del nodo\n");
-                logWriter.write("- PROGRESO ACTUAL: Estado detallado del progreso en nodos explorados\n");
-                logWriter.write("===============================================\n");
-                
-                logWriter.close();
-                logWriter = null;
-                mapaNodosIds.clear();
-                System.out.println("Log cerrado exitosamente: " + logFileName);
-            } catch (IOException e) {
-                System.err.println("Error al cerrar el log: " + e.getMessage());
-            }
-        }
-    }*/
+
     /* CRUD DE SIMULACIÓN */
 
     public List<Simulacion> obtenerTodasSimulaciones() {
