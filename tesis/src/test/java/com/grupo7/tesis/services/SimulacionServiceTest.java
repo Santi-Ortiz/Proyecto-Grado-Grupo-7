@@ -33,6 +33,7 @@ public class SimulacionServiceTest {
         Progreso progreso = crearProgresoWorstCase();
         Proyeccion proyeccion = crearProyeccion();
         boolean[] prioridades = {false, false, false, false, false, false};
+        String correo = "saralgutierrez@javeriana.edu.co";
 
         int[] limites = {1, 3, 5, 10, 15, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 150, 200};
 
@@ -42,7 +43,7 @@ public class SimulacionServiceTest {
         for (int limite : limites) {
             try {
                 Map<String, Object> stats = simulacionService.generarSimulacionConEstadisticas(
-                    progreso, proyeccion, proyeccion.getSemestre(), prioridades, limite, true);
+                    progreso, proyeccion, proyeccion.getSemestre(), prioridades, limite, true, correo);
                 
                 long tiempo = (Long) stats.get("tiempoMs");
                 int nodos = (Integer) stats.get("nodosCreados");

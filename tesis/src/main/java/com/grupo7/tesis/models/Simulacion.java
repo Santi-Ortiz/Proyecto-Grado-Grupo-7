@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Set;
 import java.util.Objects;

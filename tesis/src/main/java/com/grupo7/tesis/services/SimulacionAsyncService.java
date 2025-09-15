@@ -25,7 +25,7 @@ public class SimulacionAsyncService {
     private SimulacionJobService jobService;
     
     @Async("simulacionExecutor")
-    public CompletableFuture<Void> ejecutarSimulacionAsync(String jobId, SimulacionDTO simulacionDTO) {
+    public CompletableFuture<Void> ejecutarSimulacionAsync(String jobId, SimulacionDTO simulacionDTO, String correo) {
         try {
             // Actualizar estado a EN_PROCESO
             jobService.actualizarEstado(jobId, SimulacionJob.Estado.EN_PROCESO, 
@@ -48,7 +48,8 @@ public class SimulacionAsyncService {
                 simulacionDTO.getProyeccion().getSemestre(), 
                 materiasPensum,
                 simulacionDTO.getPriorizaciones(), 
-                simulacionDTO.getPracticaProfesional()
+                simulacionDTO.getPracticaProfesional(), 
+                correo
             );
             
             // Guardar resultado

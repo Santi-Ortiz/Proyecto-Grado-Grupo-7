@@ -1,5 +1,6 @@
 package com.grupo7.tesis.controllers;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,26 +56,27 @@ public class SimulacionController {
     }
 
     @PostMapping("/generar")
-    public Map<Integer, Simulacion> generarSimulacion(@RequestBody SimulacionDTO simulacionDTO) throws Exception {
-
+    public Map<Integer, Simulacion> generarSimulacion(@RequestBody SimulacionDTO simulacionDTO, Principal principal) throws Exception {
+        String correo = principal.getName();
         Map<Integer, Simulacion> simulacion = new HashMap<>();
 
         List<Materia> materiasPensum = pensumService.obtenerPensumJson();
 
         simulacion = simulacionService.generarSimulacionMultiSemestreAStar(simulacionDTO.getProgreso(),
                 simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum,
-                simulacionDTO.getPriorizaciones(), simulacionDTO.getPracticaProfesional());
+                simulacionDTO.getPriorizaciones(), simulacionDTO.getPracticaProfesional(),correo);
 
         return simulacion;
     }
 
     @PostMapping("/iniciar")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> iniciarSimulacion(@RequestBody SimulacionDTO simulacionDTO) {
+    public ResponseEntity<Map<String, String>> iniciarSimulacion(@RequestBody SimulacionDTO simulacionDTO, Principal principal) {
         try {
+            String correo = principal.getName();
             String jobId = jobService.crearTrabajo();
             
-            simulacionAsyncService.ejecutarSimulacionAsync(jobId, simulacionDTO);
+            simulacionAsyncService.ejecutarSimulacionAsync(jobId, simulacionDTO, correo);
             
             Map<String, String> respuesta = new HashMap<>();
             respuesta.put("jobId", jobId);
@@ -131,8 +133,14 @@ public class SimulacionController {
             return ResponseEntity.ok(respuesta);
         }
         
-        return ResponseEntity.ok(job.getResultado());
+        @SuppressWarnings("unchecked")
+        Map<Integer, Simulacion> resultado = (Map<Integer, Simulacion>) job.getResultado();
+
+
+        return ResponseEntity.ok(resultado);
     }
+
+    
 
     @DeleteMapping("/{id}")
     public void eliminarSimulacion(@PathVariable Long id) {

@@ -74,7 +74,7 @@ public class SimulacionService {
 
     // ALGORITMO A*
     public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
-            int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades, boolean practicaProfesional) {
+            int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades, boolean practicaProfesional, String correo) throws Exception {
 
         contadorCombinaciones = 0;
         contadorNodosCreados = 0;
@@ -147,7 +147,7 @@ public class SimulacionService {
                             System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                             Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                            rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
+                            rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                             mostrarResultados(rutaCompleta, progreso);
                             return rutaCompleta;
                         }
@@ -163,7 +163,7 @@ public class SimulacionService {
                         System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
+                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                         mostrarResultados(rutaCompleta, progreso);
                         //cerrarLog();
                         return rutaCompleta;
@@ -179,7 +179,7 @@ public class SimulacionService {
                     System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                     Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                    rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
+                    rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                     mostrarResultados(rutaCompleta, progreso);
                     //cerrarLog();
                     return rutaCompleta;
@@ -211,7 +211,7 @@ public class SimulacionService {
                         System.out.println("Tiempo total: " + tiempoTotal + "ms");
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
+                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                         mostrarResultados(rutaCompleta, progreso);
                         //cerrarLog();
                         return rutaCompleta;
@@ -1198,7 +1198,7 @@ public class SimulacionService {
 
     //Métodos para test
     public Map<String, Object> generarSimulacionConEstadisticas(Progreso progreso, Proyeccion proyeccionBase,
-            int semestreObjetivo, boolean[] prioridades, int limiteCombinaciones, boolean practicaProfesional) throws Exception {
+            int semestreObjetivo, boolean[] prioridades, int limiteCombinaciones, boolean practicaProfesional, String correo) throws Exception {
 
         // Guardar configuración original de salida
         PrintStream originalOut = System.out;
@@ -1217,7 +1217,7 @@ public class SimulacionService {
             
             // Usar la versión con límite personalizable
             Map<Integer, Simulacion> resultado = generarSimulacionMultiSemestreAStarConLimite(
-                progreso, proyeccionBase, semestreObjetivo, materiasPensum, prioridades, limiteCombinaciones, practicaProfesional);
+                progreso, proyeccionBase, semestreObjetivo, materiasPensum, prioridades, limiteCombinaciones, practicaProfesional, correo);
             
             long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
             
@@ -1240,7 +1240,7 @@ public class SimulacionService {
 
     // ALGORITMO A* CON LÍMITE PERSONALIZABLE
     public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStarConLimite(Progreso progreso, Proyeccion proyeccionBase,
-            int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades, int limiteCombinaciones, boolean practicaProfesional) {
+            int semestreObjetivo, List<Materia> materiasPensum, boolean[] prioridades, int limiteCombinaciones, boolean practicaProfesional, String correo) {
 
         // Resetear contadores
         contadorCombinaciones = 0;
@@ -1286,7 +1286,7 @@ public class SimulacionService {
                 System.out.println("Heurística inicial: " + heuristicaInicial);
 
                 Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
+                rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                 mostrarResultados(rutaCompleta);
                 return rutaCompleta;
             }
@@ -1317,7 +1317,7 @@ public class SimulacionService {
                         System.out.println("Heurística inicial: " + heuristicaInicial);
 
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
-                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase);
+                        rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                         mostrarResultados(rutaCompleta, progreso);
                         return rutaCompleta;
                     }
@@ -1764,15 +1764,14 @@ public class SimulacionService {
 
     // Convierte las simulaciones al modelo Simulacion para guardar en la BD
     private Map<Integer, Simulacion> convertirSimulaciones(Map<Integer, Simulacion> rutaOriginal,
-            Proyeccion proyeccionBase) {
+            Proyeccion proyeccionBase, String correo) {
         Map<Integer, Simulacion> rutaConvertida = new HashMap<>();
 
         if (rutaOriginal.isEmpty()) {
             return rutaConvertida;
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                String correo = authentication.getName();
+        // Se obtiene el estudiante por su correo
 
         Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
 
@@ -1857,4 +1856,5 @@ public class SimulacionService {
         simulacionRepository.deleteById(id);
     }
 
+    
 }

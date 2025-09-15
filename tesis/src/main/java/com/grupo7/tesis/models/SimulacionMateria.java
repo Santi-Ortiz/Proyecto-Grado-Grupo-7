@@ -26,6 +26,7 @@ public class SimulacionMateria {
 
     @ManyToOne
     @JoinColumn(name = "materia_id")
+    @JsonIgnore
     private Materia materia;
 
     public SimulacionMateria() {

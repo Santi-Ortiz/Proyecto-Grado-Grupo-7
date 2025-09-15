@@ -2,6 +2,8 @@ package com.grupo7.tesis.models;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +28,7 @@ public class Pensum {
     private Long numeroSemestres;
 
     @OneToMany(mappedBy = "pensum")
+    @JsonIgnore
     private Set<PensumMateria> materiasAsociadas;
 
     public Pensum() {

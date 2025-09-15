@@ -1,5 +1,6 @@
 package com.grupo7.tesis.dtos;
 
+
 // ---- Nombre anterior: Materia ----
 public class MateriaDTO {
     private String cicloLectivo;
@@ -22,7 +23,7 @@ public class MateriaDTO {
         this.cred = cred;
         this.tipo = tipo;
     }
-
+    
     public String getCicloLectivo() {
         return cicloLectivo;
     }
