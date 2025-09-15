@@ -1,0 +1,420 @@
+[
+    {
+        "codigo": "1295",
+        "nombre": "Cálculo Diferencial",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1290",
+        "nombre": "Álgebra Lineal",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33698",
+        "nombre": "Introducción a la Programación",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos":[],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33735",
+        "nombre": "Innovación y Diseño de Producto",
+        "creditos": 2,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1138",
+        "nombre": "Química de Materiales",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33763",
+        "nombre": "Introducción a la Ingeniería",
+        "creditos": 2,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1297",
+        "nombre": "Cálculo Integral",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [
+        "1295"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1340",
+        "nombre": "Física Mecánica",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33699",
+        "nombre": "Programación Avanzada",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [
+        "33698"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33734",
+        "nombre": "Fundamentos de los materiales",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": ["33735"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33733",
+        "nombre": "Proyecto de Diseño en Ingeniería",
+        "creditos": 2,
+        "semestre": 2,
+        "requisitos": ["33763"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 2,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1299",
+        "nombre": "Cálculo Vectorial",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [
+        "1297"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1300",
+        "nombre": "Ecuaciones Diferenciales",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [
+        "1297", "1290"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33732",
+        "nombre": "Probabilidad y Estadística",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": ["1297"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "23710",
+        "nombre": "Electricidad, Magnetismo y Materiales",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": ["1297", "1340"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1341",
+        "nombre": "Física de Fluidos y Termodinámica",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos":["1297","1340"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "2544",
+        "nombre": "Significación Teológica",
+        "creditos": 2,
+        "semestre": 3,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "33759",
+        "nombre": "Estática y Dinámica",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos":["1299","1340"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "36298",
+        "nombre": "Mecánica de Fluidos Integral",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos":["1341","1299","1300"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "30894",
+        "nombre": "Fundamentos de circuitos eléctricos",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos":["23710"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33761",
+        "nombre": "Metrología e Instrumentación",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos":["33732"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33760",
+        "nombre": "Procesos de manufactura moderna",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos":["33734"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33768",
+        "nombre": "Mecánica de Materiales",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos":["33734","1297","1340","1300"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33767",
+        "nombre": "Termodinámica",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos":["36298"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "35962",
+        "nombre": "Análisis Numérico Mecánica",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": [
+        "1300", "33698"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "4153",
+        "nombre": "Señales y sistemas",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": [
+        "1297", "1290"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33772",
+        "nombre": "Diseño de máquinas",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": [
+        "33759", "33760"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "35758",
+        "nombre": "Proyecto de diseño en Mecánica",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": [
+        "33733", "33768", "33760"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 2,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "33766",
+        "nombre": "Transferencia de Calor",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [
+        "1341", "1300"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "31584",
+        "nombre": "Análisis de sistemas mecánicos",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [
+        "1300", "1341"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "32842",
+        "nombre": "Ética, Tecnología e Ingeniería",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [
+        "35758"
+        ],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 2,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "32712",
+        "nombre": "Energía renovable",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [
+        "30894"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "34597",
+        "nombre": "Fundamentos de nanotecnología",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [
+        "35758"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "2476",
+        "nombre": "Fe y compromiso del Ingeniero",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "4175",
+        "nombre": "Proyecto Social Universitario",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": ["35758"],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "37236",
+        "nombre": "Seminario de trabajo de grado",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": ["35758", "31584"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "2356",
+        "nombre": "Epistemología de la Ingeniería",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "34541",
+        "nombre": "Constitución y Derecho Laboral",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "4179",
+        "nombre": "Trabajo de grado",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": ["37236"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "electiva"
+    }
+]
