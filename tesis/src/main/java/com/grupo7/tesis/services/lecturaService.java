@@ -131,7 +131,7 @@ public class lecturaService {
             String texto = lector.getText(documento);
 
             String inicioClave = "Énfasis y Complementarias";
-            String finClave = "Complementaria Lenguas";
+            String finClave = "Electivas Universidad" + "Complementaria";
 
             int inicio = texto.indexOf(inicioClave);
             int fin = texto.indexOf(finClave);
@@ -142,12 +142,20 @@ public class lecturaService {
 
                 StringBuilder resultado = new StringBuilder();
                 boolean tablaComenzada = false;
+                boolean enfasisDetectado = false;
 
                 for (String linea : lineas) {
                     String l = linea.trim();
 
                     if (l.equalsIgnoreCase("Énfasis y Complementarias") && resultado.length() == 0) {
                         resultado.append("Énfasis y Complementarias\n");
+                    }
+
+                    if(!tablaComenzada && !l.isEmpty() && !l.toLowerCase().startsWith("complementaria")
+                        && !l.equalsIgnoreCase("Énfasis y Complementarias")
+                        && !l.startsWith("No Satisfecho") && !l.startsWith("Satisfecho")) {
+                        resultado.append(l).append("\n");
+                        enfasisDetectado = true;
                     }
 
                     if (l.startsWith("Ciclo Lectivo")) {
@@ -163,7 +171,7 @@ public class lecturaService {
                     }
                 }
 
-                return resultado.toString().trim();
+                return enfasisDetectado ? resultado.toString().trim() : "";
             }
 
         } catch (IOException e) {
