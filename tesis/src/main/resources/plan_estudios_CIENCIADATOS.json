@@ -1,0 +1,396 @@
+[
+    {
+        "codigo": "1449",
+        "nombre": "Principios de economía",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "32683",
+        "nombre": "Matemáticas I",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33518",
+        "nombre": "Logica y Matemáticas Discretas",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33698",
+        "nombre": "Introducción a la Programación",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33514",
+        "nombre": "Introducción a la Ciencia de Datos",
+        "creditos": 2,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "15962",
+        "nombre": "Fundamentos de Microeconomía",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": ["1449", "32683"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1299",
+        "nombre": "Cálculo Vectorial",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [
+        "32683"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    }, 
+    {
+        "codigo": "1290",
+        "nombre": "Álgebra Lineal",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33699",
+        "nombre": "Programación Avanzada",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [
+        "33698"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33515",
+        "nombre": "Curaduría y Gobernanza de Datos",
+        "creditos": 2,
+        "semestre": 2,
+        "requisitos": [
+        "33514"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1432",
+        "nombre": "Fundamentos de Macroeconomía",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": ["15962"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "30890",
+        "nombre": "Matemáticas IV",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": ["1299"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33700",
+        "nombre": "Bases de Datos",
+        "creditos": 4,
+        "semestre": 3,
+        "requisitos": [
+        "33699"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33704",
+        "nombre": "Visualización de Datos",
+        "creditos": 4,
+        "semestre": 3,
+        "requisitos": [
+        "33514", "33698"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "33519",
+        "nombre": "Inferencia Estadística",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [
+        "30890"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "4196",
+        "nombre": "Estructuras de Datos",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [
+        "33699" , "33518"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33701",
+        "nombre": "Principios de Desarrollo de Software",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [
+        "33700"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "4084",
+        "nombre": "Introducción a la Inteligencia Artificial",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [
+        "33699"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1505",
+        "nombre": "Introducción a la Inteligencia Artificial",
+        "creditos": 2,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1377",
+        "nombre": "Introducción a la Administración",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33520",
+        "nombre": "Análisis de Regresión",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": ["33519"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33762",
+        "nombre": "Gestión de Proyectos",
+        "creditos": 2,
+        "semestre": 5,
+        "requisitos": ["1432"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33702",
+        "nombre": "Procesamiento de datos a gran escala",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": ["33700"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33773",
+        "nombre": "Fundamentos de Aprendizaje de Máquina",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": ["4084", "33519"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Teología",
+        "creditos": 2,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "1382",
+        "nombre": "Proceso y Teoría Administrativa",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": ["1377"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "34912",
+        "nombre": "Legislación de datos",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33521",
+        "nombre": "Análisis Multivariado",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": ["33519"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33703",
+        "nombre": "Técnicas de Aprendizaje de Máquina",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": ["4084"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33573",
+        "nombre": "Introducción a la Narrativa de datos",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": ["33704"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "",
+        "nombre": "Teología",
+        "creditos": 2,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "33523",
+        "nombre": "Seminario de Trabajo de Grado",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": ["33703"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33305",
+        "nombre": "Temas de Optimización Lineal",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": ["1290", "33699"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "",
+        "nombre": "Filosofía",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "33522",
+        "nombre": "Trabajo de Grado",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": ["33523", "34912"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33746",
+        "nombre": "Optimización Lineal",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": ["1290", "32683", "33698"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "",
+        "nombre": "Filosofía",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    }
+]
