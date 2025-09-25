@@ -60,9 +60,10 @@ public class DatabaseInit implements ApplicationRunner {
             Pensum pensumIngCivil = new Pensum("Ingeniería Civil", 138L, 8L);
             Pensum pensumIngRedes = new Pensum("Ingeniería de Redes y Telecomunicaciones", 138L, 8L);
             Pensum pensumIngIndustrial = new Pensum("Ingeniería Industrial", 138L, 8L);
-            Pensum pensumBioIng = new Pensum("Bioingeniería", 138L, 8L);
+            Pensum pensumBioIng = new Pensum("Bioingeniería", 136L, 8L);
             Pensum pensumIngMecatronica = new Pensum("Ingeniería Mecatrónica", 138L, 8L);
             Pensum pensumIngElectronica = new Pensum("Ingeniería Electrónica", 138L, 8L);
+            Pensum pensumCienciaDatos = new Pensum("Ciencia de Datos", 134L, 8L);
 
             pensumRepository.save(pensumIngSistemas);
             pensumRepository.save(pensumIngMecanica);
@@ -72,6 +73,7 @@ public class DatabaseInit implements ApplicationRunner {
             pensumRepository.save(pensumBioIng);
             pensumRepository.save(pensumIngMecatronica);
             pensumRepository.save(pensumIngElectronica);
+            pensumRepository.save(pensumCienciaDatos);
         }
     }
 

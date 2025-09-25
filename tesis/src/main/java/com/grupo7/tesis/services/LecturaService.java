@@ -24,7 +24,7 @@ public class LecturaService {
     private InformeAvanceService informeAvanceService;
     
     public InformeAvance guardarInformeAvance(byte[]  archivo, Estudiante estudiante, Pensum pensum) throws IOException {
-        //LocalDate fecha = extraerFecha(archivo);
+    
         LocalDate fecha = LocalDate.now();
         InformeAvance informeAvance = new InformeAvance();
         String nombreArchivo = "informeAvance_" + estudiante.getCodigo() + "_" + fecha + ".pdf";
@@ -37,16 +37,6 @@ public class LecturaService {
 
         informeAvanceService.crearInformeAvance(informeAvance);
 
-        /*String textoCompleto = lector.getText(documento);
-        
-        Pattern pattern = Pattern.compile("expedido el (\\d{1,2}/\\d{1,2}/\\d{4})");
-        Matcher matcher = pattern.matcher(textoCompleto);
-        
-        if (matcher.find()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            return LocalDate.parse(matcher.group(1), formatter);
-        }
-        return null;*/
         return informeAvance;
     }
 

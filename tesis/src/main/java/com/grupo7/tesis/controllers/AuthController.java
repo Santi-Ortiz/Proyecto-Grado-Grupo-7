@@ -74,14 +74,6 @@ public class AuthController {
 
         response.addCookie(jwtCookie);
 
-        logger.info("🍪 Cookie JWT agregada al response:");
-        logger.info("   - Nombre: jwt-token");
-        logger.info("   - Valor (primeros 20 chars): {}...", token.substring(0, Math.min(20, token.length())));
-        logger.info("   - HttpOnly: true");
-        logger.info("   - Secure: false");
-        logger.info("   - Path: /");
-        logger.info("   - MaxAge: {} segundos (24 horas)", 24 * 60 * 60);
-
         return new ResponseEntity<>(new AuthResponseDTO(token), HttpStatus.OK);
     }
 
