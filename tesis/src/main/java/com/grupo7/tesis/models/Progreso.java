@@ -551,6 +551,21 @@ public class Progreso {
     }
 
     @JsonIgnore
+    public int getFaltanEnfasisTesis() {
+        List<Materia> materiasFaltantes = getMateriasFaltantes();
+        int creditosTesis = 0;
+
+        for (Materia materia : materiasFaltantes) {
+            if (materia.getTipo().equals("enfasis") && !materia.getCodigo().equals("5") ) {
+                creditosTesis += materia.getCreditos();
+                System.out.println("Materia de enfasis: " + materia.getNombre() + " con creditos: " + materia.getCreditos());
+            }
+        }
+
+        return creditosTesis;
+    }
+
+    @JsonIgnore
     public double getPorcentaje() {
         double porcentaje = (getCreditosPensum() * 100.0) / 138.0;
         return porcentaje;
