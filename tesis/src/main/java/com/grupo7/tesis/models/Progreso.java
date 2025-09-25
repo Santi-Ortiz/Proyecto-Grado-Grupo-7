@@ -558,11 +558,41 @@ public class Progreso {
         for (Materia materia : materiasFaltantes) {
             if (materia.getTipo().equals("enfasis") && !materia.getCodigo().equals("5") ) {
                 creditosTesis += materia.getCreditos();
-                System.out.println("Materia de enfasis: " + materia.getNombre() + " con creditos: " + materia.getCreditos());
             }
         }
 
         return creditosTesis;
+    }
+
+    @JsonIgnore
+    public int getMateriasNucleoCursando() {
+        int nucleoCursando = 0;
+
+        if (materias == null) return 0;
+        
+        Set<String> codigosPensum = new HashSet<>();
+        
+        List<Materia> todasLasMaterias = getTotalMaterias();
+        for (Materia m : todasLasMaterias) {
+            String nombre = m.getNombre().toLowerCase();
+            String codigoJson = m.getCodigo().replaceFirst("^0+(?!$)", "");
+            if (!nombre.contains("electiva") && !nombre.contains("complementaria")) {
+                codigosPensum.add(codigoJson);
+            }
+        }
+        
+        for (MateriaDTO m : materias) {
+            String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
+            String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
+
+            if (m.getTipo() != null && m.getTipo().equalsIgnoreCase("Si") && 
+                cred != null && esNumero(cred) && 
+                ((int) Double.parseDouble(cred)) != 0 &&
+                codigosPensum.contains(codigoSinCeros)) {
+                nucleoCursando+= m.getCred() != null && esNumero(m.getCred().replace(",", ".")) ? (int) Double.parseDouble(m.getCred().replace(",", ".")) : 0;
+            }
+        }
+        return nucleoCursando; 
     }
 
     @JsonIgnore
