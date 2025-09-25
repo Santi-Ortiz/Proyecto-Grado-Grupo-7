@@ -148,7 +148,7 @@
     "nombre": "Significación Teológica",
     "creditos": 2,
     "semestre": 3,
-    "requisitos": [],
+    "requisitos": ["33733"],
     "tipo": "nucleoSociohumanisticas"
   },
   {

@@ -1,0 +1,394 @@
+[
+    {
+        "codigo": "1295",
+        "nombre": "Cálculo Diferencial",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1290",
+        "nombre": "Algebra Lineal",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33698",
+        "nombre": "Introducción a la Programación",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "26826",
+        "nombre": "Biología celular",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "26745",
+        "nombre": "Química general",
+        "creditos": 3,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33763",
+        "nombre": "Introducción a la Ingeniería",
+        "creditos": 2,
+        "semestre": 1,
+        "requisitos": [],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "1297",
+        "nombre": "Cálculo Integral",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [
+        "1295"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1340",
+        "nombre": "Física Mecánica",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33699",
+        "nombre": "Programación Avanzada",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [
+        "33698"
+        ],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "27413",
+        "nombre": "Bioquímica básica",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": ["26745"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33733",
+        "nombre": "Proyecto de Diseño en Ingeniería",
+        "creditos": 2,
+        "semestre": 2,
+        "requisitos": ["33763"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 2,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1299",
+        "nombre": "Cálculo Vectorial",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [
+        "1297", "1290"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1300",
+        "nombre": "Ecuaciones Diferenciales",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": [
+        "1297", "1290"
+        ],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1341",
+        "nombre": "Fluidos y termodinámica",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": ["1297", "1340"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "23710",
+        "nombre": "Electricidad, magnetismo y materiales",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": ["1297", "1340"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "1261",
+        "nombre": "Bioquímica molecular",
+        "creditos": 3,
+        "semestre": 3,
+        "requisitos": ["26826", "27413"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "2544",
+        "nombre": "Significación Teológica",
+        "creditos": 2,
+        "semestre": 3,
+        "requisitos": ["33733"],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "33732",
+        "nombre": "Probabilidad y Estadística",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": ["1297"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "4153",
+        "nombre": "Señales y sistemas",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": ["1297", "1290"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "30894",
+        "nombre": "Fundamentos de circuitos eléctricos",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": ["33763", "23710"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "35672",
+        "nombre": "Fisiología de sistemas",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": ["26826"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "35759",
+        "nombre": "Bioinformática",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": ["1261", "33699"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 4,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "33758",
+        "nombre": "Biomecánica",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": ["1299", "1341"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "31681",
+        "nombre": "Electrónica analógica y aplicaciones",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": ["30894"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "37296",
+        "nombre": "Materiales Bioingeniería",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": ["27413", "35672"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "35685",
+        "nombre": "Proyecto de diseño en Bioingeniería",
+        "creditos": 3,
+        "semestre": 5,
+        "requisitos": ["33733", "1261", "30894"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "2356",
+        "nombre": "Epistemología de la ingeniería",
+        "creditos": 2,
+        "semestre": 5,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "31584",
+        "nombre": "Análisis de sistemas dinámicos",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": ["1300", "1341"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "35265",
+        "nombre": "Instrumentación biomédica",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": ["31681", "4153"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "33801",
+        "nombre": "Principios de biotecnología",
+        "creditos": 3,
+        "semestre": 6,
+        "requisitos": ["27413"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "32842",
+        "nombre": "Ética, tecnología e Ingeniería",
+        "creditos": 2,
+        "semestre": 6,
+        "requisitos": ["35685"],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "34740",
+        "nombre": "Imágenes médicas",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": ["33699","1299"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "35983",
+        "nombre": "Bioprocesos",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": ["33801"],
+        "tipo": "nucleoCienciasBasicas"
+    },
+    {
+        "codigo": "33992",
+        "nombre": "Seminario de trabajo de grado",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": ["35685", "35759","33758","31681"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "2476",
+        "nombre": "Fe y compromiso del Ingeniero",
+        "creditos": 2,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 7,
+        "requisitos": [],
+        "tipo": "electiva"
+    },
+    {
+        "codigo": "1",
+        "nombre": "Complementaria*",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "complementaria"
+    },
+    {
+        "codigo": "5",
+        "nombre": "Énfasis",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "enfasis"
+    },
+    {
+        "codigo": "4175",
+        "nombre": "Proyecto Social Universitario",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": ["35685"],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "34738",
+        "nombre": "Trabajo de grado",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": ["33992"],
+        "tipo": "nucleoIngenieria"
+    },
+    {
+        "codigo": "17643",
+        "nombre": "Derecho, constitución y responsabilidad médica",
+        "creditos": 2,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "nucleoSociohumanisticas"
+    },
+    {
+        "codigo": "0",
+        "nombre": "Electiva",
+        "creditos": 3,
+        "semestre": 8,
+        "requisitos": [],
+        "tipo": "electiva"
+    }
+]
