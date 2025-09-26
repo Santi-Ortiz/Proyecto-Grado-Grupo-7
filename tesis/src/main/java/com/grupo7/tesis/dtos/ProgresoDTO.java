@@ -66,14 +66,13 @@ public class ProgresoDTO {
         this.totalCreditos = progreso.getTotalCreditos();
         this.creditosCursados = progreso.getCreditosCursados();
         this.creditosCursando = progreso.getCreditosCursando();
-        this.creditosFaltantes = progreso.getCreditosFaltantes() + progreso.getFaltanElectiva() + progreso.getFaltanComplementaria() + progreso.getFaltanEnfasis() + progreso.getFaltanElectivaBasicas() + progreso.getMateriasNucleoCursando();
+        this.creditosFaltantes = progreso.getCreditosFaltantes() + progreso.getFaltanElectiva() + progreso.getFaltanComplementaria() + progreso.getFaltanEnfasis() + progreso.getFaltanElectivaBasicas() + progreso.getMateriasNucleoCursando() + progreso.getMateriasEnfasisCursando() + progreso.getFaltanEnfasisTesis();
         this.creditosPensum = progreso.getCreditosPensum();
         this.creditosExtra = progreso.getCreditosExtra();
         this.faltanElectiva = progreso.getFaltanElectiva();
         this.faltanComplementaria = progreso.getFaltanComplementaria();
-        this.faltanEnfasis = progreso.getFaltanEnfasis();
+        this.faltanEnfasis = progreso.getFaltanEnfasis() + progreso.getMateriasEnfasisCursando() + progreso.getFaltanEnfasisTesis();
         this.faltanElectivaBasicas = progreso.getFaltanElectivaBasicas();
-        this.faltanEnfasisTesis = progreso.getFaltanEnfasisTesis();
         this.semestre = progreso.getSemestre();
         this.porcentaje = progreso.getPorcentaje();
     }
