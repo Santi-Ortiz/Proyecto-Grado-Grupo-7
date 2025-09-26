@@ -395,6 +395,7 @@ public class Progreso {
     public int getCreditosFaltantes() {
         return getListaMateriasFaltantes().stream()
             .filter(m -> m.getCreditos() != null)
+            .filter(m -> !m.getTipo().contains("enfasis"))
             .mapToInt(Materia::getCreditos)
             .sum();
     }
@@ -561,7 +562,39 @@ public class Progreso {
             }
         }
 
+        System.out.println("faltan tesis: " + creditosTesis);
         return creditosTesis;
+    }
+
+    @JsonIgnore
+    public int getMateriasEnfasisCursando() {
+        int enfasisCursando = 0;
+
+        if (materias == null) return 0;
+        
+        Set<String> codigosPensum = new HashSet<>();
+
+        List<Materia> todasLasMaterias = getTotalMaterias();
+        for (Materia m : todasLasMaterias) {
+            String tipo = m.getTipo();
+            String codigoJson = m.getCodigo().replaceFirst("^0+(?!$)", "");
+            if (tipo.contains("enfasis") && !codigoJson.equals("5")) { 
+                codigosPensum.add(codigoJson);
+            }
+        }
+
+        for (MateriaDTO m : materias) {
+            String codigoSinCeros = m.getCurso().replaceFirst("^0+(?!$)", "");
+            String cred = m.getCred() != null ? m.getCred().replace(",", ".") : null;
+
+            if (m.getTipo() != null && m.getTipo().equalsIgnoreCase("Si") && 
+                cred != null && esNumero(cred) && 
+                ((int) Double.parseDouble(cred)) != 0 &&
+                codigosPensum.contains(codigoSinCeros)) {
+                enfasisCursando+= m.getCred() != null && esNumero(m.getCred().replace(",", ".")) ? (int) Double.parseDouble(m.getCred().replace(",", ".")) : 0;
+            }
+        }
+        return enfasisCursando; 
     }
 
     @JsonIgnore
@@ -576,7 +609,7 @@ public class Progreso {
         for (Materia m : todasLasMaterias) {
             String nombre = m.getNombre().toLowerCase();
             String codigoJson = m.getCodigo().replaceFirst("^0+(?!$)", "");
-            if (!nombre.contains("electiva") && !nombre.contains("complementaria")) {
+            if (!nombre.contains("electiva") && !nombre.contains("complementaria") && !m.getTipo().contains("enfasis")) {
                 codigosPensum.add(codigoJson);
             }
         }
