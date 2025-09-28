@@ -45,10 +45,6 @@ public class SimulacionController {
     @Autowired
     private PensumService pensumService;
 
-    @GetMapping
-    public List<Simulacion> obtenerSimulaciones() {
-        return simulacionService.obtenerTodasSimulaciones();
-    }
 
     @GetMapping("/{id}")
     public Optional<Simulacion> obtenerSimulacion(@PathVariable Long id) {
@@ -64,7 +60,7 @@ public class SimulacionController {
 
         simulacion = simulacionService.generarSimulacionMultiSemestreAStar(simulacionDTO.getProgreso(),
                 simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum,
-                simulacionDTO.getPriorizaciones(), simulacionDTO.getPracticaProfesional(),correo);
+                simulacionDTO.getProyeccion().getPriorizaciones(), simulacionDTO.getProyeccion().getPracticaProfesional(),correo);
 
         return simulacion;
     }

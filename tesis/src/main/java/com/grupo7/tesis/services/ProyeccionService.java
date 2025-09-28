@@ -3,8 +3,11 @@ package com.grupo7.tesis.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.grupo7.tesis.models.Estudiante;
 import com.grupo7.tesis.models.Proyeccion;
 import com.grupo7.tesis.repositories.ProyeccionRepository;
 
@@ -13,6 +16,9 @@ public class ProyeccionService {
 
     @Autowired
     private ProyeccionRepository proyeccionRepository;
+
+    @Autowired
+    private EstudianteService estudianteService;
 
     public List<Proyeccion> obtenerTodasProyecciones() {
         return proyeccionRepository.findAll();
@@ -52,5 +58,24 @@ public class ProyeccionService {
 
         return proyeccion;
     }
+
+    public List<Proyeccion> obtenerProyeccionesEstudianteAutenticado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String correo = authentication.getName();
+
+        Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
+        if (estudiante == null) {
+            throw new RuntimeException("Estudiante autenticado no encontrado");
+        }
+
+        return proyeccionRepository.findByestudianteId(estudiante);
+    }
+
+    public boolean existeProyeccionConNombre(String nombre) {
+        Long idEstudiante = estudianteService.getEstudianteAutenticadoId();
+        System.out.println("Verificando nombre=" + nombre + " para estudiante=" + idEstudiante);
+        return proyeccionRepository.existsByNombreSimulacionIgnoreCaseAndEstudianteId_Id(nombre, idEstudiante);
+    }
+
 
 }

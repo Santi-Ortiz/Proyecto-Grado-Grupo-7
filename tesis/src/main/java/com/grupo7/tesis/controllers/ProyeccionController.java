@@ -3,6 +3,7 @@ package com.grupo7.tesis.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.grupo7.tesis.services.ProyeccionService;
 import com.grupo7.tesis.models.Proyeccion;
+
 
 @RestController
 @RequestMapping("/api/proyecciones")
@@ -45,6 +47,19 @@ public class ProyeccionController {
     @DeleteMapping("/{id}")
     public Proyeccion eliminarProyeccion(@PathVariable Long id) {
         return proyeccionService.eliminarProyeccion(id);
+    }
+
+    @GetMapping("/existe/nombre/{nombre}")
+    public ResponseEntity<Boolean> existeProyeccionConNombre(@PathVariable String nombre) {
+        System.out.println(">> Llamada a existeProyeccionConNombre con nombre=" + nombre);
+        boolean existe = proyeccionService.existeProyeccionConNombre(nombre);
+        return ResponseEntity.ok(existe);
+    }
+
+    @GetMapping("/mis-proyecciones")
+    public ResponseEntity<List<Proyeccion>> obtenerProyeccionesEstudianteAutenticado() {
+        List<Proyeccion> proyecciones = proyeccionService.obtenerProyeccionesEstudianteAutenticado();
+        return ResponseEntity.ok(proyecciones);
     }
 
 }

@@ -3,6 +3,8 @@ package com.grupo7.tesis.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.EstudianteDTO;
@@ -39,6 +41,17 @@ public class EstudianteService {
     return estudianteRepository.findByCodigo(codigo);
     }
 
+    public Long getEstudianteAutenticadoId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String correo = authentication.getName();
+
+        Estudiante estudiante = obtenerEstudiantePorCorreo(correo);
+        if (estudiante == null) {
+            throw new RuntimeException("Estudiante autenticado no encontrado");
+        }
+
+        return estudiante.getId();
+    }
 
     public Estudiante obtenerEstudiantePorId(Long id) {
         return estudianteRepository.findById(id)
