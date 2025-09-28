@@ -116,7 +116,7 @@ public class Proyeccion {
         this.tipoMatricula = tipoMatricula;
     }
 
-    public boolean getPracticaProfesional() {
+    public boolean isPracticaProfesional() {
         return practicaProfesional;
     }
 

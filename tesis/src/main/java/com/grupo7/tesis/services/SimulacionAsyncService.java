@@ -48,8 +48,7 @@ public class SimulacionAsyncService {
                 simulacionDTO.getProyeccion().getSemestre(), 
                 materiasPensum,
                 simulacionDTO.getProyeccion().getPriorizaciones(), 
-                simulacionDTO.getProyeccion().getPracticaProfesional(),
-                correo
+                simulacionDTO.getProyeccion().getPracticaProfesional()
             );
             
             // Guardar resultado
