@@ -95,7 +95,7 @@ public class SimulacionService {
                 // Si se completaron todas las materias pero aún no llegamos al semestre objetivo
                 if (nodoActual.getSemestreActual() < semestreObjetivo && practicaProfesional) {
                     try {
-                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensum())) {
+                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensumJson())) {
                             // Crear directamente la simulación con práctica profesional en el siguiente semestre disponible
                             Map<Integer, Simulacion> nuevaRuta = new HashMap<>(nodoActual.getRutaParcial());
                             
@@ -1275,7 +1275,7 @@ public class SimulacionService {
                 // Si se completaron todas las materias pero aún no llegamos al semestre objetivo
                 if (nodoActual.getSemestreActual() < semestreObjetivo && practicaProfesional) {
                     try {
-                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensum())) {
+                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensumJson())) {
                             // Crear directamente la simulación con práctica profesional en el siguiente semestre disponible
                             Map<Integer, Simulacion> nuevaRuta = new HashMap<>(nodoActual.getRutaParcial());
                             
