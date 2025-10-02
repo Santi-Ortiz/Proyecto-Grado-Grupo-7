@@ -2,10 +2,6 @@ package com.grupo7.tesis.services;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-/*import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;*/
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -60,12 +56,6 @@ public class SimulacionService {
     private int contadorCombinaciones = 0;
     private int contadorNodosCreados = 0;
 
-    //Para el txt
-    /*private int contadorIdNodos = 0;
-    private FileWriter logWriter = null;
-    private String logFileName = "";
-    private Map<NodoA, Integer> mapaNodosIds = new HashMap<>(); */
-
     @Autowired
     private PensumService pensumService;
 
@@ -78,13 +68,6 @@ public class SimulacionService {
 
         contadorCombinaciones = 0;
         contadorNodosCreados = 0;
-
-        //Para el txt
-        /*contadorIdNodos = 0;
-        mapaNodosIds.clear();*/
-
-        // Inicializar logging
-        //inicializarLog(progreso.getSemestre(), semestreObjetivo);
 
         System.out.println("================ INICIO SIMULACIÓN A*  ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
@@ -99,14 +82,6 @@ public class SimulacionService {
         NodoA nodoInicial = new NodoA(rutaInicial, progreso.getSemestre(), heuristicaInicial, progreso);
         contadorNodosCreados++;
 
-        /* 
-        // Asignar ID al nodo inicial
-        int idNodoInicial = ++contadorIdNodos;
-        mapaNodosIds.put(nodoInicial, idNodoInicial);
-
-        // Log del nodo inicial
-        logNodoDetallado(nodoInicial, 0.0, heuristicaInicial, "INICIAL", null, idNodoInicial, -1);*/
-
         frontera.offer(nodoInicial);
 
         int nodosExplorados = 0;
@@ -116,25 +91,48 @@ public class SimulacionService {
             NodoA nodoActual = frontera.poll();
             nodosExplorados++;
 
-            /*// Log del nodo que se está explorando
-            double funcionG = nodoActual.getTotalCreditos();
-            double heuristicaNodo = nodoActual.getCostoTotal() - funcionG;
-            Simulacion ultimaSimulacion = null;
-            if (!nodoActual.getRutaParcial().isEmpty()) {
-                int ultimoSemestre = nodoActual.getRutaParcial().keySet().stream().max(Integer::compareTo).orElse(0);
-                ultimaSimulacion = nodoActual.getRutaParcial().get(ultimoSemestre);
-            }
-            
-            int idNodoActual = mapaNodosIds.get(nodoActual);
-            
-            logNodoDetallado(nodoActual, funcionG, heuristicaNodo, "EXPLORADO", ultimaSimulacion, idNodoActual, -1);*/
-
             if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
                 // Si se completaron todas las materias pero aún no llegamos al semestre objetivo
                 if (nodoActual.getSemestreActual() < semestreObjetivo && practicaProfesional) {
                     try {
-                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensumJson())) {
-                            System.out.println("Todas las materias completadas pero continuando hasta semestre objetivo para práctica profesional");
+                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensum())) {
+                            // Crear directamente la simulación con práctica profesional en el siguiente semestre disponible
+                            Map<Integer, Simulacion> nuevaRuta = new HashMap<>(nodoActual.getRutaParcial());
+                            
+                            // Encontrar el siguiente semestre disponible (el mayor + 1)
+                            int siguienteSemestre = nodoActual.getSemestreActual() + 1;
+                            if (!nuevaRuta.isEmpty()) {
+                                int ultimoSemestreUsado = nuevaRuta.keySet().stream().max(Integer::compareTo).orElse(nodoActual.getSemestreActual());
+                                siguienteSemestre = Math.max(siguienteSemestre, ultimoSemestreUsado + 1);
+                            }
+                            
+                            // Crear simulación solo con práctica profesional para el siguiente semestre disponible
+                            Simulacion simulacionPractica = new Simulacion();
+                            Materia practicaProfesionalMateria = new Materia();
+                            practicaProfesionalMateria.setCodigo("Practica");
+                            practicaProfesionalMateria.setNombre("Práctica Profesional");
+                            practicaProfesionalMateria.setCreditos(6);
+                            practicaProfesionalMateria.setSemestre(siguienteSemestre);
+                            practicaProfesionalMateria.setTipo("practicaProfesional");
+                            List<String> prerequisitos = List.of("4190", "4075", "4085", "34803", "34807", "34801");
+                            practicaProfesionalMateria.setRequisitos(prerequisitos);
+                            simulacionPractica.agregarMateria(practicaProfesionalMateria);
+                            simulacionPractica.setPuntajeTotal(6.0);
+                            
+                            nuevaRuta.put(siguienteSemestre, simulacionPractica);
+                            
+                            long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                            System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Todas las materias completadas + Práctica Profesional)");
+                            System.out.println("Semestre de finalización: " + siguienteSemestre);
+                            System.out.println("Semestre objetivo original: " + semestreObjetivo);
+                            System.out.println("Nodos explorados: " + nodosExplorados);
+                            System.out.println("Nodos creados: " + contadorNodosCreados);
+                            System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                            System.out.println("Tiempo total: " + tiempoTotal + "ms");
+
+                            Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nuevaRuta);
+                            mostrarResultados(rutaCompleta, progreso);
+                            return rutaCompleta;
                         } else {
                             // No puede tomar práctica profesional, terminar aquí
                             long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
@@ -165,7 +163,6 @@ public class SimulacionService {
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                         rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                         mostrarResultados(rutaCompleta, progreso);
-                        //cerrarLog();
                         return rutaCompleta;
                     }
                 } else {
@@ -181,7 +178,6 @@ public class SimulacionService {
                     Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                     rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                     mostrarResultados(rutaCompleta, progreso);
-                    //cerrarLog();
                     return rutaCompleta;
                 }
             }
@@ -213,7 +209,6 @@ public class SimulacionService {
                         Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nodoActual.getRutaParcial());
                         rutaCompleta = convertirSimulaciones(rutaCompleta, proyeccionBase, correo);
                         mostrarResultados(rutaCompleta, progreso);
-                        //cerrarLog();
                         return rutaCompleta;
                     }
                 }
@@ -234,7 +229,6 @@ public class SimulacionService {
         System.out.println("Combinaciones generadas: " + contadorCombinaciones);
         System.out.println("Tiempo transcurrido: " + tiempoTotal + "ms");
         System.out.println("A* no pudo encontrar ninguna solución completa");
-        //cerrarLog();
         return new HashMap<>();
     }
 
@@ -244,6 +238,12 @@ public class SimulacionService {
         int siguienteSemestre = nodoActual.getSemestreActual() + 1;
         if (siguienteSemestre > semestreObjetivo)
             return;
+
+        // Si todas las materias están completadas, no expandir más nodos
+        // El caso de práctica profesional ya se maneja en el algoritmo principal
+        if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
+            return;
+        }
 
         Proyeccion proyeccionSemestre = crearProyeccionParaSemestre(proyeccionBase, siguienteSemestre);
         
@@ -314,14 +314,6 @@ public class SimulacionService {
 
             NodoA nuevoNodo = new NodoA(nuevaRuta, siguienteSemestre, costoTotal, nuevoProgreso);
             contadorNodosCreados++;
-            
-            /*// Asignar ID al nodo hijo y establecer relación padre-hijo
-            int idNuevoNodo = ++contadorIdNodos;
-            mapaNodosIds.put(nuevoNodo, idNuevoNodo);
-            int idPadre = mapaNodosIds.get(nodoActual);
-            
-            // Log del nodo hijo creado
-            logNodoDetallado(nuevoNodo, nuevoCosto, nuevaHeuristica, "HIJO", simulacionSemestre, idNuevoNodo, idPadre);*/
             
             frontera.offer(nuevoNodo);
         }
@@ -718,9 +710,33 @@ public class SimulacionService {
         boolean complementariasCompletas = progreso.getFaltanComplementaria() <= 0;
         boolean enfasisCompleto = progreso.getFaltanEnfasis() <= 0;
         boolean electivasCBCompletas = progreso.getFaltanElectivaBasicas() <= 0;
+        boolean proyectoGradoCompleto = verificarMateriaEspecificaCompleta(progreso, "34814");
+        boolean planeacionProyectoCompleto = verificarMateriaEspecificaCompleta(progreso, "31339");
 
         return nucleoCompleto && electivasCompletas && complementariasCompletas && enfasisCompleto
-                && electivasCBCompletas;
+                && electivasCBCompletas && proyectoGradoCompleto && planeacionProyectoCompleto;
+    }
+
+    // Verifica si una materia específica obligatoria ha sido completada
+    private boolean verificarMateriaEspecificaCompleta(Progreso progreso, String codigoMateria) {
+        // Verificar si está en las materias ya cursadas
+        if (progreso.getMaterias() != null) {
+            for (MateriaDTO materia : progreso.getMaterias()) {
+                if (codigoMateria.equals(materia.getMateria())) {
+                    return true;
+                }
+            }
+        }
+        
+        if (progreso.getListaMateriasFaltantes() != null) {
+            for (Materia materia : progreso.getListaMateriasFaltantes()) {
+                if (codigoMateria.equals(materia.getCodigo())) {
+                    return false; // Está en faltantes, no completada
+                }
+            }
+        }
+        
+        return true;
     }
 
     // Esto valida si una materia puede ser añadida en la simulación a partir de los
@@ -1105,21 +1121,6 @@ public class SimulacionService {
 
         return puntajeTotal;
     }
-
-    // Materias con puntajes
-    public void mostrarMateriasPuntajes(List<MateriaConPuntajeDTO> materiasConPuntaje) {
-        System.out.println("\nMATERIAS DISPONIBLES CON PUNTAJES");
-        for (int i = 0; i < materiasConPuntaje.size(); i++) {
-            MateriaConPuntajeDTO mp = materiasConPuntaje.get(i);
-            System.out.printf("%d. %s (%s) - %d créditos - Sem %d - Puntaje: %.2f%n",
-                    i + 1,
-                    mp.getMateria().getNombre(),
-                    mp.getMateria().getCodigo(),
-                    mp.getMateria().getCreditos(),
-                    mp.getMateria().getSemestre(),
-                    mp.getPuntaje());
-        }
-    }
     
     // Resultados
     public void mostrarResultadosCombinaciones(Set<Simulacion> combinaciones) {
@@ -1245,9 +1246,6 @@ public class SimulacionService {
         // Resetear contadores
         contadorCombinaciones = 0;
         contadorNodosCreados = 0;
-        
-        /*contadorIdNodos = 0;
-        mapaNodosIds.clear();*/
 
         System.out.println("================ INICIO SIMULACIÓN A* (Límite: " + limiteCombinaciones + ") ================");
         System.out.println("Semestre actual: " + progreso.getSemestre());
@@ -1274,6 +1272,54 @@ public class SimulacionService {
             nodosExplorados++;
 
             if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
+                // Si se completaron todas las materias pero aún no llegamos al semestre objetivo
+                if (nodoActual.getSemestreActual() < semestreObjetivo && practicaProfesional) {
+                    try {
+                        if (validarPrerequisitoPracticaProfesional(nodoActual.getProgresoActual(), pensumService.obtenerPensum())) {
+                            // Crear directamente la simulación con práctica profesional en el siguiente semestre disponible
+                            Map<Integer, Simulacion> nuevaRuta = new HashMap<>(nodoActual.getRutaParcial());
+                            
+                            // Encontrar el siguiente semestre disponible (el mayor + 1)
+                            int siguienteSemestre = nodoActual.getSemestreActual() + 1;
+                            if (!nuevaRuta.isEmpty()) {
+                                int ultimoSemestreUsado = nuevaRuta.keySet().stream().max(Integer::compareTo).orElse(nodoActual.getSemestreActual());
+                                siguienteSemestre = Math.max(siguienteSemestre, ultimoSemestreUsado + 1);
+                            }
+                            
+                            // Crear simulación solo con práctica profesional para el siguiente semestre disponible
+                            Simulacion simulacionPractica = new Simulacion();
+                            Materia practicaProfesionalMateria = new Materia();
+                            practicaProfesionalMateria.setCodigo("Practica");
+                            practicaProfesionalMateria.setNombre("Práctica Profesional");
+                            practicaProfesionalMateria.setCreditos(6);
+                            practicaProfesionalMateria.setSemestre(siguienteSemestre);
+                            practicaProfesionalMateria.setTipo("practicaProfesional");
+                            List<String> prerequisitos = List.of("4190", "4075", "4085", "34803", "34807", "34801");
+                            practicaProfesionalMateria.setRequisitos(prerequisitos);
+                            simulacionPractica.agregarMateria(practicaProfesionalMateria);
+                            simulacionPractica.setPuntajeTotal(6.0);
+                            
+                            nuevaRuta.put(siguienteSemestre, simulacionPractica);
+                            
+                            long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+                            System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Todas las materias completadas + Práctica Profesional)");
+                            System.out.println("Semestre de finalización: " + siguienteSemestre);
+                            System.out.println("Semestre objetivo original: " + semestreObjetivo);
+                            System.out.println("Nodos explorados: " + nodosExplorados);
+                            System.out.println("Nodos creados: " + contadorNodosCreados);
+                            System.out.println("Combinaciones generadas: " + contadorCombinaciones);
+                            System.out.println("Tiempo total: " + tiempoTotal + "ms");
+                            System.out.println("Heurística inicial: " + heuristicaInicial);
+
+                            Map<Integer, Simulacion> rutaCompleta = ordenarRuta(nuevaRuta);
+                            mostrarResultados(rutaCompleta);
+                            return rutaCompleta;
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error al verificar prerequisitos de práctica profesional: " + e.getMessage());
+                    }
+                }
+                
                 long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
                 System.out.println("SOLUCION OPTIMA A* ENCONTRADA (Termino antes)");
                 System.out.println("Semestre de finalización: " + nodoActual.getSemestreActual());

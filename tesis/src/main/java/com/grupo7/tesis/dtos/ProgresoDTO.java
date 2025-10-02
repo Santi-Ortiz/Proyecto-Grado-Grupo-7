@@ -22,6 +22,7 @@ public class ProgresoDTO {
     private int faltanElectiva;
     private int faltanComplementaria;
     private int faltanEnfasis;
+    private int faltanEnfasisTesis;
     private int faltanElectivaBasicas;
     private int semestre;
     private double porcentaje;
@@ -65,12 +66,12 @@ public class ProgresoDTO {
         this.totalCreditos = progreso.getTotalCreditos();
         this.creditosCursados = progreso.getCreditosCursados();
         this.creditosCursando = progreso.getCreditosCursando();
-        this.creditosFaltantes = progreso.getCreditosFaltantes() + progreso.getFaltanElectiva() + progreso.getFaltanComplementaria() + progreso.getFaltanEnfasis() + progreso.getFaltanElectivaBasicas();
+        this.creditosFaltantes = progreso.getCreditosFaltantes() + progreso.getFaltanElectiva() + progreso.getFaltanComplementaria() + progreso.getFaltanEnfasis() + progreso.getFaltanElectivaBasicas() + progreso.getMateriasNucleoCursando() + progreso.getMateriasEnfasisCursando() + progreso.getFaltanEnfasisTesis();
         this.creditosPensum = progreso.getCreditosPensum();
         this.creditosExtra = progreso.getCreditosExtra();
         this.faltanElectiva = progreso.getFaltanElectiva();
         this.faltanComplementaria = progreso.getFaltanComplementaria();
-        this.faltanEnfasis = progreso.getFaltanEnfasis();
+        this.faltanEnfasis = progreso.getFaltanEnfasis() + progreso.getMateriasEnfasisCursando() + progreso.getFaltanEnfasisTesis();
         this.faltanElectivaBasicas = progreso.getFaltanElectivaBasicas();
         this.semestre = progreso.getSemestre();
         this.porcentaje = progreso.getPorcentaje();
@@ -146,6 +147,10 @@ public class ProgresoDTO {
 
     public int getFaltanElectivaBasicas() {
         return faltanElectivaBasicas;
+    }
+
+    public int getFaltanEnfasisTesis() {
+        return faltanEnfasisTesis;
     }
 
     public int getSemestre() {
@@ -230,6 +235,10 @@ public class ProgresoDTO {
 
     public void setFaltanElectivaBasicas(int faltanElectivaBasicas) {
         this.faltanElectivaBasicas = faltanElectivaBasicas;
+    }
+
+    public void setFaltanEnfasisTesis(int faltanEnfasisTesis) {
+        this.faltanEnfasisTesis = faltanEnfasisTesis;
     }
 
     public void setSemestre(int semestre) {

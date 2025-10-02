@@ -363,7 +363,7 @@
     "creditos": 2,
     "semestre": 7,
     "requisitos": ["4082", "34803"],
-    "tipo": "nucleoIngenieria"
+    "tipo": "enfasis"
   },
   {
     "codigo": "4185",
@@ -416,7 +416,7 @@
     "requisitos": [
       "31339", "34810"
     ],
-    "tipo": "nucleoIngenieria"
+    "tipo": "enfasis"
   },
   {
     "codigo": "34804",
