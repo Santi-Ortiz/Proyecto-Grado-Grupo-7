@@ -1829,9 +1829,30 @@ public class SimulacionService {
 
             rutaConvertida.put(semestre, simulacionGuardada);
         }
-
+        imprimirResumenConversion(rutaConvertida, correo);
         return rutaConvertida;
     }
+
+    private void imprimirResumenConversion(Map<Integer, Simulacion> rutaConvertida, String correo) {
+    System.out.println("=== RESUMEN CONVERSIÓN SIMULACIONES ===");
+    System.out.println("Estudiante: " + correo);
+    System.out.println("Semestres convertidos: " + rutaConvertida.size());
+    
+    rutaConvertida.entrySet().stream()
+        .sorted(Map.Entry.comparingByKey())
+        .forEach(entry -> {
+            Simulacion sim = entry.getValue();
+            int numMaterias = sim.getMateriasAsociadas() != null ? 
+                             sim.getMateriasAsociadas().size() : 0;
+            
+            System.out.println("Semestre " + entry.getKey() + 
+                             ": " + numMaterias + " materias, " + 
+                             sim.getCreditosTotales() + " créditos, " +
+                             "Puntaje: " + sim.getPuntajeTotal());
+        });
+    
+    System.out.println("=========================================");
+}
 
     /* CRUD DE SIMULACIÓN */
 

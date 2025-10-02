@@ -62,4 +62,6 @@ public class ProyeccionController {
         return ResponseEntity.ok(proyecciones);
     }
 
+    
+
 }

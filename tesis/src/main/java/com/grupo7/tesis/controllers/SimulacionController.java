@@ -52,18 +52,22 @@ public class SimulacionController {
     }
 
     @PostMapping("/generar")
-    public Map<Integer, Simulacion> generarSimulacion(@RequestBody SimulacionDTO simulacionDTO, Principal principal) throws Exception {
+    public List<Simulacion> generarSimulacion(@RequestBody SimulacionDTO simulacionDTO, Principal principal) throws Exception {
         String correo = principal.getName();
-        Map<Integer, Simulacion> simulacion = new HashMap<>();
 
         List<Materia> materiasPensum = pensumService.obtenerPensumJson();
 
-        simulacion = simulacionService.generarSimulacionMultiSemestreAStar(simulacionDTO.getProgreso(),
-                simulacionDTO.getProyeccion(), simulacionDTO.getProyeccion().getSemestre(), materiasPensum,
-                simulacionDTO.getProyeccion().getPriorizaciones(), simulacionDTO.getProyeccion().getPracticaProfesional(),correo);
-
-        return simulacion;
+        return simulacionService.generarSimulacionMultiSemestreAStar(
+            simulacionDTO.getProgreso(),
+            simulacionDTO.getProyeccion(),
+            simulacionDTO.getProyeccion().getSemestre(),
+            materiasPensum,
+            simulacionDTO.getProyeccion().getPriorizaciones(),
+            simulacionDTO.getProyeccion().getPracticaProfesional(),
+            correo
+        ).values().stream().toList();
     }
+
 
     @PostMapping("/iniciar")
     @ResponseBody

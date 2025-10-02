@@ -29,8 +29,17 @@ public class ProyeccionService {
     }
 
     public Proyeccion crearProyeccion(Proyeccion proyeccion) {
+        Long estudianteId = estudianteService.getEstudianteAutenticadoId();
+        Estudiante estudiante = estudianteService.obtenerEstudiantePorId(estudianteId);
+
+        if (estudiante == null) {
+            throw new RuntimeException("Estudiante autenticado no encontrado");
+        }
+
+        proyeccion.setEstudianteId(estudiante); // asignar dueño de la proyección
         return proyeccionRepository.save(proyeccion);
     }
+
 
     public Proyeccion actualizarProyeccion(Long id, Proyeccion proyeccionActualizada) {
         if (proyeccionRepository.existsById(id)) {
