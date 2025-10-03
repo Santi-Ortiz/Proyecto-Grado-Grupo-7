@@ -16,6 +16,8 @@ import com.grupo7.tesis.models.Estudiante;
 import com.grupo7.tesis.models.Facultad;
 import com.grupo7.tesis.models.Pensum;
 import com.grupo7.tesis.services.EstudianteService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/estudiantes")
@@ -36,6 +38,12 @@ public class EstudianteController {
     public Estudiante obtenerEstudiantePorId(@PathVariable Long id) {
         return estudianteService.obtenerEstudiantePorId(id);
     }
+
+    @GetMapping("/{correo}")
+    public Estudiante obtenerEstudiantePorCorreo(@PathVariable String correo) {
+        return estudianteService.obtenerEstudiantePorCorreo(correo);
+    }
+    
 
     @PostMapping
     public Estudiante crearEstudiante(@RequestBody EstudianteDTO estudianteDTO) {
