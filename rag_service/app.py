@@ -36,6 +36,7 @@ vector_all = None
 vector_enfasis = None
 vector_electivas = None
 vector_complementarias = None
+vector_ciencias_basicas = None
 llm = None
 embeddings = None
 
@@ -132,6 +133,10 @@ Respuesta:"""
         global vector_complementarias; vector_complementarias = load_index("faiss_complementarias")
     except Exception:
         vector_complementarias = None
+    try:
+        global vector_ciencias_basicas; vector_ciencias_basicas = load_index("faiss_ciencias_basicas")
+    except Exception:
+        vector_ciencias_basicas = None
 
     print(
         "✅ RAG listo "
@@ -152,6 +157,7 @@ def get_store(tipo: str):
         "enfasis": vector_enfasis,
         "electivas": vector_electivas,
         "complementarias": vector_complementarias,
+        "electivas_ciencias_basicas": vector_ciencias_basicas,
     }.get(t, vector_all)
 
 def recuperar_candidatos_raw(intereses: str, store, k: int) -> List[Tuple[Document, float]]:
