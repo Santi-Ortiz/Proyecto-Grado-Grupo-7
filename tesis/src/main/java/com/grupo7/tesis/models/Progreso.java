@@ -562,7 +562,6 @@ public class Progreso {
             }
         }
 
-        System.out.println("faltan tesis: " + creditosTesis);
         return creditosTesis;
     }
 
