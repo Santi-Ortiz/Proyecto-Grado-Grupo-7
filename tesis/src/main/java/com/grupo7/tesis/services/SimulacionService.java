@@ -211,15 +211,12 @@ public class SimulacionService {
         if (siguienteSemestre > semestreObjetivo)
             return;
 
-        // Si todas las materias están completadas, no expandir más nodos
-        // El caso de práctica profesional ya se maneja en el algoritmo principal
         if (haCompletadoTodasLasMaterias(nodoActual.getProgresoActual())) {
             return;
         }
 
         Proyeccion proyeccionSemestre = crearProyeccionParaSemestre(proyeccionBase, siguienteSemestre);
         
-        // Si es el último semestre y se quiere práctica profesional, verificar prerequisitos y limitar recursos
         boolean aplicarPracticaProfesional = false;
         if (practicaProfesional && siguienteSemestre == semestreObjetivo) {
             try {
@@ -234,12 +231,58 @@ public class SimulacionService {
         }
 
         Set<Simulacion> combinaciones = generarCombinaciones(nodoActual.getProgresoActual(), proyeccionSemestre,
-                materiasPensum, maxCombinaciones, prioridades, false); // false para no incluir práctica en generación normal
+                materiasPensum, maxCombinaciones, prioridades, false);
 
         // Crear una simulación vacía para agregar solo la práctica profesional
         if (aplicarPracticaProfesional && combinaciones.isEmpty()) {
             Simulacion simulacionVacia = new Simulacion();
             combinaciones.add(simulacionVacia);
+        }
+
+        // Proyecto despues de Planeacion
+        boolean obligatorioProyecto = false;
+        int semestreAnterior = siguienteSemestre - 1;
+        if (nodoActual.getRutaParcial() != null && nodoActual.getRutaParcial().containsKey(semestreAnterior)) {
+            Simulacion simAnterior = nodoActual.getRutaParcial().get(semestreAnterior);
+            if (simAnterior != null && simAnterior.getMaterias() != null) {
+                for (Materia m : simAnterior.getMaterias()) {
+                    if ("31339".equals(m.getCodigo())) {
+                        obligatorioProyecto = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (obligatorioProyecto) {
+            Set<Simulacion> filtradas = new HashSet<>();
+            for (Simulacion comb : combinaciones) {
+                if (comb.getMaterias() != null) {
+                    boolean tiene34814 = false;
+                    for (Materia m : comb.getMaterias()) {
+                        if ("34814".equals(m.getCodigo())) {
+                            tiene34814 = true;
+                            break;
+                        }
+                    }
+                    if (tiene34814) filtradas.add(comb);
+                }
+            }
+
+            // Si no hay ninguna combinación que incluya 34814, forzar una con sólo 34814
+            if (filtradas.isEmpty()) {
+                Simulacion forzada = new Simulacion();
+                Materia proj = new Materia();
+                proj.setCodigo("34814");
+                proj.setNombre("Proyecto de Grado");
+                proj.setCreditos(3);
+                proj.setSemestre(siguienteSemestre);
+                proj.setTipo("proyecto");
+                forzada.agregarMateria(proj);
+                filtradas.add(forzada);
+            }
+
+            combinaciones = filtradas;
         }
 
         for (Simulacion combinacion : combinaciones) {
@@ -863,49 +906,49 @@ public class SimulacionService {
         int usadosElectivas = 0;
         usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles,
                 validarElectivas(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum,
-                semestre - 1, "Electiva Atrasada");
+                semestre - 1, "Electiva");
         usadosElectivas += agregarElectivasPorSemestre(materiasDisponibles,
                 validarElectivas(progreso, materiasPensum, semestre) - usadosElectivas, creditosDisponibles,
-                materiasDisponiblesNum, semestre, "Electiva Actual");
+                materiasDisponiblesNum, semestre, "Electiva");
         agregarElectivasPorSemestre(materiasDisponibles,
                 validarElectivas(progreso, materiasPensum, semestre + 1) - usadosElectivas, creditosDisponibles,
-                materiasDisponiblesNum, semestre + 1, "Electiva Futura");
+                materiasDisponiblesNum, semestre + 1, "Electiva");
 
         // COMPLEMENTARIAS
         int usadosComp = 0;
         usadosComp += agregarMateriasGenericas(materiasDisponibles,
                 validarComplementarias(progreso, materiasPensum, semestre - 1), creditosDisponibles,
-                materiasDisponiblesNum, "1", "Complementaria Atrasada", semestre - 1);
+                materiasDisponiblesNum, "1", "Complementaria", semestre - 1);
         usadosComp += agregarMateriasGenericas(materiasDisponibles,
                 validarComplementarias(progreso, materiasPensum, semestre) - usadosComp, creditosDisponibles,
-                materiasDisponiblesNum, "1", "Complementaria Actual", semestre);
+                materiasDisponiblesNum, "1", "Complementaria", semestre);
         agregarMateriasGenericas(materiasDisponibles,
                 validarComplementarias(progreso, materiasPensum, semestre + 1) - usadosComp, creditosDisponibles,
-                materiasDisponiblesNum, "1", "Complementaria Futura", semestre + 1);
+                materiasDisponiblesNum, "1", "Complementaria", semestre + 1);
 
         // ÉNFASIS
         int usadosEnf = 0;
         usadosEnf += agregarMateriasGenericas(materiasDisponibles,
                 validarEnfasis(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum,
-                "5", "Énfasis Atrasado", semestre - 1);
+                "5", "Énfasis", semestre - 1);
         usadosEnf += agregarMateriasGenericas(materiasDisponibles,
                 validarEnfasis(progreso, materiasPensum, semestre) - usadosEnf, creditosDisponibles,
-                materiasDisponiblesNum, "5", "Énfasis Actual", semestre);
+                materiasDisponiblesNum, "5", "Énfasis", semestre);
         agregarMateriasGenericas(materiasDisponibles,
                 validarEnfasis(progreso, materiasPensum, semestre + 1) - usadosEnf, creditosDisponibles,
-                materiasDisponiblesNum, "5", "Énfasis Futuro", semestre + 1);
+                materiasDisponiblesNum, "5", "Énfasis", semestre + 1);
 
         // ELECTIVAS CIENCIAS BÁSICAS
         int usadosCB = 0;
         usadosCB += agregarMateriasGenericas(materiasDisponibles,
                 validarElectivasCB(progreso, materiasPensum, semestre - 1), creditosDisponibles, materiasDisponiblesNum,
-                "6", "Electiva CB Atrasada", semestre - 1);
+                "6", "Electiva de Ciencias Básicas", semestre - 1);
         usadosCB += agregarMateriasGenericas(materiasDisponibles,
                 validarElectivasCB(progreso, materiasPensum, semestre) - usadosCB, creditosDisponibles,
-                materiasDisponiblesNum, "6", "Electiva CB Actual", semestre);
+                materiasDisponiblesNum, "6", "Electiva de Ciencias Básicas", semestre);
         agregarMateriasGenericas(materiasDisponibles,
                 validarElectivasCB(progreso, materiasPensum, semestre + 1) - usadosCB, creditosDisponibles,
-                materiasDisponiblesNum, "6", "Electiva CB Futura", semestre + 1);
+                materiasDisponiblesNum, "6", "Electiva de Ciencias Básicas", semestre + 1);
     }
 
     public int agregarElectivasPorSemestre(List<Materia> materiasDisponibles, int creditosRequeridos,
@@ -916,7 +959,7 @@ public class SimulacionService {
             while (creditosRequeridos >= credito) {
                 Materia electiva = verificarMateria(
                         credito, creditosDisponibles, materiasDisponiblesNum, "0",
-                        descripcionBase + " " + credito + "C", semestre);
+                        descripcionBase, semestre);
                 if (electiva != null) {
                     materiasDisponibles.add(electiva);
                     creditosRequeridos -= credito;
