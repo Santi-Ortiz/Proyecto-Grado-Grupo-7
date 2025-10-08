@@ -38,6 +38,7 @@ import com.grupo7.tesis.repositories.MateriaRepository;
 @Service
 public class SimulacionService {
 
+
     @Autowired
     private SimulacionRepository simulacionRepository;
 
@@ -60,7 +61,34 @@ public class SimulacionService {
     private PensumService pensumService;
 
     @Autowired
+    private ProyeccionService proyeccionService;
+
+    @Autowired
     private CustomProperties customProperties;
+
+    private Map<Long, Simulacion> simulacionesCache = new HashMap<>();
+
+    private Map<Long, SimulacionMateria> asociacionesCache = new HashMap<>();
+
+    public Simulacion guardarSimulacionEnCache(Simulacion simulacion) {
+        Simulacion simulacionGuardada = simulacionRepository.save(simulacion);
+        simulacionesCache.put(simulacionGuardada.getId(), simulacionGuardada);
+        return simulacionGuardada;
+    }
+
+    public Simulacion obtenerSimulacionDeCache(Long id) {
+        return simulacionesCache.get(id);
+    }
+
+    public SimulacionMateria guardarAsociacionEnCache(SimulacionMateria asociacion) {
+        SimulacionMateria asociacionGuardada = simulacionMateriaRepository.save(asociacion);
+        asociacionesCache.put(asociacionGuardada.getId(), asociacionGuardada);
+        return asociacionGuardada;
+    }
+
+    public SimulacionMateria obtenerAsociacionDeCache(Long id) {
+        return asociacionesCache.get(id);
+    }
 
     // ALGORITMO A*
     public Map<Integer, Simulacion> generarSimulacionMultiSemestreAStar(Progreso progreso, Proyeccion proyeccionBase,
@@ -1871,9 +1899,14 @@ public class SimulacionService {
         proyeccion.setNumMaxCreditos(proyeccionBase.getNumMaxCreditos());
         proyeccion.setNumMaxMaterias(proyeccionBase.getNumMaxMaterias());
         proyeccion.setEstudianteId(estudiante);
+        proyeccion.setNombreSimulacion(proyeccionBase.getNombreSimulacion());
+        proyeccion.setPracticaProfesional(proyeccionBase.getPracticaProfesional());
+        proyeccion.setTipoMatricula(proyeccionBase.getTipoMatricula());
+        proyeccion.setPriorizaciones(proyeccionBase.getPriorizaciones());
 
         // Se almacena en la BD
         proyeccionRepository.save(proyeccion);
+        proyeccionService.guardarProyeccionEnCache(proyeccion);
 
         for (Map.Entry<Integer, Simulacion> entry : rutaOriginal.entrySet()) {
             Integer semestre = entry.getKey();
@@ -1891,6 +1924,7 @@ public class SimulacionService {
             // Guardar la simulación primero para obtener el ID
             simulacionConvertida.setCreditosTotales(0L);
             Simulacion simulacionGuardada = simulacionRepository.save(simulacionConvertida);
+            //Simulacion simulacionGuardada = guardarSimulacionEnCache(simulacionConvertida);
 
             // Se crean y guardan las asociaciones en la tabla intermedia SimulacionMateria
             Set<SimulacionMateria> materiasAsociadas = new HashSet<>();
@@ -1907,6 +1941,7 @@ public class SimulacionService {
                     asociacion.setMateria(materiaGuardada);
 
                     SimulacionMateria asociacionGuardada = simulacionMateriaRepository.save(asociacion);
+                    //SimulacionMateria asociacionGuardada = guardarAsociacionEnCache(asociacion);
                     materiasAsociadas.add(asociacionGuardada);
                 }
             }
@@ -1914,6 +1949,7 @@ public class SimulacionService {
             // Se actualiza la simulación con los créditos totales finales
             simulacionGuardada.setCreditosTotales((long) creditosTotales);
             simulacionGuardada.setMateriasAsociadas(materiasAsociadas);
+            //simulacionGuardada = guardarSimulacionEnCache(simulacionGuardada);
             simulacionGuardada = simulacionRepository.save(simulacionGuardada);
 
             rutaConvertida.put(semestre, simulacionGuardada);

@@ -44,7 +44,7 @@ public class ProyeccionController {
         return proyeccionService.actualizarProyeccion(id, proyeccion);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public Proyeccion eliminarProyeccion(@PathVariable Long id) {
         return proyeccionService.eliminarProyeccion(id);
     }

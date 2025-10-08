@@ -1,7 +1,8 @@
 package com.grupo7.tesis.services;
 
 import java.util.List;
-
+import java.util.Map;
+import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,16 @@ public class ProyeccionService {
 
     @Autowired
     private EstudianteService estudianteService;
+
+    private Map<Long, Proyeccion> proyeccionesCache = new HashMap<>();
+
+    public void guardarProyeccionEnCache(Proyeccion proyeccion) {
+        proyeccionesCache.put(proyeccion.getId(), proyeccion);
+    }
+
+    public Proyeccion obtenerProyeccionDeCache(Long id) {
+        return proyeccionesCache.get(id);
+    }
 
     public List<Proyeccion> obtenerTodasProyecciones() {
         return proyeccionRepository.findAll();
