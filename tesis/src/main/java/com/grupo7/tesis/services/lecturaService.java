@@ -129,72 +129,73 @@ public class lecturaService {
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();
             String texto = lector.getText(documento);
-    
+
             String inicioClave = "Énfasis y Complementarias";
             String finClave = "Electivas Universidad";
-    
+
             int inicio = texto.indexOf(inicioClave);
             int fin = texto.indexOf(finClave);
-    
+
             if (inicio != -1 && fin != -1 && fin > inicio) {
                 String bloque = texto.substring(inicio, fin).trim();
                 String[] lineas = bloque.split("\n");
-    
+
                 StringBuilder resultado = new StringBuilder();
                 boolean tablaComenzada = false;
-    
+
+                final Pattern filaValida = Pattern.compile("^(PrimPe|TerPe)\\d{4}\\b.*");
+
                 for (String linea : lineas) {
                     String l = linea.trim();
                     if (l.isEmpty()) continue;
-    
-                    // título principal solo una vez
+
                     if (l.equalsIgnoreCase("Énfasis y Complementarias") && resultado.length() == 0) {
                         resultado.append("Énfasis y Complementarias\n");
                         continue;
                     }
-    
-                    // si aparece un subtítulo de complementaria → detener
+
                     if (l.toLowerCase().startsWith("complementaria")) {
                         break;
                     }
-    
-                    // detectar inicio de tabla
+
                     if (l.toLowerCase().startsWith("ciclo lectivo")) {
                         resultado.append(l).append("\n");
                         tablaComenzada = true;
                         continue;
                     }
-    
-                    // procesar filas de la tabla
+
                     if (tablaComenzada) {
                         String lower = l.toLowerCase();
-                        if (lower.startsWith("unidades") ||
-                            lower.startsWith("- unidades") ||
-                            lower.startsWith("cursos") ||
-                            lower.startsWith("- cursos") ||
-                            lower.contains("satisfecho") ||
-                            lower.contains("no satisfecho") ||
-                            lower.contains("obligatorias") ||
-                            lower.contains("necesarias")) {
-                            continue; // descartar resúmenes
+                        if (lower.contains("se ha incluido esta línea")
+                            || lower.startsWith("ajuste ")
+                            || lower.contains("entered by")) {
+                            tablaComenzada = false;
+                            continue;
                         }
-    
-                        resultado.append(l).append("\n");
+                        if (lower.startsWith("unidades") || lower.startsWith("- unidades")
+                            || lower.startsWith("cursos") || lower.startsWith("- cursos")
+                            || lower.contains("satisfecho") || lower.contains("no satisfecho")
+                            || lower.contains("obligatorias") || lower.contains("necesarias")
+                            || lower.equalsIgnoreCase("cursos utilizados")) {
+                            continue;
+                        }
+                        if (filaValida.matcher(l).matches()) {
+                            resultado.append(l).append("\n");
+                        } else {
+                            
+                        }
                     }
                 }
-    
+
                 return resultado.toString().trim();
             }
-    
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-    
+
         return null;
     }
-    
-    
-    
 
     public String extraerTextoDesarrolloYSeguridadBruto(MultipartFile archivo) {
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
@@ -507,6 +508,102 @@ public class lecturaService {
 
                     if (l.equalsIgnoreCase("Complementaria Lenguas") && resultado.length() == 0) {
                         resultado.append("Complementaria Lenguas\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoComplementariaEsteticaBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Complementaria Estética";
+            String finClave = "Electivas Universidad";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase("Complementaria Estética") && resultado.length() == 0) {
+                        resultado.append("Complementaria Estética\n");
+                    }
+
+                    if (l.startsWith("Ciclo Lectivo")) {
+                        resultado.append(l).append("\n");
+                        tablaComenzada = true;
+                        continue;
+                    }
+
+                    if (tablaComenzada) {
+                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
+                            break;
+                        resultado.append(l).append("\n");
+                    }
+                }
+
+                return resultado.toString().trim();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String extraerTextoComplementariaCianciaPoliticaBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Complementaria Ciencia Politic";
+            String finClave = "Electivas Universidad";
+
+            int inicio = texto.indexOf(inicioClave);
+            int fin = texto.indexOf(finClave);
+
+            if (inicio != -1 && fin != -1 && fin > inicio) {
+                String bloque = texto.substring(inicio, fin).trim();
+                String[] lineas = bloque.split("\n");
+
+                StringBuilder resultado = new StringBuilder();
+                boolean tablaComenzada = false;
+
+                for (String linea : lineas) {
+                    String l = linea.trim();
+
+                    if (l.equalsIgnoreCase("Complementaria Ciencia Politic") && resultado.length() == 0) {
+                        resultado.append("Complementaria Ciencia Politic\n");
                     }
 
                     if (l.startsWith("Ciclo Lectivo")) {
