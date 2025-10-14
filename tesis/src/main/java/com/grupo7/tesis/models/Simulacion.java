@@ -4,12 +4,8 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Set;
 import java.util.Objects;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,7 +21,6 @@ import jakarta.persistence.Transient;
 @Table(name = "simulacion")
 public class Simulacion {
     @Transient
-    @JsonIgnore
     private Set<Materia> materias;
 
     @Id
@@ -33,6 +28,7 @@ public class Simulacion {
     @Column(name = "simulacion_id")
     private Long id;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "simulacion")
     private Set<SimulacionMateria> materiasAsociadas;
 
@@ -45,6 +41,7 @@ public class Simulacion {
     private Proyeccion proyeccionId;
 
     @Transient
+    @JsonIgnore
     private double puntajeTotal;
 
     public Simulacion() {
@@ -138,16 +135,8 @@ public class Simulacion {
         if (this.materias == null) {
             this.materias = new HashSet<>();
         }
-        if (this.materiasAsociadas == null) {
-            this.materiasAsociadas = new HashSet<>();
-        }
 
-        // Agregar al campo @Transient (usado por el algoritmo A*)
         this.materias.add(materia);
-
-        // Agregar a la asociación JPA (para persistencia en BD)
-        SimulacionMateria asociacion = new SimulacionMateria(this, materia);
-        this.materiasAsociadas.add(asociacion);
     }
 
     public int getTotalCreditos() {

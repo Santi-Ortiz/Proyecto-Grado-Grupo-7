@@ -4,8 +4,6 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.grupo7.tesis.dtos.SimulacionDTO;
 import com.grupo7.tesis.dtos.SimulacionJobStatusDTO;
 import com.grupo7.tesis.models.Materia;
@@ -26,8 +26,8 @@ import com.grupo7.tesis.models.SimulacionJob;
 import com.grupo7.tesis.services.SimulacionAsyncService;
 import com.grupo7.tesis.services.SimulacionJobService;
 import com.grupo7.tesis.services.SimulacionService;
-
 import com.grupo7.tesis.services.PensumService;
+import com.grupo7.tesis.models.Proyeccion;
 
 @RestController
 @RequestMapping("/api/simulaciones")
@@ -45,10 +45,11 @@ public class SimulacionController {
     @Autowired
     private PensumService pensumService;
 
-
     @GetMapping("/{id}")
-    public Optional<Simulacion> obtenerSimulacion(@PathVariable Long id) {
-        return simulacionService.obtenerSimulacionPorId(id);
+    @ResponseBody
+    public ResponseEntity<Object> obtenerSimulacion(@PathVariable Long id) {
+        Map<Integer, Simulacion> resultado = (Map<Integer, Simulacion>) simulacionService.obtenerSimulacionPorId(id);
+        return ResponseEntity.ok(resultado);
     }
 
     @PostMapping("/generar")
@@ -67,7 +68,6 @@ public class SimulacionController {
             correo
         ).values().stream().toList();
     }
-
 
     @PostMapping("/iniciar")
     @ResponseBody
@@ -140,11 +140,86 @@ public class SimulacionController {
         return ResponseEntity.ok(resultado);
     }
 
-    
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping("eliminarSimulacion/{id}")
     public void eliminarSimulacion(@PathVariable Long id) {
         simulacionService.eliminarSimulacion(id);
     }
 
+    @PostMapping("/guardarSimulacion")
+    @ResponseBody
+    public ResponseEntity<Object> guardarSimulacion(@RequestBody Map<String, Object> body, Principal principal) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            try {
+                SimulacionDTO simulacionDTO = null;
+                if (body.containsKey("simulacionDTO")) {
+                    try {
+                        Object simDtoObj = body.get("simulacionDTO");
+                        if (simDtoObj instanceof Map) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> simDtoMap = (Map<String, Object>) simDtoObj;
+                            if (simDtoMap.containsKey("proyeccion")) {
+                                Proyeccion proy = mapper.convertValue(simDtoMap.get("proyeccion"), Proyeccion.class);
+                                simulacionDTO = new SimulacionDTO();
+                                simulacionDTO.setProyeccion(proy);
+                            } else {
+                                simulacionDTO = mapper.convertValue(simDtoObj, SimulacionDTO.class);
+                            }
+                        } else {
+                            simulacionDTO = mapper.convertValue(simDtoObj, SimulacionDTO.class);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        simulacionDTO = null;
+                    }
+                }
+
+                Map<Integer, Simulacion> simulacionMap = new HashMap<>();
+                if (body.containsKey("resultadoSimulacion")) {
+                    TypeReference<Map<String, Object>> typeRefObj = new TypeReference<>() {};
+                    Map<String, Object> tempObj = mapper.convertValue(body.get("resultadoSimulacion"), typeRefObj);
+                    if (tempObj != null) {
+                        for (Map.Entry<String, Object> e : tempObj.entrySet()) {
+                            try {
+                                Integer key = Integer.valueOf(e.getKey());
+
+                                Object rawVal = e.getValue();
+                                if (rawVal instanceof Map) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> valMap = (Map<String, Object>) rawVal;
+                                    if (valMap.containsKey("totalCreditos") && !valMap.containsKey("creditosTotales")) {
+                                        valMap.put("creditosTotales", valMap.get("totalCreditos"));
+                                    }
+                                    Simulacion sim = mapper.convertValue(valMap, Simulacion.class);
+                                    simulacionMap.put(key, sim);
+                                } else {
+                                    Simulacion sim = mapper.convertValue(rawVal, Simulacion.class);
+                                    simulacionMap.put(key, sim);
+                                }
+                            } catch (NumberFormatException nfe) {
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
+                String correo = principal.getName();
+
+                boolean exito = simulacionService.guardarSimulacion(simulacionDTO, correo, simulacionMap);
+                if (exito) {
+                    return ResponseEntity.ok(true);
+                } else {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "No se pudo guardar la simulación en el servidor");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Map<String, String> error = new HashMap<>();
+                error.put("error", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            }
+    }
 }

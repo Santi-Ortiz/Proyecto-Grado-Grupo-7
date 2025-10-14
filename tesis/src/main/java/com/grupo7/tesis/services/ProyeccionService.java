@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import com.grupo7.tesis.models.Estudiante;
 import com.grupo7.tesis.models.Proyeccion;
+import com.grupo7.tesis.models.Simulacion;
 import com.grupo7.tesis.repositories.ProyeccionRepository;
+import com.grupo7.tesis.repositories.SimulacionMateriaRepository;
+import com.grupo7.tesis.repositories.SimulacionRepository;
+import com.grupo7.tesis.models.SimulacionMateria;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProyeccionService {
@@ -20,6 +24,12 @@ public class ProyeccionService {
 
     @Autowired
     private EstudianteService estudianteService;
+
+    @Autowired
+    private SimulacionRepository simulacionRepository;
+
+    @Autowired
+    private SimulacionMateriaRepository simulacionMateriaRepository;
 
     private Map<Long, Proyeccion> proyeccionesCache = new HashMap<>();
 
@@ -60,13 +70,59 @@ public class ProyeccionService {
         return null;
     }
 
-    public Proyeccion eliminarProyeccion(Long id) {
-        Proyeccion proyeccion = obtenerProyeccionPorId(id);
-        if (proyeccion != null) {
-            proyeccionRepository.deleteById(id);
-            return proyeccion;
+    @Transactional
+    public boolean eliminarProyeccion(Long id) {
+        Long proyeccionId = id;
+        try {
+            List<Simulacion> simulaciones = simulacionRepository.findByProyeccionId_Id(proyeccionId);
+
+            if (simulaciones != null && !simulaciones.isEmpty()) {
+                for (Simulacion s : simulaciones) {
+                    if (s == null || s.getId() == null) continue;
+                    Long simulacionId = s.getId();
+                    try {
+                        List<SimulacionMateria> materiasAsoc = simulacionMateriaRepository.findBySimulacionId(simulacionId);
+                        if (materiasAsoc != null && !materiasAsoc.isEmpty()) {
+                            simulacionMateriaRepository.deleteAll(materiasAsoc);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw e;
+                    }
+                }
+
+                try {
+                    simulacionRepository.deleteAll(simulaciones);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+
+            try {
+                if (proyeccionRepository.existsById(proyeccionId)) {
+                    proyeccionRepository.deleteById(proyeccionId);
+                } else {
+                    return false;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
+
+            return true;
+        } catch (Exception ex) {
+            throw new RuntimeException("Error eliminando simulación y proyección: " + ex.getMessage(), ex);
         }
-        return null;
+    }
+
+    public boolean eliminarProyecciones(String correo) {
+        Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
+        List<Proyeccion> proyecciones = proyeccionRepository.findByestudianteId(estudiante);
+        for (Proyeccion proyeccion : proyecciones) {
+            eliminarProyeccion(proyeccion.getId());
+        }
+        return true;
     }
 
     public Proyeccion generarProyeccion(int semestre, int creditos, int materias) {

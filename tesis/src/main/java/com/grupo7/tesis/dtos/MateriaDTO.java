@@ -23,6 +23,9 @@ public class MateriaDTO {
         this.cred = cred;
         this.tipo = tipo;
     }
+
+    MateriaDTO () {
+    }
     
     public String getCicloLectivo() {
         return cicloLectivo;
@@ -54,5 +57,37 @@ public class MateriaDTO {
 
     public String getTipo() {
         return tipo;
+    }
+
+    public void setCicloLectivo(String cicloLectivo) {
+        this.cicloLectivo = cicloLectivo;
+    }
+
+    public void setMateria(String materia) {
+        this.materia = materia;
+    }
+
+    public void setNumeroCat(String numeroCat) {
+        this.numeroCat = numeroCat;
+    }
+
+    public void setCurso(String curso) {
+        this.curso = curso;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public void setCalif(String calif) {
+        this.calif = calif;
+    }
+
+    public void setCred(String cred) {
+        this.cred = cred;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 }
