@@ -4,8 +4,11 @@ import com.grupo7.tesis.dtos.*;
 import com.grupo7.tesis.models.*;
 import com.grupo7.tesis.services.LecturaService;
 import com.grupo7.tesis.services.EstudianteService;
+import com.grupo7.tesis.services.InformeAvanceService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
@@ -29,11 +32,26 @@ public class LecturaController {
         @Autowired
         private EstudianteService estudianteService;
 
+        @Autowired
+        private InformeAvanceService informeAvanceService;
+
         @GetMapping("/historial")
         public String mostrarFormulario(Model model) {
                 model.addAttribute("materias", null);
                 return "lecturaInforme";
         }
+
+        @GetMapping("/ultimo-informe")
+        public ResponseEntity<InformeAvance> getUltimoInformeAvance() {
+        try {
+                InformeAvance informe = informeAvanceService.obtenerUltimoInformeAvance();
+                return ResponseEntity.ok(informe);
+        } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        }
+
+
 
         @PostMapping("/guardarInforme")
         @ResponseBody

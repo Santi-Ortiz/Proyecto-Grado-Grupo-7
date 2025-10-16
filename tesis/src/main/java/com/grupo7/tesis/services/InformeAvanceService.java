@@ -1,11 +1,13 @@
 package com.grupo7.tesis.services;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.grupo7.tesis.models.Estudiante;
 import com.grupo7.tesis.models.InformeAvance;
@@ -50,5 +52,26 @@ public class InformeAvanceService {
 
         return informe.getArchivo();
     }
+
+    public InformeAvance obtenerUltimoInformeAvance() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String correo = authentication.getName();
+
+        Estudiante estudiante = estudianteService.obtenerEstudiantePorCorreo(correo);
+        if (estudiante == null) {
+            throw new RuntimeException("Estudiante autenticado no encontrado");
+        }
+
+        InformeAvance informe = informeAvanceRepository
+                .findFirstByEstudianteIdOrderByFechaPublicacionDesc(estudiante.getId());
+
+        if (informe == null || informe.getArchivo() == null) {
+            throw new RuntimeException("No se encontró informe de avance con archivo para este estudiante");
+        }
+
+        return informe; // Devuelve el objeto completo, incluyendo el byte[]
+    }
+
+
 
 }
