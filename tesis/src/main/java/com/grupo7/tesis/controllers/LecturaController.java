@@ -43,12 +43,12 @@ public class LecturaController {
 
         @GetMapping("/ultimo-informe")
         public ResponseEntity<InformeAvance> getUltimoInformeAvance() {
-        try {
-                InformeAvance informe = informeAvanceService.obtenerUltimoInformeAvance();
-                return ResponseEntity.ok(informe);
-        } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
+			try {
+					InformeAvance informe = informeAvanceService.obtenerUltimoInformeAvance();
+					return ResponseEntity.ok(informe);
+			} catch (Exception e) {
+					return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			}
         }
 
 

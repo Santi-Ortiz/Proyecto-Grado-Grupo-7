@@ -13,7 +13,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JWTGenerator {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    public static final Long EXPIRATION_TIME = 600000L; // El token tendrá una vida de 10 minutos
+    public static final Long EXPIRATION_TIME = 3600000L; // El token tendrá una vida de 1 hora
 
     // Se genera el token JWT
     public String generateToken(Authentication authentication) {
