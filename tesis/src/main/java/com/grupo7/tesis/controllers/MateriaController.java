@@ -58,4 +58,11 @@ public class MateriaController {
         materiaService.eliminarMateria(id);
     }
 
+    @GetMapping("/codigo/{codigo}/requisitos")
+    public List<String> obtenerRequisitosDeMateria(@PathVariable String codigo) {
+        List<String> codigos = materiaService.obtenerRequisitosDeMateria(codigo);
+        return codigos;
+    }
+
+
 }
