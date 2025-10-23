@@ -1,5 +1,10 @@
 package com.grupo7.tesis.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +35,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -47,6 +54,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+        logger.info("🔐 Iniciando proceso de login para correo: {}", loginDTO.getCorreo());
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -55,6 +63,8 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
+
+        logger.info("✅ Token JWT generado exitosamente. Longitud: {} caracteres", token.length());
 
         Cookie jwtCookie = new Cookie("jwt-token", token);
         jwtCookie.setHttpOnly(true);
@@ -107,28 +117,119 @@ public class AuthController {
             Cookie[] cookies = request.getCookies();
 
             if (cookies == null) {
+                logger.warn("No se encontraron cookies en la petición");
                 return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
             }
 
+            logger.info("Se encontraron {} cookies:", cookies.length);
             for (Cookie cookie : cookies) {
+                logger.info("   - Cookie: {} = {}", cookie.getName(),
+                        cookie.getValue());
 
                 if ("jwt-token".equals(cookie.getName())) {
                     String token = cookie.getValue();
+                    logger.info("Cookie JWT encontrada. Validando token...");
 
                     if (jwtGenerator.validateToken(token)) {
                         String usuario = jwtGenerator.getUserFromJwt(token);
+                        logger.info("Token válido para usuario: {}", usuario);
                         return new ResponseEntity<>(true, HttpStatus.OK);
                     } else {
+                        logger.warn("Token JWT inválido o expirado");
                         return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
                     }
                 }
             }
 
+            logger.warn("Cookie 'jwt-token' no encontrada");
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
 
         } catch (Exception e) {
+            logger.error("Error al verificar autenticación: {}", e.getMessage());
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    // ========================= MÉTODOS DE PRUEBA Y DEBUG =========================
+
+    @GetMapping("/debug/cookies")
+    public ResponseEntity<Map<String, Object>> debugCookies(HttpServletRequest request) {
+        logger.info("Debug: Inspeccionando todas las cookies");
+
+        Map<String, Object> debugInfo = new HashMap<>();
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            debugInfo.put("totalCookies", 0);
+            debugInfo.put("mensaje", "No se encontraron cookies");
+            logger.info("No hay cookies en la petición");
+        } else {
+            debugInfo.put("totalCookies", cookies.length);
+            Map<String, String> cookieMap = new HashMap<>();
+
+            for (Cookie cookie : cookies) {
+                String value = cookie.getValue();
+
+                logger.info("Cookie encontrada:");
+                logger.info("   - Nombre: {}", cookie.getName());
+                logger.info("   - Valor: {}", value);
+                logger.info("   - Path: {}", cookie.getPath());
+                logger.info("   - Domain: {}", cookie.getDomain());
+                logger.info("   - MaxAge: {}", cookie.getMaxAge());
+                logger.info("   - Secure: {}", cookie.getSecure());
+                logger.info("   - HttpOnly: {}", cookie.isHttpOnly());
+            }
+
+            debugInfo.put("cookies", cookieMap);
+        }
+
+        return new ResponseEntity<>(debugInfo, HttpStatus.OK);
+    }
+
+    @GetMapping("/debug/token-info")
+    public ResponseEntity<Map<String, Object>> debugTokenInfo(HttpServletRequest request) {
+        logger.info("Debug: Información del token JWT");
+
+        Map<String, Object> tokenInfo = new HashMap<>();
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt-token".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+
+                    tokenInfo.put("tokenFound", true);
+                    tokenInfo.put("tokenLength", token.length());
+                    tokenInfo.put("tokenPreview", token);
+
+                    try {
+                        boolean isValid = jwtGenerator.validateToken(token);
+                        tokenInfo.put("isValid", isValid);
+
+                        if (isValid) {
+                            String usuario = jwtGenerator.getUserFromJwt(token);
+                            tokenInfo.put("usuario", usuario);
+                            logger.info("Token válido para usuario: {}", usuario);
+                        } else {
+                            tokenInfo.put("error", "Token inválido o expirado");
+                            logger.info("Token inválido");
+                        }
+
+                    } catch (Exception e) {
+                        tokenInfo.put("error", "Error al validar token: " + e.getMessage());
+                        logger.error("Error al validar token: {}", e.getMessage());
+                    }
+
+                    return new ResponseEntity<>(tokenInfo, HttpStatus.OK);
+                }
+            }
+        }
+
+        tokenInfo.put("tokenFound", false);
+        tokenInfo.put("mensaje", "Cookie jwt-token no encontrada");
+        logger.info("Cookie jwt-token no encontrada");
+
+        return new ResponseEntity<>(tokenInfo, HttpStatus.OK);
     }
 
 }

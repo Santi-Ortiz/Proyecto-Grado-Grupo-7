@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.grupo7.tesis.dtos.EstudianteDTO;
@@ -20,16 +19,14 @@ public class EstudianteService {
     private final EstudianteRepository estudianteRepository;
     private final PensumService pensumService;
     private final FacultadService facultadService;
-    private final PasswordEncoder passwordEncoder;
 
+    @Autowired
     public EstudianteService(EstudianteRepository estudianteRepository,
             PensumService pensumService,
-            FacultadService facultadService,
-            PasswordEncoder passwordEncoder) {
+            FacultadService facultadService) {
         this.estudianteRepository = estudianteRepository;
         this.pensumService = pensumService;
         this.facultadService = facultadService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Estudiante> obtenerTodosEstudiantes() {
@@ -61,9 +58,9 @@ public class EstudianteService {
                 .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con ID: " + id));
     }
 
-    // public Estudiante crearEstudiante(Estudiante estudiante) {
-    //     return estudianteRepository.save(estudiante);
-    // }
+    public Estudiante crearEstudiante(Estudiante estudiante) {
+        return estudianteRepository.save(estudiante);
+    }
 
     public Estudiante crearEstudiante(EstudianteDTO estudianteDTO) {
 
@@ -127,7 +124,7 @@ public class EstudianteService {
         Estudiante estudiante = new Estudiante(
                 estudianteDTO.getCodigo(),
                 estudianteDTO.getCorreo(),
-                passwordEncoder.encode(estudianteDTO.getContrasenia()),
+                estudianteDTO.getContrasenia(),
                 estudianteDTO.getPrimerNombre(),
                 estudianteDTO.getSegundoNombre(),
                 estudianteDTO.getPrimerApellido(),
