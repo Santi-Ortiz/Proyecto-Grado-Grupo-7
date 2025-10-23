@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 
 import com.grupo7.tesis.models.Facultad;
@@ -22,6 +23,7 @@ import jakarta.transaction.Transactional;
 
 @Controller
 @Transactional
+@Profile("development")
 public class DatabaseInit implements ApplicationRunner {
 
     @Autowired
