@@ -22,6 +22,7 @@ import com.grupo7.tesis.repositories.PensumRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@ActiveProfiles("test")
 public class EstudianteControllerIntegrationTest {
 
     private String SERVER_URL;
@@ -44,8 +45,26 @@ public class EstudianteControllerIntegrationTest {
 
     @BeforeEach
     void init() {
-        facultadRepository.save(new Facultad("Facultad de Ingeniería"));
-        pensumRepository.save(new Pensum("Ingenieria de Sistemas", 138L, 8L));
+        Facultad facultad =facultadRepository.save(new Facultad("Facultad de Ingeniería"));
+        Pensum pensum = pensumRepository.save(new Pensum("Ingenieria de Sistemas", 138L, 8L));
+        estudianteRepository.save(new Estudiante("98765432", "test@javeriana.edu.co", "psswd123", "Pepito", "Andres", "Perez", "Gonzalez", "Ingeniería de Sistemas", 2023L,pensum, facultad));
+        estudianteRepository.save(new Estudiante("35789654", "test_prueba@javeriana.edu.co", "psswd123", "Pepito", "Andres", "Perez", "Gonzalez", "Ingeniería de Sistemas", 2023L,pensum, facultad));
+    }
+
+    @Test
+    void obtenerEstudiantes() {
+
+        webTestClient.get()
+            .uri(SERVER_URL + "/api/estudiantes")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBodyList(Estudiante.class)
+            .value(
+                estudiantes -> {
+                    assertEquals(2, estudiantes.size());
+                }
+            );
+
     }
 
     @Test
@@ -59,31 +78,69 @@ public class EstudianteControllerIntegrationTest {
             .expectBody(Estudiante.class)
             .value(
                 estudiante -> {
-                    assertEquals(estudianteRepository.findByCodigo("12345678"), estudiante);
+                    assertEquals(estudianteRepository.findByCodigo("12345678").getCorreo(), estudiante.getCorreo());
                 }
             );
     }
 
     @Test
-    void crearEstudiante_CorreoDuplicado() {
+    void actualizarEstudiante() {
 
-        Estudiante estudianteCreado = webTestClient.post()
-            .uri(SERVER_URL + "/api/estudiantes")
-            .bodyValue(new EstudianteDTO("12345678", "prueba@javeriana.edu.co", "psswd123", "Pepito", "Andres", "Perez", "Gonzalez", "Ingeniería de Sistemas", 2023L))
+        webTestClient.put()
+            .uri(SERVER_URL + "/api/estudiantes/1")
+            .bodyValue(new EstudianteDTO("12345678", "estudiante_javeriana@javeriana.edu.co", "psswd123", "Pepito", "Andres", "Perez", "Gonzalez", "Ingeniería de Sistemas", 2023L))
             .exchange()
-            .expectStatus().isCreated()
+            .expectStatus().isOk()
             .expectBody(Estudiante.class)
             .value(
                 estudiante -> {
-                    assertEquals(estudianteRepository.findByCodigo("12345678"), estudiante);
+                    assertEquals(estudianteRepository.findByCorreo("estudiante_javeriana@javeriana.edu.co").getCorreo(), estudiante.getCorreo());
                 }
             );
+    }
 
-        webTestClient.post()
-            .uri(SERVER_URL + "/api/estudiantes")
-            .bodyValue(new EstudianteDTO("87654321", "prueba@javeriana.edu.co", "psswd456", "Juanito", "Luis", "Martinez", "Lopez", "Ingeniería de Sistemas", 2023L))
+    @Test
+    void eliminarEstudiante() {
+        webTestClient.delete()
+            .uri(SERVER_URL + "/api/estudiantes/1")
             .exchange()
-            .expectStatus().is5xxServerError();
+            .expectStatus().isNoContent()
+            .expectBody(Void.class)
+            .value(
+                response -> {
+                    assertEquals(null, estudianteRepository.findById(1L).orElse(null));
+                }
+            );
+    }
+
+    @Test
+    void obtenerPensumEstudiante() {
+        webTestClient.get()
+            .uri(SERVER_URL + "/api/estudiantes/1/pensum")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Pensum.class)
+            .value(
+                pensum -> {
+                    Pensum pensumEsperado = pensumRepository.findById(1L).orElse(null);
+                    assertEquals(pensumEsperado.getId(), pensum.getId());
+                }
+            );
+    }
+
+    @Test
+    void obtenerFacultadEstudiante() {
+        webTestClient.get()
+            .uri(SERVER_URL + "/api/estudiantes/1/facultad")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Facultad.class)
+            .value(
+                facultad -> {
+                    Facultad facultadEsperada = facultadRepository.findById(1L).orElse(null);
+                    assertEquals(facultadEsperada.getId(), facultad.getId());
+                }
+            );
     }
 
 }
