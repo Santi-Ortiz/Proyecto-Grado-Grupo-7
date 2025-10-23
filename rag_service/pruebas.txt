@@ -1,0 +1,16 @@
+Solo tiempo de respuesta para búsquedas:
+curl -s -D - http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question":"¿Cómo se calcula el promedio acumulado?"}' \
+  -o /dev/null | grep -i X-Process-Time-ms
+
+Solo tiempo de respuesta para recomendaciones:
+curl -s -D - http://localhost:8000/recomendar-materias \
+  -H "Content-Type: application/json" \
+  -d '{"intereses":"sistemas distribuidos y microservicios","tipo":"cualquiera","creditos":"cualquiera"}' \
+  -o /dev/null | grep -i X-Process-Time-ms
+
+Tiempo de respuesta más contenido
+curl -i http://localhost:8000/recomendar-materias \
+  -H "Content-Type: application/json" \
+  -d '{"intereses":"sistemas distribuidos y microservicios","tipo":"cualquiera","creditos":"cualquiera"}'

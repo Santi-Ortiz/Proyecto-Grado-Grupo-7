@@ -2,9 +2,11 @@
 from typing import List, Dict, Any, Tuple
 import json
 import os
+import time  # <-- para el middleware
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware  # <-- middleware base
 
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -19,13 +21,26 @@ from langchain_core.documents import Document
 # =========================
 app = FastAPI()
 
+# Middleware de CORS (exponemos el header de tiempo para que el front lo lea)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Process-Time-ms"],  # <-- importante para leerlo desde navegador/Angular
 )
+
+# Middleware de medición: agrega X-Process-Time-ms en todas las respuestas
+class TimingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        t0 = time.perf_counter()
+        response = await call_next(request)
+        dt_ms = (time.perf_counter() - t0) * 1000.0
+        response.headers["X-Process-Time-ms"] = f"{dt_ms:.2f}"
+        return response
+
+app.add_middleware(TimingMiddleware)
 
 
 # =========================
@@ -61,13 +76,13 @@ def _env_bool(name: str, default: bool) -> bool:
     return str(val).strip().lower() in ("1", "true", "yes", "y", "on")
 
 # Puntajes para clasificación en tablas
-SCORE_MIN_STRICT = _env_float("RAG_SCORE_MIN", 0.60)      
-SUGGEST_MIN      = _env_float("RAG_SUGGEST_MIN", 0.30)    
-SUGGEST_MAX_CFG  = _env_float("RAG_SUGGEST_MAX", 0.59)    
+SCORE_MIN_STRICT = _env_float("RAG_SCORE_MIN", 0.60)
+SUGGEST_MIN      = _env_float("RAG_SUGGEST_MIN", 0.30)
+SUGGEST_MAX_CFG  = _env_float("RAG_SUGGEST_MAX", 0.59)
 SUGGEST_MAX      = min(SUGGEST_MAX_CFG, max(0.0, SCORE_MIN_STRICT - 0.01))  # sin solape
 
 # Límite de materias por tabla
-MAIN_MAX            = _env_int("RAG_MAIN_MAX", 2)             
+MAIN_MAX            = _env_int("RAG_MAIN_MAX", 2)
 SUGGEST_ITEMS_MAX   = _env_int("RAG_SUGGEST_ITEMS_MAX", 6)
 
 # Recuperación (k candidatos crudos a FAISS antes de filtros)
@@ -81,7 +96,7 @@ SUGGEST_FALLBACK    = _env_bool("RAG_SUGGEST_FALLBACK", True)
 # =========================
 @app.on_event("startup")
 def load_rag():
-    global embeddings, qa_reglamento, vector_all, vector_enfasis, vector_electivas, vector_complementarias, llm
+    global embeddings, qa_reglamento, vector_all, vector_enfasis, vector_electivas, vector_complementarias, vector_ciencias_basicas, llm
 
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
@@ -113,7 +128,7 @@ Respuesta:"""
             input_key="question",
         )
 
-    # ========= MATERIAS (4 índices) =========
+    # ========= MATERIAS (índices) =========
     def load_index(path: str):
         return FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
 
@@ -291,33 +306,28 @@ async def recomendar_materias(request: Request):
     pares_raw = recuperar_candidatos_raw(intereses, store, k=RETRIEVE_K)
     pares_raw = dedupe_raw(pares_raw)
 
-    # 2) Normalización a score 0..1 (ANTES de cualquier filtro por créditos)
-    #    Así garantizamos que la tabla 2 (que ignora créditos) y la 1 (que sí filtra)
-    #    compartan la misma escala de score para esta consulta.
+    # 2) Normalización a score 0..1
     pares_scored_all = normalizar_scores(pares_raw)  # [(doc, score)]
 
-    # 3) TABLA 1 (FUERTES): filtra por créditos (si aplica) + umbral fuerte
+    # 3) TABLA 1 (FUERTES): filtra por créditos + umbral fuerte
     candidatos_fuertes = filtrar_por_creditos_scored(pares_scored_all, creditos)
     fuertes: List[Tuple[Document, float]] = [
         (d, s) for d, s in candidatos_fuertes if s >= SCORE_MIN_STRICT
     ]
     fuertes = fuertes[:MAIN_MAX]
 
-    # 4) TABLA 2 (SUGERIDAS): IGNORA CRÉDITOS (solo intereses)
-    #    a) Primero, cursos de alta afinidad (>= SCORE_MIN_STRICT) que NO están en 'fuertes'
+    # 4) TABLA 2 (SUGERIDAS): IGNORA CRÉDITOS
     keys_fuertes = set(_doc_key(d) for d, _ in fuertes)
     high_no_credits_match: List[Tuple[Document, float]] = []
     for d, s in pares_scored_all:
         if s >= SCORE_MIN_STRICT and _doc_key(d) not in keys_fuertes:
             high_no_credits_match.append((d, s))
 
-    #    b) Luego, cursos de afinidad moderada (SUGGEST_MIN..SUGGEST_MAX) ignorando créditos
     moderados: List[Tuple[Document, float]] = []
     for d, s in pares_scored_all:
         if SUGGEST_MIN <= s <= SUGGEST_MAX and _doc_key(d) not in keys_fuertes:
             moderados.append((d, s))
 
-    #    c) Unimos priorizando alta afinidad que no entró a la tabla 1
     sugeridos: List[Tuple[Document, float]] = []
     seen = set()
     for d, s in high_no_credits_match + moderados:
@@ -326,10 +336,8 @@ async def recomendar_materias(request: Request):
             seen.add(k)
             sugeridos.append((d, s))
 
-    #    d) Limitar tamaño
     sugeridos = sugeridos[:SUGGEST_ITEMS_MAX]
 
-    #    e) Fallback opcional: si quedó vacío, tomar los siguientes mejores < SCORE_MIN_STRICT (sin solape con fuertes)
     if SUGGEST_FALLBACK and not sugeridos and pares_scored_all:
         for d, s in pares_scored_all:
             if _doc_key(d) in keys_fuertes:
@@ -339,7 +347,6 @@ async def recomendar_materias(request: Request):
             if len(sugeridos) >= SUGGEST_ITEMS_MAX:
                 break
 
-    # 5) Si usuario pidió créditos exactos y no hay NADA en ninguna tabla
     if str(creditos).lower() != "cualquiera" and not fuertes and not sugeridos:
         return {
             "materias": [],
@@ -353,7 +360,6 @@ async def recomendar_materias(request: Request):
             }
         }
 
-    # 6) Armar payloads (SIEMPRE desde metadatos deterministas)
     def to_item(d: Document) -> Dict[str, Any]:
         md = d.metadata or {}
         return {
@@ -368,7 +374,6 @@ async def recomendar_materias(request: Request):
     materias = [to_item(d) for d, _ in fuertes]
     materias_sugeridas = [to_item(d) for d, _ in sugeridos]
 
-    # 7) Explicaciones
     explicacion = ""
     if materias:
         explicacion = pedir_explicacion_global(
@@ -384,7 +389,6 @@ async def recomendar_materias(request: Request):
             "numérica establecida, podrían aportar perspectivas complementarias pertinentes a su formación."
         )
 
-    # 8) Si no hubo nada en absoluto
     if not materias and not materias_sugeridas:
         return {
             "materias": [],
