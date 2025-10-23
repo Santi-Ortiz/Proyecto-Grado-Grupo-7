@@ -18,7 +18,6 @@ import com.grupo7.tesis.models.Estudiante;
 import com.grupo7.tesis.models.Facultad;
 import com.grupo7.tesis.models.Pensum;
 import com.grupo7.tesis.services.EstudianteService;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
