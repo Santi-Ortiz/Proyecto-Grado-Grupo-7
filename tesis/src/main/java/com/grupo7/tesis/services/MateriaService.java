@@ -106,4 +106,30 @@ public class MateriaService {
         System.out.println("Procesamiento de requisitos completado");
     }
 
+    public List<String> obtenerRequisitosDeMateria(String materiaCodigo) {
+        List<Materia> materias = materiaRepository.findMateriaByCodigo(materiaCodigo);
+
+        if (materias.isEmpty()) {
+            System.out.println("No se encontró la materia con código " + materiaCodigo);
+            return List.of();
+        }
+
+        Materia materia = materias.get(0);
+
+        if (materia.getRequisitosMateria() == null || materia.getRequisitosMateria().isEmpty()) {
+            System.out.println("La materia " + materiaCodigo + " no tiene requisitos.");
+            return List.of();
+        }
+
+        List<String> codigos = materia.getRequisitosMateria().stream()
+                .map(req -> req.getMateriaRequisito().getId()) // ID de la materia que es requisito
+                .map(id -> materiaRepository.findById(id))     // busca esa materia
+                .filter(Optional::isPresent)
+                .map(opt -> opt.get().getCodigo())             // obtiene el código de esa materia
+                .toList();
+
+        System.out.println("Requisitos encontrados para la materia " + materiaCodigo + ": " + codigos);
+        return codigos;
+    }
+
 }

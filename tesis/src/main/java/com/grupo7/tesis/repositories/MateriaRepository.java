@@ -1,5 +1,6 @@
 package com.grupo7.tesis.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,5 +12,6 @@ import com.grupo7.tesis.models.Materia;
 public interface MateriaRepository extends JpaRepository<Materia, Long> {
 
     Optional<Materia> findByCodigo(String codigo);
+    List <Materia> findMateriaByCodigo(String codigo);
 
 }
