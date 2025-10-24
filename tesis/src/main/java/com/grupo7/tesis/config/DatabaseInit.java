@@ -23,6 +23,7 @@ import jakarta.transaction.Transactional;
 
 @Controller
 @Transactional
+@Profile("!test")
 public class DatabaseInit implements ApplicationRunner {
 
     @Autowired
