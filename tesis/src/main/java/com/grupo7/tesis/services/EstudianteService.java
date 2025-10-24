@@ -61,9 +61,9 @@ public class EstudianteService {
                 .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con ID: " + id));
     }
 
-    // public Estudiante crearEstudiante(Estudiante estudiante) {
-    //     return estudianteRepository.save(estudiante);
-    // }
+    public Estudiante crearEstudiante(Estudiante estudiante) {
+        return estudianteRepository.save(estudiante);
+    }
 
     public Estudiante crearEstudiante(EstudianteDTO estudianteDTO) {
 
@@ -127,7 +127,7 @@ public class EstudianteService {
         Estudiante estudiante = new Estudiante(
                 estudianteDTO.getCodigo(),
                 estudianteDTO.getCorreo(),
-                passwordEncoder.encode(estudianteDTO.getContrasenia()),
+                estudianteDTO.getContrasenia(),
                 estudianteDTO.getPrimerNombre(),
                 estudianteDTO.getSegundoNombre(),
                 estudianteDTO.getPrimerApellido(),
