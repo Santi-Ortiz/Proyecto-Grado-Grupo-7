@@ -133,6 +133,12 @@ public class LecturaController {
                 List<MateriaDTO> tablaSIGtoIA = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoSistemasGestionAInteligenciaArtificialBruto(archivo));
 
+                List<MateriaDTO> cursosComplementariaEstetica = lecturaService.convertirTextoElectivasATabla(
+                                lecturaService.extraerTextoComplementariaEsteticaBruto(archivo));
+
+                List<MateriaDTO> cursosComplementariaCienciaPolitica = lecturaService.convertirTextoElectivasATabla(
+                                lecturaService.extraerTextoComplementariaCienciaPoliticaBruto(archivo));
+
                 List<String> lineasRequisitosGrado = lecturaService.extraerLineasRequisitosGrado(archivo);
 
                 Progreso progreso = new Progreso();
@@ -150,6 +156,8 @@ public class LecturaController {
                 progreso.setCursosElectivaBasicas(cursosElectivaBasicas);
                 progreso.setCursosSeguridad(cursosSeguridad);
                 progreso.setLineasRequisitosGrado(lineasRequisitosGrado);
+                progreso.setCursosComplementariaEstetica(cursosComplementariaEstetica);
+                progreso.setCursosComplementariaCienciaPolitica(cursosComplementariaCienciaPolitica);
                 progreso.setMateriasFaltantes();
 
                 ProgresoDTO progresoDTO = new ProgresoDTO(progreso);
