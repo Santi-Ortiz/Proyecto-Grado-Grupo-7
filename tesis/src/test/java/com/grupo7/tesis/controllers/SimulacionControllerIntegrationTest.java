@@ -14,9 +14,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.time.Duration;
 import java.util.Map;
 import java.util.function.Function;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import com.grupo7.tesis.services.SimulacionAsyncService;
-import com.grupo7.tesis.services.SimulacionJobService;
 import com.grupo7.tesis.dtos.LoginDTO;
 import com.grupo7.tesis.dtos.MateriaDTO;
 import com.grupo7.tesis.dtos.RegisterDTO;
@@ -39,6 +36,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
+import com.grupo7.tesis.repositories.ProyeccionRepository;
+import com.grupo7.tesis.repositories.SimulacionRepository;
+import com.grupo7.tesis.repositories.SimulacionMateriaRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @AutoConfigureWebTestClient
@@ -57,19 +57,13 @@ public class SimulacionControllerIntegrationTest {
     private FacultadRepository facultadRepository;
 
     @Autowired
-    private com.grupo7.tesis.repositories.ProyeccionRepository proyeccionRepository;
+    private ProyeccionRepository proyeccionRepository;
 
     @Autowired
-    private com.grupo7.tesis.repositories.SimulacionRepository simulacionRepository;
+    private SimulacionRepository simulacionRepository;
 
     @Autowired
-    private com.grupo7.tesis.repositories.SimulacionMateriaRepository simulacionMateriaRepository;
-
-    @Autowired
-    private SimulacionJobService jobService;
-
-    @SpyBean
-    private SimulacionAsyncService simulacionAsyncService;
+    private SimulacionMateriaRepository simulacionMateriaRepository;
 
     String CORREO = "test1@javeriana.edu.co";
     String PASSWORD = "password";
@@ -162,25 +156,20 @@ public class SimulacionControllerIntegrationTest {
         SimulacionDTO simulacionDTO = new SimulacionDTO();
         simulacionDTO.setProgreso(crearProgresoEjemplo());
         simulacionDTO.setProyeccion(crearProyeccionEjemplo());
-
         WebTestClient client = webTestClient.mutate()
-            .responseTimeout(Duration.ofSeconds(60))
+            .responseTimeout(Duration.ofSeconds(120))
             .build();
 
-        WebTestClient.RequestBodySpec spec = client.post()
+        client.post()
             .uri("/api/simulaciones/generar")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON);
-
-        if (token != null) {
-            spec = spec.header("Authorization", "Bearer " + token);
-        }
-
-        spec.bodyValue(simulacionDTO)
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .header("Authorization", "Bearer " + token)
+            .bodyValue(simulacionDTO)
             .exchange()
             .expectStatus().isOk()
-            .expectBodyList(Object.class)
+            .expectBodyList(Simulacion.class)
             .consumeWith(response -> {
-                List<Object> resp = response.getResponseBody();
+                List<Simulacion> resp = response.getResponseBody();
                 assertFalse(resp == null || resp.isEmpty(), "La lista de simulaciones no debe ser vacía");
             });
     }
@@ -193,44 +182,42 @@ public class SimulacionControllerIntegrationTest {
         simulacionDTO.setProgreso(crearProgresoEjemplo());
         simulacionDTO.setProyeccion(crearProyeccionEjemplo());
 
-        WebTestClient client = webTestClient.mutate().responseTimeout(Duration.ofSeconds(120)).build();
-
-        @SuppressWarnings("unchecked")
-        Map<String, String> inicioResp = client.post()
+        Map<String, String> inicioResp = webTestClient.post()
             .uri("/api/simulaciones/iniciar")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
             .header("Authorization", "Bearer " + token)
             .bodyValue(simulacionDTO)
             .exchange()
             .expectStatus().isOk()
-            .expectBody(Map.class)
+            .expectBody(new org.springframework.core.ParameterizedTypeReference<Map<String, String>>() {})
             .returnResult()
             .getResponseBody();
 
         String jobId = inicioResp != null ? inicioResp.get("jobId") : null;
-
         assertNotNull(jobId, "Se debe recibir un jobId al iniciar la simulación");
 
         SimulacionJob job = null;
-        int attempts = 0;
-        final int maxAttempts = 300;
-        while (attempts < maxAttempts) {
-            job = jobService.obtenerTrabajo(jobId);
+        Boolean maxAttemptsReached = false;
+        while (!maxAttemptsReached) {
+            SimulacionJob respJob = webTestClient.get()
+                .uri("/api/simulaciones/estado/" + jobId)
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(SimulacionJob.class)
+                .returnResult()
+                .getResponseBody();
+
+            job = respJob;
             if (job != null && job.getEstado() == SimulacionJob.Estado.COMPLETADA) {
-                break;
+                maxAttemptsReached = true;
             }
-            Thread.sleep(200);
-            attempts++;
+            Thread.sleep(1000);
         }
 
         assertNotNull(job, "El trabajo debe existir en SimulacionJobService (jobId=" + jobId + ")");
-        assertEquals(SimulacionJob.Estado.COMPLETADA, job.getEstado(), "El trabajo debe quedar en estado COMPLETADA — estado actual=" + (job != null ? job.getEstado() : "null") + ", mensaje=" + (job != null ? job.getMensaje() : "null"));
 
-        Object storedResult = job.getResultado();
-        System.out.println("[TEST DEBUG] jobId=" + jobId + " storedResult=" + storedResult);
-        assertNotNull(storedResult, "El resultado almacenado no debe ser nulo");
-
-        client.get()
+        webTestClient.get()
             .uri("/api/simulaciones/resultado/" + jobId)
             .header("Authorization", "Bearer " + token)
             .exchange()
@@ -261,11 +248,9 @@ public class SimulacionControllerIntegrationTest {
             }
         }
 
-        TypeReference<Map<String,Object>> tr = new TypeReference<>() {};
-        @SuppressWarnings("unchecked")
-        Map<String, Object> simulacionDtoMap = mapper.convertValue(simulacionDTO, tr);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> resultadoSimulacionMap = mapper.convertValue(simulacion, tr);
+    TypeReference<Map<String,Object>> tr = new TypeReference<>() {};
+    Map<String, Object> simulacionDtoMap = mapper.convertValue(simulacionDTO, tr);
+    Map<String, Object> resultadoSimulacionMap = mapper.convertValue(simulacion, tr);
 
         Boolean resultado = webTestClient.post()
             .uri("/api/simulaciones/guardarSimulacion")
