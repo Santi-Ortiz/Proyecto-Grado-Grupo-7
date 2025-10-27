@@ -1,36 +1,84 @@
+# ingest_pdf.py
 from pathlib import Path
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from typing import List, Dict
+import re
+
 from langchain_community.vectorstores import FAISS
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+# Heurística: línea en MAYÚSCULAS con números romanos o "ARTÍCULO", etc.
+SECTION_RE = re.compile(r"^\s*(?:[IVXLC]+\.\s+.*|CAP[IÍ]TULO\s+.*|ART[IÍ]CULO\s+\d+.*)$")
+
+def _clean(txt: str) -> str:
+    if not txt:
+        return ""
+    t = txt.replace("\r", "\n")
+    # Colapsar saltos múltiples
+    t = re.sub(r"\n{3,}", "\n\n", t)
+    # Quitar numeración de pie de página común
+    t = re.sub(r"\n?\s*\d+\s*$", "", t)
+    return t.strip()
+
+def _section_hints(page_text: str) -> str:
+    # Devuelve primera línea que parece encabezado/sección
+    for line in page_text.splitlines():
+        if SECTION_RE.match(line.strip()):
+            return line.strip()
+    return ""
 
 def ingest(folder_path: str = "../data/Busquedas", index_path: str = "faiss_index"):
-    # 1) Cargar TODOS los PDFs de la carpeta (recursivo)
     folder = Path(folder_path)
     loader = DirectoryLoader(
         str(folder),
-        glob="**/*.pdf",              # busca todos los PDFs dentro de la carpeta
-        loader_cls=PyPDFLoader,       # usa el mismo loader que ya tenías
+        glob="**/*.pdf",
+        loader_cls=PyPDFLoader,
         show_progress=True,
         use_multithreading=True,
     )
-    documents = loader.load()
-    if not documents:
+    pages = loader.load()
+    if not pages:
         print(f"⚠️ No se encontraron PDFs en: {folder.resolve()}")
         return
 
-    # 2) Particionar igual que antes
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    docs = text_splitter.split_documents(documents)
+    # Añadir metadatos útiles y limpieza ligera por página
+    enriched = []
+    for d in pages:
+        md = d.metadata or {}
+        fname = Path(md.get("source", "documento.pdf")).name
+        page = md.get("page", None)
+        text = _clean(d.page_content or "")
+        if not text:
+            continue
+        sec = _section_hints(text)
+        md_new = {
+            **md,
+            "filename": fname,
+            "page": page,
+            "section_hint": sec,
+        }
+        d.page_content = text
+        d.metadata = md_new
+        enriched.append(d)
 
-    # 3) Embeddings y FAISS igual que antes
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    # Split con respeto a párrafos para mantener coherencia normativa
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=900, chunk_overlap=120,
+        separators=["\n\n", "\n", ". ", " "],
+        is_separator_regex=False,
+    )
+    docs = splitter.split_documents(enriched)
+
+    # Embeddings multilingües (mejor en español) + normalización
+    embeddings = HuggingFaceEmbeddings(
+        model_name="intfloat/multilingual-e5-base",
+        encode_kwargs={"normalize_embeddings": True},
+    )
+
     db = FAISS.from_documents(docs, embeddings)
-
-    # 4) Guardar índice
     db.save_local(index_path)
-    print(f"✅ Ingesta completa ({len(documents)} PDFs, {len(docs)} chunks) y FAISS creado en '{index_path}'.")
+    print(f"✅ Ingesta completa: {len(enriched)} páginas → {len(docs)} chunks → '{index_path}'")
 
 if __name__ == "__main__":
-    ingest()           # por defecto toma ../data; puedes pasar otra carpeta o nombre de índice
-    # ej: ingest("../mis_pdfs", "faiss_reglamentos")
+    ingest()

@@ -2,11 +2,11 @@
 from typing import List, Dict, Any, Tuple
 import json
 import os
-import time  # <-- para el middleware
+import time
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware  # <-- middleware base
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -14,7 +14,6 @@ from langchain_community.llms import Ollama
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_core.documents import Document
-
 
 # =========================
 # FastAPI
@@ -28,7 +27,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Process-Time-ms"],  # <-- importante para leerlo desde navegador/Angular
+    expose_headers=["X-Process-Time-ms"],
 )
 
 # Middleware de medición: agrega X-Process-Time-ms en todas las respuestas
@@ -41,7 +40,6 @@ class TimingMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(TimingMiddleware)
-
 
 # =========================
 # Globales y configuración
@@ -75,7 +73,7 @@ def _env_bool(name: str, default: bool) -> bool:
         return default
     return str(val).strip().lower() in ("1", "true", "yes", "y", "on")
 
-# Puntajes para clasificación en tablas
+# Puntajes para clasificación en tablas (recomendaciones)
 SCORE_MIN_STRICT = _env_float("RAG_SCORE_MIN", 0.60)
 SUGGEST_MIN      = _env_float("RAG_SUGGEST_MIN", 0.30)
 SUGGEST_MAX_CFG  = _env_float("RAG_SUGGEST_MAX", 0.59)
@@ -92,15 +90,49 @@ RETRIEVE_K          = _env_int("RAG_RETRIEVE_K", 60)
 SUGGEST_FALLBACK    = _env_bool("RAG_SUGGEST_FALLBACK", True)
 
 # =========================
+# Prompt estricto para búsquedas
+# =========================
+STRICT_PROMPT_TMPL = """Responde EN ESPAÑOL SOLO con base en las FUENTES dadas.
+- Si la respuesta NO está en las fuentes o hay duda, responde: "No encontrado en los documentos proporcionados."
+- Cita entre corchetes la(s) fuente(s) con formato [archivo.pdf, p. X] al final de cada oración que contenga dato normativo.
+- Sé literal cuando menciones artículos, numerales o porcentajes. No inventes ejemplos ni cifras.
+
+FUENTES:
+{context}
+
+PREGUNTA: {question}
+
+RESPUESTA:"""
+
+prompt_reglamento = PromptTemplate.from_template(STRICT_PROMPT_TMPL)
+
+def _build_retriever(vs: FAISS):
+    """
+    Retriever estricto con umbral de similitud.
+    Ajusta score_threshold tras validar con preguntas reales (rango típico 0.30–0.45).
+    """
+    return vs.as_retriever(
+        search_type="similarity_score_threshold",
+        search_kwargs={
+            "score_threshold": float(os.getenv("RAG_SCORE_THRESHOLD", 0.35)),
+            "k": int(os.getenv("RAG_TOP_K", 8)),
+        },
+    )
+
+# =========================
 # Startup
 # =========================
 @app.on_event("startup")
 def load_rag():
     global embeddings, qa_reglamento, vector_all, vector_enfasis, vector_electivas, vector_complementarias, vector_ciencias_basicas, llm
 
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    # Embeddings multilingües (mejor recuperación en español)
+    embeddings = HuggingFaceEmbeddings(
+        model_name="intfloat/multilingual-e5-base",
+        encode_kwargs={"normalize_embeddings": True},
+    )
 
-    # ========= REGLAMENTO =========
+    # ========= REGLAMENTO / BÚSQUEDAS =========
     try:
         vectorstore_reglamento = FAISS.load_local(
             "faiss_index", embeddings, allow_dangerous_deserialization=True
@@ -108,24 +140,18 @@ def load_rag():
     except Exception:
         vectorstore_reglamento = None
 
-    prompt_reglamento = PromptTemplate.from_template(
-        """Responde la siguiente pregunta en español de forma clara y precisa usando la información disponible:
-
-{context}
-
-Pregunta: {question}
-
-Respuesta:"""
-    )
-
     llm = Ollama(model="llama3", temperature=0.0)
 
     if vectorstore_reglamento is not None:
         qa_reglamento = RetrievalQA.from_chain_type(
             llm=llm,
-            retriever=vectorstore_reglamento.as_retriever(),
-            chain_type_kwargs={"prompt": prompt_reglamento},
+            retriever=_build_retriever(vectorstore_reglamento),
+            chain_type_kwargs={
+                "prompt": prompt_reglamento,
+                "document_variable_name": "context",
+            },
             input_key="question",
+            return_source_documents=True,
         )
 
     # ========= MATERIAS (índices) =========
@@ -159,7 +185,6 @@ Respuesta:"""
         f"RAG_MAIN_MAX={MAIN_MAX} | RAG_SUGGEST_ITEMS_MAX={SUGGEST_ITEMS_MAX} | RAG_RETRIEVE_K={RETRIEVE_K} | "
         f"RAG_SUGGEST_FALLBACK={SUGGEST_FALLBACK})"
     )
-
 
 # =========================
 # Utilidades materias
@@ -278,20 +303,39 @@ def pedir_explicacion_global(intereses: str, tipo: str, creditos, cursos: List[D
         filtros_txt = (" con " + " y ".join(filtros)) if filtros else ""
         return f"Se recomendaron cursos relacionados con tus intereses{filtros_txt}, priorizando descripciones que abordan temas afines y competencias asociadas."
 
-
 # =========================
 # Endpoints
 # =========================
 @app.post("/query")
 async def query(request: Request):
+    """
+    Módulo de BÚSQUEDAS (Reglamento/Información Carrera) con citas.
+    - Devuelve 'answer' (texto del LLM) y 'citations' (lista de fuentes).
+    """
     data = await request.json()
-    question = data.get("question", "")
+    question = data.get("question", "").strip()
     if not question:
         return {"answer": "Debes enviar una pregunta en el campo 'question'."}
     if qa_reglamento is None:
         return {"answer": "El índice de reglamento no está disponible en este servidor."}
+
     result = qa_reglamento.invoke({"question": question})
-    return {"answer": result.get("result", "")}
+    answer = (result.get("result") or "").strip()
+
+    sources = []
+    for d in result.get("source_documents", []):
+        md = d.metadata or {}
+        sources.append({
+            "file": md.get("filename") or md.get("source"),
+            "page": md.get("page"),
+            "section_hint": md.get("section_hint", ""),
+            "snippet": (d.page_content or "")[:300]
+        })
+
+    if (not answer) or ("No encontrado en los documentos proporcionados" in answer):
+        return {"answer": "No encontrado en los documentos proporcionados.", "citations": []}
+
+    return {"answer": answer, "citations": sources}
 
 @app.post("/recomendar-materias")
 async def recomendar_materias(request: Request):
