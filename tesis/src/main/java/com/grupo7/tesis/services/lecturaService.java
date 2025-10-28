@@ -17,6 +17,75 @@ import java.util.regex.Pattern;
 @Service
 public class lecturaService {
 
+    // ===== Helpers SOLO para complementarias (usados por extraerTextoComplementariaLenguasBruto) =====
+    private static final Pattern FILA_VALIDA =
+            Pattern.compile("^(PrimPe|TerPe)\\d{4}\\b.*", Pattern.CASE_INSENSITIVE);
+
+    private static boolean esLineaDescartable(String lower) {
+        return lower.contains("se ha incluido esta línea")
+                || lower.startsWith("ajuste ")
+                || lower.contains("entered by")
+                || lower.startsWith("unidades")
+                || lower.startsWith("- unidades")
+                || lower.startsWith("cursos")      // “Cursos Utilizados/Disponibles/…”
+                || lower.startsWith("- cursos")
+                || lower.contains("satisfecho")
+                || lower.contains("no satisfecho")
+                || lower.contains("obligatorias")
+                || lower.contains("necesarias")
+                || lower.equals("cursos utilizados");
+    }
+
+    private static int encontrarFinSeccion(String texto, int desde, String... delimitadores) {
+        int fin = texto.length();
+        for (String d : delimitadores) {
+            int i = texto.indexOf(d, desde + 1);
+            if (i != -1 && i < fin) fin = i;
+        }
+        return fin;
+    }
+
+    private static String parseBloqueComplementaria(String bloque, String tituloSeccion) {
+        String[] lineas = bloque.split("\n");
+        StringBuilder resultado = new StringBuilder();
+        boolean tablaComenzada = false;
+
+        for (String linea : lineas) {
+            String l = linea.trim();
+            if (l.isEmpty()) continue;
+
+            // Título una sola vez
+            if (resultado.length() == 0 && l.equalsIgnoreCase(tituloSeccion)) {
+                resultado.append(tituloSeccion).append("\n");
+                continue;
+            }
+
+            // Si aparece un nuevo bloque de "Complementaria ..." diferente, no mezclar
+            if (l.toLowerCase().startsWith("complementaria ")
+                    && !l.equalsIgnoreCase(tituloSeccion)) {
+                break;
+            }
+
+            // Encabezado de tabla
+            if (l.toLowerCase().startsWith("ciclo lectivo")) {
+                resultado.append(l).append("\n");
+                tablaComenzada = true;
+                continue;
+            }
+
+            if (tablaComenzada) {
+                String lower = l.toLowerCase();
+                if (esLineaDescartable(lower)) continue;
+
+                if (FILA_VALIDA.matcher(l).matches()) {
+                    resultado.append(l).append("\n");
+                }
+            }
+        }
+        return resultado.toString().trim();
+    }
+    // ================================================================================================
+
     public List<MateriaDTO> obtenerMateriasDesdeArchivo(MultipartFile archivo) {
         List<MateriaDTO> materias = new ArrayList<>();
         String titulo = "Historial de Cursos";
@@ -38,7 +107,6 @@ public class lecturaService {
 
                     Matcher matcher = patronFinal.matcher(linea);
                     if (matcher.find()) {
-                        // String posibleFinal = matcher.group(0);
                         String calif = matcher.group(2).trim();
                         String cred = matcher.group(3).trim();
                         String tipo = matcher.group(4).trim();
@@ -182,7 +250,7 @@ public class lecturaService {
                         if (filaValida.matcher(l).matches()) {
                             resultado.append(l).append("\n");
                         } else {
-                            
+                            // ignorar
                         }
                     }
                 }
@@ -485,12 +553,71 @@ public class lecturaService {
         return null;
     }
 
+    // =============================== FUNCIÓN MODIFICADA CLAVE ====================================
+    // AHORA devuelve TODAS las "Complementaria ..." (incluye Lenguas, Estética, etc.)
+    // EXCEPTO "Complementaria Información" (esa la mantiene tu otra función sin cambios).
     public String extraerTextoComplementariaLenguasBruto(MultipartFile archivo) {
+        StringBuilder out = new StringBuilder();
+
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();
             String texto = lector.getText(documento);
 
-            String inicioClave = "Complementaria Lenguas";
+            int pos = 0;
+            while (true) {
+                int inicio = texto.indexOf("Complementaria ", pos);
+                if (inicio == -1) break;
+
+                // Título de la complementaria (línea completa)
+                int finTitulo = texto.indexOf("\n", inicio);
+                String titulo = (finTitulo == -1)
+                        ? texto.substring(inicio).trim()
+                        : texto.substring(inicio, finTitulo).trim();
+
+                // Saltar "Complementaria Información" para evitar duplicados con tu otro método
+                if (titulo.equalsIgnoreCase("Complementaria Información")) {
+                    // Avanza al siguiente bloque
+                    pos = (finTitulo == -1) ? texto.length() : finTitulo;
+                    continue;
+                }
+
+                // Fin de bloque: siguiente "Complementaria " o grandes secciones
+                int finBloque = encontrarFinSeccion(
+                        texto, inicio,
+                        "Complementaria ",               // otra complementaria
+                        "Práctica profesional",          // secciones mayores que cortan
+                        "Electivas Universidad",
+                        "Requisitos de grado",
+                        "Historial de Cursos"
+                );
+
+                String bloqueOriginal = texto.substring(inicio, finBloque).trim();
+                String bloqueLimpio = parseBloqueComplementaria(bloqueOriginal, titulo);
+
+                if (!bloqueLimpio.isEmpty() && bloqueLimpio.toLowerCase().contains("ciclo lectivo")) {
+                    if (out.length() > 0) out.append("\n"); // separador entre bloques
+                    out.append(bloqueLimpio);
+                }
+
+                pos = finBloque;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Si no encontró nada, mantener compatibilidad devolviendo null
+        String res = out.toString().trim();
+        return res.isEmpty() ? null : res;
+    }
+    // =============================================================================================
+
+    public String extraerTextoComplementariaEsteticaBruto(MultipartFile archivo) {
+        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+            PDFTextStripper lector = new PDFTextStripper();
+            String texto = lector.getText(documento);
+
+            String inicioClave = "Complementaria Estética";
             String finClave = "Electivas Universidad";
 
             int inicio = texto.indexOf(inicioClave);
@@ -506,8 +633,8 @@ public class lecturaService {
                 for (String linea : lineas) {
                     String l = linea.trim();
 
-                    if (l.equalsIgnoreCase("Complementaria Lenguas") && resultado.length() == 0) {
-                        resultado.append("Complementaria Lenguas\n");
+                    if (l.equalsIgnoreCase("Complementaria Estética") && resultado.length() == 0) {
+                        resultado.append("Complementaria Estética\n");
                     }
 
                     if (l.startsWith("Ciclo Lectivo")) {
@@ -769,93 +896,6 @@ public class lecturaService {
         }
 
         return lista;
-    }
-
-    public String extraerTextoComplementariaCienciaPoliticaBruto(MultipartFile archivo) {
-        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
-            PDFTextStripper lector = new PDFTextStripper();
-            String texto = lector.getText(documento);
-
-            // En algunos PDF puede aparecer "Ciencia Politic" o "Ciencia Política"
-            String inicioClave = texto.contains("Complementaria Ciencia Política")
-                    ? "Complementaria Ciencia Política"
-                    : "Complementaria Ciencia Politic";
-            String finClave = "Electivas Universidad";
-
-            int inicio = texto.indexOf(inicioClave);
-            int fin = texto.indexOf(finClave);
-
-            if (inicio != -1 && fin != -1 && fin > inicio) {
-                String bloque = texto.substring(inicio, fin).trim();
-                String[] lineas = bloque.split("\n");
-                StringBuilder resultado = new StringBuilder();
-                boolean tablaComenzada = false;
-
-                for (String linea : lineas) {
-                    String l = linea.trim();
-                    if (l.equalsIgnoreCase(inicioClave) && resultado.length() == 0) {
-                        resultado.append("Complementaria Ciencia Política\n");
-                    }
-                    if (l.startsWith("Ciclo Lectivo")) {
-                        resultado.append(l).append("\n");
-                        tablaComenzada = true;
-                        continue;
-                    }
-                    if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
-                            break;
-                        resultado.append(l).append("\n");
-                    }
-                }
-
-                return resultado.toString().trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String extraerTextoComplementariaEsteticaBruto(MultipartFile archivo) {
-        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
-            PDFTextStripper lector = new PDFTextStripper();
-            String texto = lector.getText(documento);
-
-            String inicioClave = "Complementaria Estética";
-            String finClave = "Electivas Universidad";
-
-            int inicio = texto.indexOf(inicioClave);
-            int fin = texto.indexOf(finClave);
-
-            if (inicio != -1 && fin != -1 && fin > inicio) {
-                String bloque = texto.substring(inicio, fin).trim();
-                String[] lineas = bloque.split("\n");
-                StringBuilder resultado = new StringBuilder();
-                boolean tablaComenzada = false;
-
-                for (String linea : lineas) {
-                    String l = linea.trim();
-                    if (l.equalsIgnoreCase("Complementaria Estética") && resultado.length() == 0) {
-                        resultado.append("Complementaria Estética\n");
-                    }
-                    if (l.startsWith("Ciclo Lectivo")) {
-                        resultado.append(l).append("\n");
-                        tablaComenzada = true;
-                        continue;
-                    }
-                    if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
-                            break;
-                        resultado.append(l).append("\n");
-                    }
-                }
-
-                return resultado.toString().trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public List<String> extraerLineasRequisitosGrado(MultipartFile archivo) {
