@@ -554,8 +554,7 @@ public class lecturaService {
     }
 
     // =============================== FUNCIÓN MODIFICADA CLAVE ====================================
-    // AHORA devuelve TODAS las "Complementaria ..." (incluye Lenguas, Estética, etc.)
-    // EXCEPTO "Complementaria Información" (esa la mantiene tu otra función sin cambios).
+    // AHORA devuelve TODAS las "Complementaria ..." (incluye también "Complementaria Información").
     public String extraerTextoComplementariaLenguasBruto(MultipartFile archivo) {
         StringBuilder out = new StringBuilder();
 
@@ -574,12 +573,7 @@ public class lecturaService {
                         ? texto.substring(inicio).trim()
                         : texto.substring(inicio, finTitulo).trim();
 
-                // Saltar "Complementaria Información" para evitar duplicados con tu otro método
-                if (titulo.equalsIgnoreCase("Complementaria Información")) {
-                    // Avanza al siguiente bloque
-                    pos = (finTitulo == -1) ? texto.length() : finTitulo;
-                    continue;
-                }
+                // (ANTES se excluía "Complementaria Información"; ahora ya no se excluye)
 
                 // Fin de bloque: siguiente "Complementaria " o grandes secciones
                 int finBloque = encontrarFinSeccion(
