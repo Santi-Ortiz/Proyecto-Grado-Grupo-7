@@ -24,6 +24,8 @@ public class Progreso {
     private List<MateriaDTO> cursosEnfasis;
     private List<MateriaDTO> cursosComplementariaLenguas;
     private List<MateriaDTO> cursosComplementariaInformacion;
+    private List<MateriaDTO> cursosComplementariaEstetica;
+    private List<MateriaDTO> cursosComplementariaCienciaPolitica;
     private List<MateriaDTO> cursosIA;
     private List<MateriaDTO> cursosDesarrolloComputacion;
     private List<MateriaDTO> cursosDesarrolloGestion;
@@ -124,6 +126,13 @@ public class Progreso {
     public void setCursosComplementariaInformacion(List<MateriaDTO> cursosComplementariaInformacion) {
         this.cursosComplementariaInformacion = cursosComplementariaInformacion;
     }
+
+    public List<MateriaDTO> getCursosComplementariaEstetica() { return cursosComplementariaEstetica; }
+    public void setCursosComplementariaEstetica(List<MateriaDTO> cursosComplementariaEstetica) { this.cursosComplementariaEstetica = cursosComplementariaEstetica; }
+
+    public List<MateriaDTO> getCursosComplementariaCienciaPolitica() { return cursosComplementariaCienciaPolitica; }
+    public void setCursosComplementariaCienciaPolitica(List<MateriaDTO> cursosComplementariaCienciaPolitica) { this.cursosComplementariaCienciaPolitica = cursosComplementariaCienciaPolitica; }
+
 
     public List<MateriaDTO> getCursosIA() {
         return cursosIA;
