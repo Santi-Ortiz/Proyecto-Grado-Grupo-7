@@ -51,7 +51,7 @@ public class CargarInformeAvanceSystemTest {
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();
 
-
+    
     }
 
     @AfterEach
@@ -78,10 +78,11 @@ public class CargarInformeAvanceSystemTest {
     @Test
     public void testCargarInformeAvanceUsuarioExistente() {
 
+        crearUsuario();
         realizarLogin();
         cargarArchivoPDF();
 
-        page.waitForTimeout(4000);
+        page.waitForTimeout(2000);
 
         String urlFinal = page.url();
 
@@ -98,9 +99,7 @@ public class CargarInformeAvanceSystemTest {
 
         String urlActual = page.url();
 
-        assertTrue(urlActual.contains("/login") || urlActual.contains("/registro"),
-                "Sin autenticación, debe redirigir a /login o /registro");
-
+        assertEquals(SERVER_URL + LOGIN_URL, urlActual);
     }
 
     // Cargar archivo inválido
@@ -112,12 +111,12 @@ public class CargarInformeAvanceSystemTest {
         fileInput.setInputFiles(Paths.get(TEST_PDF_PATH_INVALID));
         page.waitForTimeout(1000);
 
-        page.locator("button[type='submit']").click();
+        page.locator("button.process-btn").click();
         page.waitForTimeout(3000);
 
         String urlActual = page.url();
 
-        assertNotEquals("http://localhost:4200/historial", urlActual);
+        assertEquals(SERVER_URL + LOGIN_URL, urlActual);
 
     }
 
@@ -143,19 +142,41 @@ public class CargarInformeAvanceSystemTest {
 
     private void realizarLogin() {
 
-        if (!page.url().contains("/login")) {
-            page.navigate(SERVER_URL + LOGIN_URL);
-            page.waitForLoadState();
-        }
+        page.navigate(SERVER_URL + LOGIN_URL);
 
-        page.locator("input[type='email'], input[name='correo']").fill(CORREO);
-        page.locator("input[type='password'], input[name='clave']").fill(CONTRASENA);
+        page.locator("input[type='email'], input[name='correo']").fill("prueba@javeriana.edu.co");
+        page.locator("input[type='password'], input[name='clave']").fill("admin123");
 
         page.waitForTimeout(500);
 
         page.locator("button[type='submit']").click();
 
         page.waitForTimeout(2000);
+    }
+
+    private void crearUsuario() {
+
+        page.navigate(SERVER_URL + REGISTER_URL);
+        page.waitForLoadState();
+
+        page.locator("input[name='primerNombre']").fill("Santiago");
+        page.locator("input[name='segundoNombre']").fill("Perez");
+        page.locator("input[name='primerApellido']").fill("Ortiz");
+        page.locator("input[name='segundoApellido']").fill("Alarcon");
+        page.locator("input[formControlName='codigo']").fill("87654321");
+        page.locator("select[formControlName='carrera']").selectOption("Ingeniería de Sistemas");
+        page.locator("input[formControlName='anioIngreso']").fill("2021");
+        page.locator("input[name='correo']").fill("prueba@javeriana.edu.co");
+        page.locator("input[name='clave']").fill("admin123");
+        page.locator("input[formControlName='confirmarContrasenia']").fill("admin123");
+
+        page.waitForTimeout(500);
+        page.locator("button[type='submit']").click();
+
+        page.waitForTimeout(500);
+        page.locator(".user-menu i.fa-user-circle").hover();
+        page.locator(".user-menu .dropdown a:has-text('Cerrar sesión')").click();
+
     }
 
     private void cargarArchivoPDF() {

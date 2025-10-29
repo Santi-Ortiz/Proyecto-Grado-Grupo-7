@@ -9,13 +9,17 @@ import com.microsoft.playwright.Playwright;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class BusquedaInformacionSystemTest {
 
     private static final String LOGIN_URL = "/login";
@@ -57,7 +61,6 @@ public class BusquedaInformacionSystemTest {
 
     // Búsqueda con consulta vacía
     @Test
-    @DisplayName("CP03 - Búsqueda con consulta vacía")
     public void testBusquedaConsultaVacia() {
 
     }
