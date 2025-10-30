@@ -46,10 +46,11 @@ public class RecomendacionMateriasSystemTest {
     private static final String CORREO = "test.playwright@javeriana.edu.co";
     private static final String CONTRASENA = "Password123!";
 
-    private static final String CONSULTA_GENERAL = "¿Qué materias me recomiendas para el próximo semestre?";
-    private static final String CONSULTA_ENFASIS = "Quiero tomar materias de énfasis en Inteligencia Artificial";
-    private static final String CONSULTA_ELECTIVAS = "Dame recomendaciones de electivas complementarias";
-    private static final String CONSULTA_COMPLEMENTARIAS = "Dame recomendaciones de materias complementarias";
+    private static final String CONSULTA_GENERAL = "¿Qué materias me recomiendas para el próximo semestre si quiero estudiar Inteligencia Artificial?";
+    private static final String CONSULTA_ENFASIS = "Quiero tomar materias de énfasis en Analisis de Datos y su aplicación, ¿qué me recomiendas?";
+    private static final String CONSULTA_ELECTIVAS = "Dame recomendaciones de materias que estén relacionadas con el área de finanzas";
+    private static final String CONSULTA_COMPLEMENTARIAS = "Dame recomendaciones de materias que sean un complemento del área gerencial en proyectos de software";
+    private static final String CONSULTA_ELECTIVACB = "Dame recomendaciones de materias para inscribir de ciencias básicas";
 
     private Playwright playwright;
     private Browser browser;
@@ -63,7 +64,7 @@ public class RecomendacionMateriasSystemTest {
         this.browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
                         .setHeadless(false)
-                        .setSlowMo(800));
+                        .setSlowMo(100));
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();
     }
@@ -84,7 +85,7 @@ public class RecomendacionMateriasSystemTest {
         page.locator(XPATH_RECOMENDACION_TEXTAREA).fill(CONSULTA_GENERAL);
         page.locator(XPATH_RECOMENDACION_TIPO_MATERIA).selectOption("Cualquiera");
         page.locator(XPATH_RECOMENDACION_BUTTON).click();
-        page.waitForTimeout(25000);
+        page.waitForTimeout(35000);
 
         assertEquals(true, page.locator(XPATH_RECOMENDACION_RESPUESTA).isVisible());
         assertEquals(true, page.locator(XPATH_RECOMENDACION_SUGERENCIA).isVisible());
@@ -93,19 +94,67 @@ public class RecomendacionMateriasSystemTest {
 
     // Recomendación de materias de énfasis 
     @Test
-    public void testRecomendacionEnfasisEspecifico() {
-        
+    public void testRecomendacionEnfasis() {
+        realizarRegistro();
+        cargarArchivoPDF();
+
+        page.locator(XPATH_RECOMENDACIONES_NAVBAR).click();
+        page.locator(XPATH_RECOMENDACION_TEXTAREA).fill(CONSULTA_ENFASIS);
+        page.locator(XPATH_RECOMENDACION_TIPO_MATERIA).selectOption("Énfasis");
+        page.locator(XPATH_RECOMENDACION_BUTTON).click();
+        page.waitForTimeout(35000);
+
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_RESPUESTA).isVisible());
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_SUGERENCIA).isVisible());
     }
     
     // Recomendación de electivas 
     @Test
-    public void testRecomendacionElectivasComplementarias() {
+    public void testRecomendacionElectivas() {
+        realizarRegistro();
+        cargarArchivoPDF();
+
+        page.locator(XPATH_RECOMENDACIONES_NAVBAR).click();
+        page.locator(XPATH_RECOMENDACION_TEXTAREA).fill(CONSULTA_ELECTIVAS);
+        page.locator(XPATH_RECOMENDACION_TIPO_MATERIA).selectOption("Electivas");
+        page.locator(XPATH_RECOMENDACION_BUTTON).click();
+        page.waitForTimeout(35000);
+
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_RESPUESTA).isVisible());
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_SUGERENCIA).isVisible());
+    }
+
+    // Recomendación de electiva de ciencias básicas
+    @Test
+    public void testRecomendacionElectivasCB() {
+        realizarRegistro();
+        cargarArchivoPDF();
+
+        page.locator(XPATH_RECOMENDACIONES_NAVBAR).click();
+        page.locator(XPATH_RECOMENDACION_TEXTAREA).fill(CONSULTA_ELECTIVACB);
+        page.locator(XPATH_RECOMENDACION_TIPO_MATERIA).selectOption("Electivas Ciencias Básicas");
+        page.locator(XPATH_RECOMENDACION_BUTTON).click();
+        page.waitForTimeout(35000);
+
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_RESPUESTA).isVisible());
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_SUGERENCIA).isVisible());
         
     }
 
      // Recomendación de complementarias
     @Test
     public void testRecomendacionComplementarias() {
+        realizarRegistro();
+        cargarArchivoPDF();
+
+        page.locator(XPATH_RECOMENDACIONES_NAVBAR).click();
+        page.locator(XPATH_RECOMENDACION_TEXTAREA).fill(CONSULTA_COMPLEMENTARIAS);
+        page.locator(XPATH_RECOMENDACION_TIPO_MATERIA).selectOption("Complementarias");
+        page.locator(XPATH_RECOMENDACION_BUTTON).click();
+        page.waitForTimeout(35000);
+
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_RESPUESTA).isVisible());
+        assertEquals(true, page.locator(XPATH_RECOMENDACION_SUGERENCIA).isVisible());
         
     }
 

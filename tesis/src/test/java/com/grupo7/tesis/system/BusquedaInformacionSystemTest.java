@@ -57,7 +57,7 @@ public class BusquedaInformacionSystemTest {
         this.browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
                         .setHeadless(false)
-                        .setSlowMo(800));
+                        .setSlowMo(100));
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();
     }
@@ -79,7 +79,7 @@ public class BusquedaInformacionSystemTest {
         page.locator(XPATH_BUSQUEDA_NAVBAR).click();
         page.locator(XPATH_BUSQUEDA_TEXTAREA).fill(PROMPT);
         page.locator(XPATH_BUSQUEDA_BUTTON).click();
-        page.waitForTimeout(15000);
+        page.waitForTimeout(35000);
 
         assertEquals(true, page.locator("//div[contains(@class, 'respuesta-box')]//p").isVisible());
     }

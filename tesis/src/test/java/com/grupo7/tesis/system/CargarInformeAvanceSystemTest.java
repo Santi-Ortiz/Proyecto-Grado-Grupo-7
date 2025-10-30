@@ -46,7 +46,7 @@ public class CargarInformeAvanceSystemTest {
         this.browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
                         .setHeadless(false)
-                        .setSlowMo(800));
+                        .setSlowMo(100));
 
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();
@@ -82,7 +82,7 @@ public class CargarInformeAvanceSystemTest {
         realizarLogin();
         cargarArchivoPDF();
 
-        page.waitForTimeout(2000);
+        page.waitForTimeout(3000);
 
         String urlFinal = page.url();
 
