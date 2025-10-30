@@ -20,7 +20,7 @@ from langchain_core.documents import Document
 # =========================
 app = FastAPI()
 
-# Middleware de CORS (exponemos el header de tiempo para que el front lo lea)
+# CORS (exponemos el header de tiempo)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,7 +30,7 @@ app.add_middleware(
     expose_headers=["X-Process-Time-ms"],
 )
 
-# Middleware de medición: agrega X-Process-Time-ms en todas las respuestas
+# Middleware de medición
 class TimingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         t0 = time.perf_counter()
@@ -51,7 +51,10 @@ vector_electivas = None
 vector_complementarias = None
 vector_ciencias_basicas = None
 llm = None
-embeddings = None
+
+# ✅ Dos embeddings separados
+embeddings_reglamento = None
+embeddings_materias = None
 
 def _env_float(name: str, default: float) -> float:
     try:
@@ -77,16 +80,16 @@ def _env_bool(name: str, default: bool) -> bool:
 SCORE_MIN_STRICT = _env_float("RAG_SCORE_MIN", 0.60)
 SUGGEST_MIN      = _env_float("RAG_SUGGEST_MIN", 0.30)
 SUGGEST_MAX_CFG  = _env_float("RAG_SUGGEST_MAX", 0.59)
-SUGGEST_MAX      = min(SUGGEST_MAX_CFG, max(0.0, SCORE_MIN_STRICT - 0.01))  # sin solape
+SUGGEST_MAX      = min(SUGGEST_MAX_CFG, max(0.0, SCORE_MIN_STRICT - 0.01))
 
 # Límite de materias por tabla
 MAIN_MAX            = _env_int("RAG_MAIN_MAX", 2)
 SUGGEST_ITEMS_MAX   = _env_int("RAG_SUGGEST_ITEMS_MAX", 6)
 
-# Recuperación (k candidatos crudos a FAISS antes de filtros)
+# Recuperación (k candidatos crudos)
 RETRIEVE_K          = _env_int("RAG_RETRIEVE_K", 60)
 
-# Fallback: si no hay sugeridas en el rango, tomar los siguientes mejores
+# Fallback sugerencias
 SUGGEST_FALLBACK    = _env_bool("RAG_SUGGEST_FALLBACK", True)
 
 # =========================
@@ -107,10 +110,6 @@ RESPUESTA:"""
 prompt_reglamento = PromptTemplate.from_template(STRICT_PROMPT_TMPL)
 
 def _build_retriever(vs: FAISS):
-    """
-    Retriever estricto con umbral de similitud.
-    Ajusta score_threshold tras validar con preguntas reales (rango típico 0.30–0.45).
-    """
     return vs.as_retriever(
         search_type="similarity_score_threshold",
         search_kwargs={
@@ -124,18 +123,22 @@ def _build_retriever(vs: FAISS):
 # =========================
 @app.on_event("startup")
 def load_rag():
-    global embeddings, qa_reglamento, vector_all, vector_enfasis, vector_electivas, vector_complementarias, vector_ciencias_basicas, llm
+    global embeddings_reglamento, embeddings_materias
+    global qa_reglamento, vector_all, vector_enfasis, vector_electivas, vector_complementarias, vector_ciencias_basicas, llm
 
-    # Embeddings multilingües (mejor recuperación en español)
-    embeddings = HuggingFaceEmbeddings(
+    # ⚖️ e5 para REGLAMENTO (si el índice fue creado con e5)
+    embeddings_reglamento = HuggingFaceEmbeddings(
         model_name="intfloat/multilingual-e5-base",
         encode_kwargs={"normalize_embeddings": True},
     )
 
+    # ✅ MiniLM para MATERIAS (índices existentes)
+    embeddings_materias = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+
     # ========= REGLAMENTO / BÚSQUEDAS =========
     try:
         vectorstore_reglamento = FAISS.load_local(
-            "faiss_index", embeddings, allow_dangerous_deserialization=True
+            "faiss_index", embeddings_reglamento, allow_dangerous_deserialization=True
         )
     except Exception:
         vectorstore_reglamento = None
@@ -156,7 +159,7 @@ def load_rag():
 
     # ========= MATERIAS (índices) =========
     def load_index(path: str):
-        return FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
+        return FAISS.load_local(path, embeddings_materias, allow_dangerous_deserialization=True)
 
     try:
         global vector_all; vector_all = load_index("faiss_materias")
@@ -180,7 +183,7 @@ def load_rag():
         vector_ciencias_basicas = None
 
     print(
-        "✅ RAG listo "
+        "✅ RAG listo (dual embeddings) "
         f"(RAG_SCORE_MIN={SCORE_MIN_STRICT} | RAG_SUGGEST_MIN={SUGGEST_MIN} | SUGGEST_MAX={SUGGEST_MAX} | "
         f"RAG_MAIN_MAX={MAIN_MAX} | RAG_SUGGEST_ITEMS_MAX={SUGGEST_ITEMS_MAX} | RAG_RETRIEVE_K={RETRIEVE_K} | "
         f"RAG_SUGGEST_FALLBACK={SUGGEST_FALLBACK})"
@@ -201,7 +204,6 @@ def get_store(tipo: str):
     }.get(t, vector_all)
 
 def recuperar_candidatos_raw(intereses: str, store, k: int) -> List[Tuple[Document, float]]:
-    """Devuelve [(doc, dist)] crudos desde FAISS."""
     if store is None:
         return []
     try:
@@ -211,7 +213,6 @@ def recuperar_candidatos_raw(intereses: str, store, k: int) -> List[Tuple[Docume
     return list(raw)
 
 def _doc_key(d: Document) -> str:
-    """Clave robusta para dedupe: id | nombre|catalogo|oferta | hash del contenido."""
     md = d.metadata or {}
     _id = (md.get("id") or "").strip()
     if _id:
@@ -234,11 +235,6 @@ def dedupe_raw(pares: List[Tuple[Document, float]]) -> List[Tuple[Document, floa
     return out
 
 def normalizar_scores(pares: List[Tuple[Document, float]]) -> List[Tuple[Document, float]]:
-    """
-    Min–max sobre distancias para score en [0..1] (por consulta):
-    - menor distancia => score más alto (1.0)
-    - mayor distancia => score más bajo (0.0)
-    """
     if not pares:
         return []
     dists = [float(dist) for _, dist in pares]
@@ -255,10 +251,6 @@ def normalizar_scores(pares: List[Tuple[Document, float]]) -> List[Tuple[Documen
     return norm
 
 def filtrar_por_creditos_scored(pares: List[Tuple[Document, float]], creditos_usuario) -> List[Tuple[Document, float]]:
-    """
-    Filtra una lista [(doc, score)] por créditos exactos según metadata.
-    Si 'cualquiera', devuelve la lista tal cual.
-    """
     if creditos_usuario is None or str(creditos_usuario).lower() == "cualquiera":
         return pares
     try:
@@ -308,10 +300,6 @@ def pedir_explicacion_global(intereses: str, tipo: str, creditos, cursos: List[D
 # =========================
 @app.post("/query")
 async def query(request: Request):
-    """
-    Módulo de BÚSQUEDAS (Reglamento/Información Carrera) con citas.
-    - Devuelve 'answer' (texto del LLM) y 'citations' (lista de fuentes).
-    """
     data = await request.json()
     question = data.get("question", "").strip()
     if not question:
@@ -346,21 +334,16 @@ async def recomendar_materias(request: Request):
 
     store = get_store(tipo)
 
-    # 1) Recuperación cruda + dedupe
     pares_raw = recuperar_candidatos_raw(intereses, store, k=RETRIEVE_K)
     pares_raw = dedupe_raw(pares_raw)
+    pares_scored_all = normalizar_scores(pares_raw)
 
-    # 2) Normalización a score 0..1
-    pares_scored_all = normalizar_scores(pares_raw)  # [(doc, score)]
-
-    # 3) TABLA 1 (FUERTES): filtra por créditos + umbral fuerte
     candidatos_fuertes = filtrar_por_creditos_scored(pares_scored_all, creditos)
     fuertes: List[Tuple[Document, float]] = [
         (d, s) for d, s in candidatos_fuertes if s >= SCORE_MIN_STRICT
     ]
     fuertes = fuertes[:MAIN_MAX]
 
-    # 4) TABLA 2 (SUGERIDAS): IGNORA CRÉDITOS
     keys_fuertes = set(_doc_key(d) for d, _ in fuertes)
     high_no_credits_match: List[Tuple[Document, float]] = []
     for d, s in pares_scored_all:
@@ -379,7 +362,6 @@ async def recomendar_materias(request: Request):
         if k not in seen:
             seen.add(k)
             sugeridos.append((d, s))
-
     sugeridos = sugeridos[:SUGGEST_ITEMS_MAX]
 
     if SUGGEST_FALLBACK and not sugeridos and pares_scored_all:
@@ -447,9 +429,9 @@ async def recomendar_materias(request: Request):
         }
 
     return {
-        "materias": materias,                      # tabla 1 (fuertes con créditos)
+        "materias": materias,
         "explicacion": explicacion,
-        "materias_sugeridas": materias_sugeridas,  # tabla 2 (intereses, sin créditos)
+        "materias_sugeridas": materias_sugeridas,
         "explicacion_sugeridas": explicacion_sugeridas,
         "observaciones": {
             "filtros_aplicados": {"intereses": intereses, "creditos": str(creditos), "tipo": tipo},
