@@ -19,6 +19,8 @@ public class SimulacionSystemTest {
     private static final String SERVER_URL = "http://localhost:4200";
     private static final String REGISTER_URL = "/registro";
     private static final String SIMULACION_URL = "/simulaciones";
+    private static final String SIMULACION_RESULTADO_URL = "/simulaciones/mostrar";
+    private static final String HISTORIAL_SIMULACION_URL = "/simulaciones/historial";
 
     private static final String TEST_PDF_PATH = "src/test/resources/informes/InformeAvance.pdf";
 
@@ -66,11 +68,17 @@ public class SimulacionSystemTest {
         page.waitForTimeout(3000);
         seleccionarSimulacion();
         page.waitForTimeout(2000);
-
+        String urlActual = page.url();
+        assertEquals(SERVER_URL + SIMULACION_URL, urlActual);
         llenarFormularioSimulacion();
-
-        /*String urlActual = page.url();
-        assertEquals(SERVER_URL + SIMULACION_URL, urlActual);*/
+        urlActual = page.url();
+        assertEquals(SERVER_URL + SIMULACION_RESULTADO_URL, urlActual);
+        verSimulacionPensum();
+        verResultadoSimulacion();
+        guardarSimulacion();
+        verHistorialSimulacion();
+        urlActual = page.url();
+        assertEquals(SERVER_URL + HISTORIAL_SIMULACION_URL, urlActual);
     }
 
     private void realizarRegistro() {
@@ -124,6 +132,42 @@ public class SimulacionSystemTest {
         page.waitForTimeout(500);
         page.locator("button.simulacion-button").click();
         esperarResultado("playwrightprueba1");
+        page.waitForTimeout(2000);
+    }
+
+    private void verSimulacionPensum(){
+        page.locator("button.visualizar-simulacion").click();
+        page.waitForTimeout(3000);
+        page.locator("button.volver-simulacion").click();
+    }
+
+    private void verResultadoSimulacion(){
+        int lastHeight = 0;
+
+        while (true) {
+            page.keyboard().press("PageDown");
+            page.waitForTimeout(500);
+            lastHeight ++;
+            if (lastHeight > 7) {
+                break;
+            }
+        }
+
+    }
+
+    private void guardarSimulacion(){
+        page.waitForTimeout(3000);
+        page.locator("button.guardar-simulacion").click();
+        page.waitForTimeout(2000);
+        page.locator("button.btn-cerrar").click();
+        page.waitForTimeout(2000);
+    }
+
+    private void verHistorialSimulacion(){
+        page.locator("button.nueva-simulacion").click();
+        page.waitForTimeout(3000);
+        page.locator("button.historial-button").click();
+        page.waitForTimeout(2000);
     }
 
     
