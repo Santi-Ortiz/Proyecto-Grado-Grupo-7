@@ -55,9 +55,6 @@ public class lecturaController {
                 List<MateriaDTO> cursosComplementariaLenguas = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoComplementariaLenguasBruto(archivo));
 
-                List<MateriaDTO> cursosComplementariaInfo = lecturaService.convertirTextoElectivasATabla(
-                                lecturaService.extraerTextoComplementariaInformacionBruto(archivo));
-
                 List<MateriaDTO> tablaElectivas = lecturaService.convertirTextoElectivasATabla(
                                 lecturaService.extraerTextoElectivasBruto(archivo));
 
@@ -89,7 +86,6 @@ public class lecturaController {
                 progreso.setCursosElectivas(tablaElectivas);
                 progreso.setCursosEnfasis(cursosEnfasis);
                 progreso.setCursosComplementariaLenguas(cursosComplementariaLenguas);
-                progreso.setCursosComplementariaInformacion(cursosComplementariaInfo);
                 progreso.setCursosIA(cursosIA);
                 progreso.setCursosDesarrolloComputacion(tablaDesarrolloComputacion);
                 progreso.setCursosDesarrolloGestion(tablaDesarrolloGestion);

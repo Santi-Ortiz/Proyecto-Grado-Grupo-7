@@ -77,7 +77,9 @@ public class lecturaService {
                 String lower = l.toLowerCase();
                 if (esLineaDescartable(lower)) continue;
 
-                if (FILA_VALIDA.matcher(l).matches()) {
+                // Guardamos TODAS las líneas relevantes, incluso si son continuación de una fila
+                // La unión y parseo robusto se hará en convertirTextoElectivasATabla
+                if (FILA_VALIDA.matcher(l).matches() || !l.toLowerCase().startsWith("ciclo lectivo")) {
                     resultado.append(l).append("\n");
                 }
             }
@@ -249,8 +251,6 @@ public class lecturaService {
                         }
                         if (filaValida.matcher(l).matches()) {
                             resultado.append(l).append("\n");
-                        } else {
-                            // ignorar
                         }
                     }
                 }
@@ -573,8 +573,6 @@ public class lecturaService {
                         ? texto.substring(inicio).trim()
                         : texto.substring(inicio, finTitulo).trim();
 
-                // (ANTES se excluía "Complementaria Información"; ahora ya no se excluye)
-
                 // Fin de bloque: siguiente "Complementaria " o grandes secciones
                 int finBloque = encontrarFinSeccion(
                         texto, inicio,
@@ -702,54 +700,6 @@ public class lecturaService {
         return null;
     }
 
-    public String extraerTextoComplementariaInformacionBruto(MultipartFile archivo) {
-        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
-            PDFTextStripper lector = new PDFTextStripper();
-            String texto = lector.getText(documento);
-
-            String inicioClave = "Complementaria Información";
-            String finClave = "Complementaria Lenguas";
-
-            int inicio = texto.indexOf(inicioClave);
-            int fin = texto.indexOf(finClave);
-
-            if (inicio != -1 && fin != -1 && fin > inicio) {
-                String bloque = texto.substring(inicio, fin).trim();
-                String[] lineas = bloque.split("\n");
-
-                StringBuilder resultado = new StringBuilder();
-                boolean tablaComenzada = false;
-
-                for (String linea : lineas) {
-                    String l = linea.trim();
-
-                    if (l.equalsIgnoreCase("Complementaria Información") && resultado.length() == 0) {
-                        resultado.append("Complementaria Información\n");
-                    }
-
-                    if (l.startsWith("Ciclo Lectivo")) {
-                        resultado.append(l).append("\n");
-                        tablaComenzada = true;
-                        continue;
-                    }
-
-                    if (tablaComenzada) {
-                        if (l.isEmpty() || l.toLowerCase().contains("ajuste") || l.toLowerCase().contains("entered by"))
-                            break;
-                        resultado.append(l).append("\n");
-                    }
-                }
-
-                return resultado.toString().trim();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
     public String extraerTextoElectivasBruto(MultipartFile archivo) {
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();
@@ -846,51 +796,108 @@ public class lecturaService {
         return null;
     }
 
+    // ===================== CORRECCIÓN ROBUSTA PARA FILAS MULTILÍNEA =====================
     public List<MateriaDTO> convertirTextoElectivasATabla(String texto) {
         List<MateriaDTO> lista = new ArrayList<>();
+        if (texto == null || texto.isEmpty()) return lista;
 
-        if (texto == null || texto.isEmpty())
-            return lista;
-
-        String[] lineas = texto.split("\\n");
-
+        String[] lineas = texto.split("\\r?\\n");
         boolean tablaComenzada = false;
+
+        // Buffer para acumular una fila que puede venir en varias líneas
+        StringBuilder filaAcumulada = new StringBuilder();
+
+        // Regex para detectar el final de una fila: "Calif Cred Tipo" al final
+        final Pattern patronFinFila = Pattern.compile(
+                "(?:\\s|^)([0-9]+(?:\\.[0-9]{1,2})?|[A-ZÑ])\\s+([0-9]+\\.[0-9]{2})\\s+(\\S+)\\s*$"
+        );
+
+        // Prefijo de inicio de fila (PrimPeXXXX / TerPeXXXX)
+        final Pattern patronInicioFila = Pattern.compile("^(PrimPe|TerPe)\\d{4}\\b.*");
 
         for (String linea : lineas) {
             String l = linea.trim();
+            if (l.isEmpty()) continue;
 
-            if (l.startsWith("Ciclo Lectivo")) {
+            if (l.toLowerCase().startsWith("ciclo lectivo")) {
                 tablaComenzada = true;
+                // reiniciar cualquier acumulación previa
+                filaAcumulada.setLength(0);
                 continue;
             }
 
-            if (tablaComenzada && !l.isEmpty()) {
+            if (!tablaComenzada) continue;
 
-                String[] tokens = l.split("\\s+");
-
-                if (tokens.length >= 8) {
-                    String ciclo = tokens[0];
-                    String materiaCod = tokens[1];
-                    String nCat = tokens[2];
-                    String cursoCod = tokens[3];
-
-                    StringBuilder tituloBuilder = new StringBuilder();
-                    for (int i = 4; i < tokens.length - 3; i++) {
-                        tituloBuilder.append(tokens[i]).append(" ");
-                    }
-
-                    String titulo = tituloBuilder.toString().trim();
-                    String calif = tokens[tokens.length - 3];
-                    String cred = tokens[tokens.length - 2];
-                    String tipo = tokens[tokens.length - 1];
-
-                    lista.add(new MateriaDTO(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
+            // Si inicia una nueva fila y había algo acumulado que no se había cerrado,
+            // intentamos parsearlo forzando (por si la fila anterior estaba completa).
+            if (patronInicioFila.matcher(l).matches()) {
+                // cerrar la que estuviera en curso
+                if (filaAcumulada.length() > 0) {
+                    parsearYAgregarFilaSiValida(filaAcumulada.toString(), lista);
+                    filaAcumulada.setLength(0);
+                }
+                filaAcumulada.append(l);
+            } else {
+                // Continuación de la fila actual
+                if (filaAcumulada.length() > 0) {
+                    filaAcumulada.append(" ").append(l);
+                } else {
+                    // Si llega aquí, es texto suelto sin haber detectado inicio de fila;
+                    // lo ignoramos (encabezados, notas, etc.).
+                    continue;
                 }
             }
+
+            // Si ya tenemos "Calif Cred Tipo" al final, cerramos y parseamos
+            if (patronFinFila.matcher(filaAcumulada.toString()).find()) {
+                parsearYAgregarFilaSiValida(filaAcumulada.toString(), lista);
+                filaAcumulada.setLength(0);
+            }
+        }
+
+        // Si al final quedó una fila sin cerrar pero parece completa, intentar parsearla
+        if (filaAcumulada.length() > 0) {
+            parsearYAgregarFilaSiValida(filaAcumulada.toString(), lista);
         }
 
         return lista;
     }
+
+    private void parsearYAgregarFilaSiValida(String fila, List<MateriaDTO> lista) {
+        // Intentar extraer al final "calif cred tipo"
+        // calif: número con decimales o letra (A, B, etc. – en tu PDF aparece "A" o números)
+        // cred: número con dos decimales
+        // tipo: token final (Ma, Si, etc.)
+        Pattern fin = Pattern.compile("(.*)\\s+([0-9]+(?:\\.[0-9]{1,2})?|[A-ZÑ])\\s+([0-9]+\\.[0-9]{2})\\s+(\\S+)\\s*$");
+        Matcher m = fin.matcher(fila);
+        if (!m.matches()) {
+            return; // no está completa
+        }
+
+        String parteInicial = m.group(1).trim();
+        String calif = m.group(2).trim();
+        String cred = m.group(3).trim();
+        String tipo = m.group(4).trim();
+
+        String[] tokens = parteInicial.split("\\s+");
+        if (tokens.length < 4) return;
+
+        String ciclo = tokens[0];
+        String materiaCod = tokens[1];
+        String nCat = tokens[2];
+        String cursoCod = tokens[3];
+
+        StringBuilder tituloBuilder = new StringBuilder();
+        for (int i = 4; i < tokens.length; i++) {
+            tituloBuilder.append(tokens[i]).append(" ");
+        }
+        String titulo = tituloBuilder.toString().trim();
+
+        // Algunas veces la calificación que detectamos como parte del final podría ser letra (A) para cursos de bienestar.
+        // Eso es válido y lo dejamos tal cual.
+        lista.add(new MateriaDTO(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
+    }
+    // =============================================================================================
 
     public List<String> extraerLineasRequisitosGrado(MultipartFile archivo) {
         try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
