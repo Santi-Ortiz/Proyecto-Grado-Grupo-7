@@ -138,7 +138,6 @@ public class SimulacionServiceTest {
             cursosVacios,   // cursosComputacionVisual
             cursosVacios,   // cursosCVtoIA
             cursosVacios,   // cursosSIGtoIA
-            cursosVacios,    // cursosElectivaBasicas
             cursosVacios,
             cursosVacios,
             cursosVacios,

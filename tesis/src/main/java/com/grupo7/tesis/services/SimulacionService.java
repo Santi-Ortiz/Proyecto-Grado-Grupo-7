@@ -399,9 +399,6 @@ public class SimulacionService {
         if (progreso.getCursosComplementariaLenguas() != null) {
             nuevasComplementarias.addAll(progreso.getCursosComplementariaLenguas());
         }
-        if (progreso.getCursosComplementariaInformacion() != null) {
-            nuevasComplementarias.addAll(progreso.getCursosComplementariaInformacion());
-        }
         List<MateriaDTO> nuevosEnfasis = new ArrayList<>(progreso.getCursosEnfasis() != null ? progreso.getCursosEnfasis() : new ArrayList<>());
         List<MateriaDTO> nuevasElectivaBasicas = new ArrayList<>(progreso.getCursosElectivaBasicas() != null ? progreso.getCursosElectivaBasicas() : new ArrayList<>());
 

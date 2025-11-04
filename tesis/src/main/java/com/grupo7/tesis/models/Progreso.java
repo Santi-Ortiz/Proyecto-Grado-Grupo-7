@@ -23,9 +23,6 @@ public class Progreso {
     private List<MateriaDTO> cursosElectivas;
     private List<MateriaDTO> cursosEnfasis;
     private List<MateriaDTO> cursosComplementariaLenguas;
-    private List<MateriaDTO> cursosComplementariaInformacion;
-    private List<MateriaDTO> cursosComplementariaEstetica;
-    private List<MateriaDTO> cursosComplementariaCienciaPolitica;
     private List<MateriaDTO> cursosIA;
     private List<MateriaDTO> cursosDesarrolloComputacion;
     private List<MateriaDTO> cursosDesarrolloGestion;
@@ -45,7 +42,7 @@ public class Progreso {
     }
 
     public Progreso(List<MateriaDTO> cursosVacios, List<String> lineasVacias, List<MateriaDTO> cursosVacios2,
-            List<MateriaDTO> cursosVacios3, List<MateriaDTO> cursosVacios4, List<MateriaDTO> cursosVacios5,
+            List<MateriaDTO> cursosVacios3, List<MateriaDTO> cursosVacios4,
             List<MateriaDTO> cursosVacios6, List<MateriaDTO> cursosVacios7, List<MateriaDTO> cursosVacios8,
             List<MateriaDTO> cursosVacios9, List<MateriaDTO> cursosVacios10, List<MateriaDTO> cursosVacios11,
             List<MateriaDTO> cursosVacios12, List<MateriaDTO> cursosVacios13, List<MateriaDTO> cursosVacios14,
@@ -55,7 +52,6 @@ public class Progreso {
         this.cursosElectivas = cursosVacios2;
         this.cursosEnfasis = cursosVacios3;
         this.cursosComplementariaLenguas = cursosVacios4;
-        this.cursosComplementariaInformacion = cursosVacios5;
         this.cursosIA = cursosVacios6;
         this.cursosDesarrolloComputacion = cursosVacios7;
         this.cursosDesarrolloGestion = cursosVacios8;
@@ -118,21 +114,6 @@ public class Progreso {
     public void setCursosComplementariaLenguas(List<MateriaDTO> cursosComplementariaLenguas) {
         this.cursosComplementariaLenguas = cursosComplementariaLenguas;
     }
-
-    public List<MateriaDTO> getCursosComplementariaInformacion() {
-        return cursosComplementariaInformacion;
-    }
-
-    public void setCursosComplementariaInformacion(List<MateriaDTO> cursosComplementariaInformacion) {
-        this.cursosComplementariaInformacion = cursosComplementariaInformacion;
-    }
-
-    public List<MateriaDTO> getCursosComplementariaEstetica() { return cursosComplementariaEstetica; }
-    public void setCursosComplementariaEstetica(List<MateriaDTO> cursosComplementariaEstetica) { this.cursosComplementariaEstetica = cursosComplementariaEstetica; }
-
-    public List<MateriaDTO> getCursosComplementariaCienciaPolitica() { return cursosComplementariaCienciaPolitica; }
-    public void setCursosComplementariaCienciaPolitica(List<MateriaDTO> cursosComplementariaCienciaPolitica) { this.cursosComplementariaCienciaPolitica = cursosComplementariaCienciaPolitica; }
-
 
     public List<MateriaDTO> getCursosIA() {
         return cursosIA;
@@ -455,9 +436,8 @@ public class Progreso {
     @JsonIgnore
     public int getCreditosComplementaria() {
         List<MateriaDTO> lenguas = cursosComplementariaLenguas != null ? cursosComplementariaLenguas : new ArrayList<>();
-        List<MateriaDTO> informacion = cursosComplementariaInformacion != null ? cursosComplementariaInformacion : new ArrayList<>();
-        
-        int creditosComplementaria = Stream.of(lenguas, informacion)
+
+        int creditosComplementaria = Stream.of(lenguas)
                     .flatMap(Collection::stream)
                     .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
                     .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
@@ -468,16 +448,16 @@ public class Progreso {
     @JsonIgnore
     public int getCreditosEnfasis() {
         List<MateriaDTO> enfasis = cursosEnfasis != null ? cursosEnfasis : new ArrayList<>();
-        List<MateriaDTO> seguridad = cursosSeguridad != null ? cursosSeguridad : new ArrayList<>();
+        /*List<MateriaDTO> seguridad = cursosSeguridad != null ? cursosSeguridad : new ArrayList<>();
         List<MateriaDTO> ia = cursosIA != null ? cursosIA : new ArrayList<>();
         List<MateriaDTO> desarrollo = cursosDesarrolloComputacion != null ? cursosDesarrolloComputacion : new ArrayList<>();
         List<MateriaDTO> gestion = cursosDesarrolloGestion != null ? cursosDesarrolloGestion : new ArrayList<>();
         List<MateriaDTO> visual = cursosComputacionVisual != null ? cursosComputacionVisual : new ArrayList<>();
         List<MateriaDTO> cvToIa = cursosCVtoIA != null ? cursosCVtoIA : new ArrayList<>();
-        List<MateriaDTO> sigToIa = cursosSIGtoIA != null ? cursosSIGtoIA : new ArrayList<>();
+        List<MateriaDTO> sigToIa = cursosSIGtoIA != null ? cursosSIGtoIA : new ArrayList<>();*/
         
         int creditosEnfasis = Stream
-                .of(enfasis, seguridad, ia, desarrollo, gestion, visual, cvToIa, sigToIa)
+                .of(enfasis/* , seguridad, ia, desarrollo, gestion, visual, cvToIa, sigToIa*/)
                 .flatMap(Collection::stream)
                 .filter(m -> m.getCred() != null && esNumero(m.getCred().replace(",", ".")))
                 .mapToInt(m -> (int) Double.parseDouble(m.getCred().replace(",", ".")))
@@ -709,9 +689,9 @@ public class Progreso {
         if (this.cursosComplementariaLenguas != null) {
             nuevoProgreso.setCursosComplementariaLenguas(new ArrayList<>(this.cursosComplementariaLenguas));
         }
-        if (this.cursosComplementariaInformacion != null) {
+        /*if (this.cursosComplementariaInformacion != null) {
             nuevoProgreso.setCursosComplementariaInformacion(new ArrayList<>(this.cursosComplementariaInformacion));
-        }
+        }*/
         if (this.cursosIA != null) {
             nuevoProgreso.setCursosIA(new ArrayList<>(this.cursosIA));
         }
@@ -755,7 +735,7 @@ public class Progreso {
                 + ", materias=" + materias + ", lineasRequisitosGrado=" + lineasRequisitosGrado
                 + ", cursosElectivas=" + cursosElectivas + ", cursosEnfasis=" + cursosEnfasis
                 + ", cursosComplementariaLenguas=" + cursosComplementariaLenguas
-                + ", cursosComplementariaInformacion=" + cursosComplementariaInformacion
+                //+ ", cursosComplementariaInformacion=" + cursosComplementariaInformacion
                 + ", cursosIA=" + cursosIA + ", cursosDesarrolloComputacion=" + cursosDesarrolloComputacion
                 + ", cursosDesarrolloGestion=" + cursosDesarrolloGestion + ", cursosComputacionVisual="
                 + cursosComputacionVisual
