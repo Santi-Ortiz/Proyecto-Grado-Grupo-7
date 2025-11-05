@@ -237,16 +237,16 @@ public class lecturaService {
                     if (tablaComenzada) {
                         String lower = l.toLowerCase();
                         if (lower.contains("se ha incluido esta línea")
-                            || lower.startsWith("ajuste ")
-                            || lower.contains("entered by")) {
+                                || lower.startsWith("ajuste ")
+                                || lower.contains("entered by")) {
                             tablaComenzada = false;
                             continue;
                         }
                         if (lower.startsWith("unidades") || lower.startsWith("- unidades")
-                            || lower.startsWith("cursos") || lower.startsWith("- cursos")
-                            || lower.contains("satisfecho") || lower.contains("no satisfecho")
-                            || lower.contains("obligatorias") || lower.contains("necesarias")
-                            || lower.equalsIgnoreCase("cursos utilizados")) {
+                                || lower.startsWith("cursos") || lower.startsWith("- cursos")
+                                || lower.contains("satisfecho") || lower.contains("no satisfecho")
+                                || lower.contains("obligatorias") || lower.contains("necesarias")
+                                || lower.equalsIgnoreCase("cursos utilizados")) {
                             continue;
                         }
                         if (filaValida.matcher(l).matches()) {
@@ -558,7 +558,8 @@ public class lecturaService {
     public String extraerTextoComplementariaLenguasBruto(MultipartFile archivo) {
         StringBuilder out = new StringBuilder();
 
-        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+        try (PDDocument documento =
+                     PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();
             String texto = lector.getText(documento);
 
@@ -814,8 +815,9 @@ public class lecturaService {
                 "(?:\\s|^)([0-9]+(?:[.,][0-9]{1,2})?|[A-ZÑ])\\s+([0-9]+(?:[.,][0-9]{1,2})?)\\s+(\\S+)\\s*$"
         );
 
-        // Prefijo de inicio de fila (PrimPeXXXX / TerPeXXXX)
-        final Pattern patronInicioFila = Pattern.compile("^(PrimPe|TerPe)\\d{4}\\b.*");
+        // Inicio de fila de curso: línea con al menos 4 columnas (ciclo, materia, N° Cat., curso...).
+        // No restringimos a PrimPe/TerPe para soportar también SegPeXXXX, etc.
+        final Pattern patronInicioFila = Pattern.compile("^\\S+\\s+\\S+\\s+\\S+\\s+\\S+.*");
 
         for (String linea : lineas) {
             String l = linea.trim();
@@ -904,11 +906,6 @@ public class lecturaService {
         if (tokensPI.length < 4) return;
 
         String ciclo = tokensPI[0];
-        // Validar que el primer token sea PrimPeXXXX o TerPeXXXX
-        if (!ciclo.matches("^(PrimPe|TerPe)\\d{4}.*")) {
-            return;
-        }
-
         String materiaCod = tokensPI[1];
         String nCat = tokensPI[2];
         String cursoCod = tokensPI[3];
