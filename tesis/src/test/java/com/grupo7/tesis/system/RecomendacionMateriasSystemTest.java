@@ -63,8 +63,8 @@ public class RecomendacionMateriasSystemTest {
 
         this.browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setSlowMo(100));
+                        .setHeadless(false));
+                        // .setSlowMo(100));
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();
     }

@@ -8,7 +8,6 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -56,8 +55,8 @@ public class BusquedaInformacionSystemTest {
         this.playwright = Playwright.create();
         this.browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setSlowMo(100));
+                        .setHeadless(false));
+                        // .setSlowMo(100));
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();
     }
@@ -79,7 +78,7 @@ public class BusquedaInformacionSystemTest {
         page.locator(XPATH_BUSQUEDA_NAVBAR).click();
         page.locator(XPATH_BUSQUEDA_TEXTAREA).fill(PROMPT);
         page.locator(XPATH_BUSQUEDA_BUTTON).click();
-        page.waitForTimeout(35000);
+        page.waitForTimeout(50000);
 
         assertEquals(true, page.locator("//div[contains(@class, 'respuesta-box')]//p").isVisible());
     }

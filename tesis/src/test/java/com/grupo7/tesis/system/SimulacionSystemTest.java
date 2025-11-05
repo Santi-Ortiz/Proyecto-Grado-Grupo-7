@@ -20,7 +20,7 @@ public class SimulacionSystemTest {
     private static final String REGISTER_URL = "/registro";
     private static final String SIMULACION_URL = "/simulaciones";
     private static final String SIMULACION_RESULTADO_URL = "/simulaciones/mostrar";
-    private static final String HISTORIAL_SIMULACION_URL = "/simulaciones/historial";
+    private static final String HISTORIAL_SIMULACION_URL = "/historial-simulaciones";
 
     private static final String TEST_PDF_PATH = "src/test/resources/informes/InformeAvance.pdf";
 
@@ -45,8 +45,8 @@ public class SimulacionSystemTest {
 
         this.browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setSlowMo(800));
+                        .setHeadless(false));
+                        // .setSlowMo(100));
 
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();

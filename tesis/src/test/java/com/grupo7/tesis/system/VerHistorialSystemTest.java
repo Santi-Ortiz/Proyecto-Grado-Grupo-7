@@ -43,8 +43,8 @@ public class VerHistorialSystemTest {
 
         this.browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setSlowMo(800));
+                        .setHeadless(false));
+                        // .setSlowMo(800));
 
         this.browserContext = browser.newContext();
         this.page = browserContext.newPage();

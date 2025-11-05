@@ -113,7 +113,7 @@ public class LecturaControllerIntegrationTest {
 
     @Test
     void testGuardarInformeAvance() throws Exception {
-        ClassPathResource pdf = new ClassPathResource("informes/Informe.pdf");
+        ClassPathResource pdf = new ClassPathResource("informes/InformeAvance.pdf");
         MultiValueMap<String, Object> multipartData = new LinkedMultiValueMap<>();
         multipartData.add("archivo", pdf);
         
@@ -130,12 +130,12 @@ public class LecturaControllerIntegrationTest {
 
         int status = response.getStatus().value();
         Assertions.assertEquals(200, status, "Expected 200 OK but got " + status);
-        Assertions.assertEquals(8, response.getResponseBody().getSemestre(), "Expected semestre 8 but got " + response.getResponseBody().getSemestre());
+        Assertions.assertEquals(6, response.getResponseBody().getSemestre(), "Expected semestre 6 but got " + response.getResponseBody().getSemestre());
     }
 
     @Test
     void testObtenerUltimoInforme() throws Exception {
-        ClassPathResource pdf = new ClassPathResource("informes/Informe.pdf");
+        ClassPathResource pdf = new ClassPathResource("informes/InformeAvance.pdf");
         MultiValueMap<String, Object> multipartData = new LinkedMultiValueMap<>();
         multipartData.add("archivo", pdf);
         
