@@ -3,6 +3,7 @@ package com.grupo7.tesis.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import com.grupo7.tesis.models.Materia;
 import com.grupo7.tesis.models.Pensum;
@@ -35,16 +37,19 @@ public class PensumController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Pensum createPensum(@RequestBody Pensum pensum) {
         return pensumService.crearPensum(pensum);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
     public Pensum updatePensum(@PathVariable Long id, @RequestBody Pensum pensum) {
         return pensumService.actualizarPensum(id, pensum);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePensum(@PathVariable Long id) {
         pensumService.eliminarPensum(id);
     }
@@ -97,7 +102,7 @@ public class PensumController {
     public ResponseEntity<String> eliminarMateriaDepensum(@PathVariable Long pensumId, @PathVariable Long materiaId) {
         try {
             pensumService.eliminarMateriaDepensum(pensumId, materiaId);
-            return ResponseEntity.ok("Materia eliminada exitosamente del pensum");
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }

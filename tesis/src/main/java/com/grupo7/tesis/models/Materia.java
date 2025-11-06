@@ -65,6 +65,17 @@ public class Materia {
     }
 
     public Materia(String codigo, String nombre, Integer creditos, int semestre, List<String> requisitos,
+            Set<RequisitoMateria> requisitosMateria, String tipo) {
+        this.codigo = codigo;
+        this.nombre = nombre;
+        this.creditos = creditos;
+        this.semestre = semestre;
+        this.requisitos = requisitos;
+        this.requisitosMateria = requisitosMateria;
+        this.tipo = tipo;
+    }
+
+    public Materia(String codigo, String nombre, Integer creditos, int semestre, List<String> requisitos,
             String requisitosJson, String tipo, Set<PensumMateria> pensumsAsociados) {
         this.codigo = codigo;
         this.nombre = nombre;
