@@ -101,8 +101,8 @@ public class LecturaService {
                 String lower = l.toLowerCase();
                 if (esLineaDescartable(lower)) continue;
 
-                // Guardamos TODAS las líneas relevantes, incluso si son continuación de una fila
-                // La unión y parseo robusto se hará en convertirTextoElectivasATabla
+                // Guardamos TODAS las líneas relevantes, incluso si son continuación de una fila.
+                // La unión y parseo robusto se hace en convertirTextoElectivasATabla.
                 if (FILA_VALIDA.matcher(l).matches() || !l.toLowerCase().startsWith("ciclo lectivo")) {
                     resultado.append(l).append("\n");
                 }
@@ -261,16 +261,16 @@ public class LecturaService {
                     if (tablaComenzada) {
                         String lower = l.toLowerCase();
                         if (lower.contains("se ha incluido esta línea")
-                            || lower.startsWith("ajuste ")
-                            || lower.contains("entered by")) {
+                                || lower.startsWith("ajuste ")
+                                || lower.contains("entered by")) {
                             tablaComenzada = false;
                             continue;
                         }
                         if (lower.startsWith("unidades") || lower.startsWith("- unidades")
-                            || lower.startsWith("cursos") || lower.startsWith("- cursos")
-                            || lower.contains("satisfecho") || lower.contains("no satisfecho")
-                            || lower.contains("obligatorias") || lower.contains("necesarias")
-                            || lower.equalsIgnoreCase("cursos utilizados")) {
+                                || lower.startsWith("cursos") || lower.startsWith("- cursos")
+                                || lower.contains("satisfecho") || lower.contains("no satisfecho")
+                                || lower.contains("obligatorias") || lower.contains("necesarias")
+                                || lower.equalsIgnoreCase("cursos utilizados")) {
                             continue;
                         }
                         if (filaValida.matcher(l).matches()) {
@@ -582,7 +582,8 @@ public class LecturaService {
     public String extraerTextoComplementariaLenguasBruto(MultipartFile archivo) {
         StringBuilder out = new StringBuilder();
 
-        try (PDDocument documento = PDDocument.load(archivo.getInputStream())) {
+        try (PDDocument documento =
+                     PDDocument.load(archivo.getInputStream())) {
             PDFTextStripper lector = new PDFTextStripper();
             String texto = lector.getText(documento);
 
@@ -832,12 +833,15 @@ public class LecturaService {
         StringBuilder filaAcumulada = new StringBuilder();
 
         // Regex para detectar el final de una fila: "Calif Cred Tipo" al final
+        // - calif: número o letra (A, B, ...)
+        // - cred: número entero o decimal, con punto o coma
         final Pattern patronFinFila = Pattern.compile(
-                "(?:\\s|^)([0-9]+(?:\\.[0-9]{1,2})?|[A-ZÑ])\\s+([0-9]+\\.[0-9]{2})\\s+(\\S+)\\s*$"
+                "(?:\\s|^)([0-9]+(?:[.,][0-9]{1,2})?|[A-ZÑ])\\s+([0-9]+(?:[.,][0-9]{1,2})?)\\s+(\\S+)\\s*$"
         );
 
-        // Prefijo de inicio de fila (PrimPeXXXX / TerPeXXXX)
-        final Pattern patronInicioFila = Pattern.compile("^(PrimPe|TerPe)\\d{4}\\b.*");
+        // Inicio de fila de curso: línea con al menos 4 columnas (ciclo, materia, N° Cat., curso...).
+        // No restringimos a PrimPe/TerPe para soportar también SegPeXXXX, etc.
+        final Pattern patronInicioFila = Pattern.compile("^\\S+\\s+\\S+\\s+\\S+\\s+\\S+.*");
 
         for (String linea : lineas) {
             String l = linea.trim();
@@ -852,10 +856,8 @@ public class LecturaService {
 
             if (!tablaComenzada) continue;
 
-            // Si inicia una nueva fila y había algo acumulado que no se había cerrado,
-            // intentamos parsearlo forzando (por si la fila anterior estaba completa).
+            // Si inicia una nueva fila y había algo acumulado, la cerramos primero
             if (patronInicioFila.matcher(l).matches()) {
-                // cerrar la que estuviera en curso
                 if (filaAcumulada.length() > 0) {
                     parsearYAgregarFilaSiValida(filaAcumulada.toString(), lista);
                     filaAcumulada.setLength(0);
@@ -866,8 +868,7 @@ public class LecturaService {
                 if (filaAcumulada.length() > 0) {
                     filaAcumulada.append(" ").append(l);
                 } else {
-                    // Si llega aquí, es texto suelto sin haber detectado inicio de fila;
-                    // lo ignoramos (encabezados, notas, etc.).
+                    // Texto suelto sin fila en curso -> ignorar
                     continue;
                 }
             }
@@ -879,7 +880,7 @@ public class LecturaService {
             }
         }
 
-        // Si al final quedó una fila sin cerrar pero parece completa, intentar parsearla
+        // Si al final quedó una fila sin cerrar, intentar parsearla
         if (filaAcumulada.length() > 0) {
             parsearYAgregarFilaSiValida(filaAcumulada.toString(), lista);
         }
@@ -888,37 +889,57 @@ public class LecturaService {
     }
 
     private void parsearYAgregarFilaSiValida(String fila, List<MateriaDTO> lista) {
+        if (fila == null) return;
+        fila = fila.trim();
+        if (fila.isEmpty()) return;
+
         // Intentar extraer al final "calif cred tipo"
-        // calif: número con decimales o letra (A, B, etc. – en tu PDF aparece "A" o números)
-        // cred: número con dos decimales
-        // tipo: token final (Ma, Si, etc.)
-        Pattern fin = Pattern.compile("(.*)\\s+([0-9]+(?:\\.[0-9]{1,2})?|[A-ZÑ])\\s+([0-9]+\\.[0-9]{2})\\s+(\\S+)\\s*$");
+        Pattern fin = Pattern.compile(
+                "(.*)\\s+([0-9]+(?:[.,][0-9]{1,2})?|[A-ZÑ])\\s+([0-9]+(?:[.,][0-9]{1,2})?)\\s+(\\S+)\\s*$"
+        );
         Matcher m = fin.matcher(fila);
-        if (!m.matches()) {
-            return; // no está completa
+
+        String parteInicial;
+        String calif;
+        String cred;
+        String tipo;
+
+        if (m.matches()) {
+            parteInicial = m.group(1).trim();
+            calif = m.group(2).trim();
+            cred = m.group(3).trim();
+            tipo = m.group(4).trim();
+        } else {
+            // Fallback a la lógica simple anterior: últimos 3 tokens = calif / cred / tipo
+            String[] tokens = fila.split("\\s+");
+            if (tokens.length < 8) return; // muy corta para ser válida
+
+            calif = tokens[tokens.length - 3];
+            cred = tokens[tokens.length - 2];
+            tipo = tokens[tokens.length - 1];
+
+            StringBuilder pi = new StringBuilder();
+            for (int i = 0; i < tokens.length - 3; i++) {
+                if (i > 0) pi.append(" ");
+                pi.append(tokens[i]);
+            }
+            parteInicial = pi.toString().trim();
         }
 
-        String parteInicial = m.group(1).trim();
-        String calif = m.group(2).trim();
-        String cred = m.group(3).trim();
-        String tipo = m.group(4).trim();
+        String[] tokensPI = parteInicial.split("\\s+");
+        if (tokensPI.length < 4) return;
 
-        String[] tokens = parteInicial.split("\\s+");
-        if (tokens.length < 4) return;
-
-        String ciclo = tokens[0];
-        String materiaCod = tokens[1];
-        String nCat = tokens[2];
-        String cursoCod = tokens[3];
+        String ciclo = tokensPI[0];
+        String materiaCod = tokensPI[1];
+        String nCat = tokensPI[2];
+        String cursoCod = tokensPI[3];
 
         StringBuilder tituloBuilder = new StringBuilder();
-        for (int i = 4; i < tokens.length; i++) {
-            tituloBuilder.append(tokens[i]).append(" ");
+        for (int i = 4; i < tokensPI.length; i++) {
+            tituloBuilder.append(tokensPI[i]).append(" ");
         }
         String titulo = tituloBuilder.toString().trim();
 
-        // Algunas veces la calificación que detectamos como parte del final podría ser letra (A) para cursos de bienestar.
-        // Eso es válido y lo dejamos tal cual.
         lista.add(new MateriaDTO(ciclo, materiaCod, nCat, cursoCod, titulo, calif, cred, tipo));
     }
     // =============================================================================================
