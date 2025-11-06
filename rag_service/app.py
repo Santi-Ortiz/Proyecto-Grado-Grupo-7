@@ -83,7 +83,7 @@ SUGGEST_MAX_CFG  = _env_float("RAG_SUGGEST_MAX", 0.59)
 SUGGEST_MAX      = min(SUGGEST_MAX_CFG, max(0.0, SCORE_MIN_STRICT - 0.01))
 
 # Límite de materias por tabla
-MAIN_MAX            = _env_int("RAG_MAIN_MAX", 2)
+MAIN_MAX            = _env_int("RAG_MAIN_MAX", 3)
 SUGGEST_ITEMS_MAX   = _env_int("RAG_SUGGEST_ITEMS_MAX", 6)
 
 # Recuperación (k candidatos crudos)
