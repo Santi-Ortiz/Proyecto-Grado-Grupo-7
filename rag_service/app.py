@@ -20,7 +20,6 @@ from langchain_core.documents import Document
 # =========================
 app = FastAPI()
 
-# CORS (exponemos el header de tiempo)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -52,7 +51,7 @@ vector_complementarias = None
 vector_ciencias_basicas = None
 llm = None
 
-# ✅ Dos embeddings separados
+# Embeddings separados
 embeddings_reglamento = None
 embeddings_materias = None
 
@@ -93,7 +92,7 @@ RETRIEVE_K          = _env_int("RAG_RETRIEVE_K", 60)
 SUGGEST_FALLBACK    = _env_bool("RAG_SUGGEST_FALLBACK", True)
 
 # =========================
-# Prompt estricto para búsquedas
+# Prompt estricto para búsquedas (reglamento)
 # =========================
 STRICT_PROMPT_TMPL = """Responde EN ESPAÑOL SOLO con base en las FUENTES dadas.
 - Si la respuesta NO está en las fuentes o hay duda, responde: "No encontrado en los documentos proporcionados."
@@ -126,13 +125,13 @@ def load_rag():
     global embeddings_reglamento, embeddings_materias
     global qa_reglamento, vector_all, vector_enfasis, vector_electivas, vector_complementarias, vector_ciencias_basicas, llm
 
-    # ⚖️ e5 para REGLAMENTO (si el índice fue creado con e5)
+    # e5 para REGLAMENTO
     embeddings_reglamento = HuggingFaceEmbeddings(
         model_name="intfloat/multilingual-e5-base",
         encode_kwargs={"normalize_embeddings": True},
     )
 
-    # ✅ MiniLM para MATERIAS (índices existentes)
+    # MiniLM para MATERIAS
     embeddings_materias = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # ========= REGLAMENTO / BÚSQUEDAS =========
@@ -250,22 +249,57 @@ def normalizar_scores(pares: List[Tuple[Document, float]]) -> List[Tuple[Documen
         norm.append((doc, score))
     return norm
 
-def filtrar_por_creditos_scored(pares: List[Tuple[Document, float]], creditos_usuario) -> List[Tuple[Document, float]]:
-    if creditos_usuario is None or str(creditos_usuario).lower() == "cualquiera":
-        return pares
-    try:
-        objetivo = float(creditos_usuario)
-    except Exception:
-        return []
-    out = []
-    for d, s in pares:
-        c = (d.metadata or {}).get("creditos", None)
+def creditos_cumplen(meta_creditos, creditos, creditos_min, creditos_max) -> bool:
+    """
+    Devuelve True si la materia cumple con:
+    - créditos exactos (si 'creditos' es numérico y != 'cualquiera')
+    - y/o rango [creditos_min, creditos_max] (inclusive).
+    Si no hay ningún filtro de créditos -> True (no filtra).
+    """
+    # Normalizar filtros
+    exact = None
+    min_val = None
+    max_val = None
+
+    # Exacto
+    if creditos is not None and str(creditos).lower() != "cualquiera":
         try:
-            if c is not None and float(c) == objetivo:
-                out.append((d, s))
+            exact = float(creditos)
         except Exception:
-            continue
-    return out
+            exact = None
+
+    # Rango
+    if creditos_min is not None:
+        try:
+            min_val = float(creditos_min)
+        except Exception:
+            min_val = None
+    if creditos_max is not None:
+        try:
+            max_val = float(creditos_max)
+        except Exception:
+            max_val = None
+
+    if exact is None and min_val is None and max_val is None:
+        return True
+
+    if meta_creditos is None:
+        return False
+
+    try:
+        v = float(meta_creditos)
+    except Exception:
+        return False
+
+    # Aplica todas las restricciones activas
+    if exact is not None and v != exact:
+        return False
+    if min_val is not None and v < min_val:
+        return False
+    if max_val is not None and v > max_val:
+        return False
+
+    return True
 
 def pedir_explicacion_global(intereses: str, tipo: str, creditos, cursos: List[Dict[str, str]]) -> str:
     payload = {
@@ -330,20 +364,32 @@ async def recomendar_materias(request: Request):
     data = await request.json()
     intereses = (data.get("intereses") or "").strip()
     creditos = data.get("creditos", None)
+    creditos_min = data.get("creditos_min", None)
+    creditos_max = data.get("creditos_max", None)
     tipo = (data.get("tipo") or "cualquiera").strip().lower()
 
     store = get_store(tipo)
 
+    # 1) Recuperación cruda + dedupe
     pares_raw = recuperar_candidatos_raw(intereses, store, k=RETRIEVE_K)
     pares_raw = dedupe_raw(pares_raw)
+
+    # 2) Normalización a score 0..1
     pares_scored_all = normalizar_scores(pares_raw)
 
-    candidatos_fuertes = filtrar_por_creditos_scored(pares_scored_all, creditos)
-    fuertes: List[Tuple[Document, float]] = [
-        (d, s) for d, s in candidatos_fuertes if s >= SCORE_MIN_STRICT
-    ]
-    fuertes = fuertes[:MAIN_MAX]
+    # 3) TABLA 1 (FUERTES)
+    fuertes: List[Tuple[Document, float]] = []
+    for d, s in pares_scored_all:
+        if s < SCORE_MIN_STRICT:
+            continue
+        meta = d.metadata or {}
+        if not creditos_cumplen(meta.get("creditos", None), creditos, creditos_min, creditos_max):
+            continue
+        fuertes.append((d, s))
+        if len(fuertes) >= MAIN_MAX:
+            break
 
+    # 4) TABLA 2 (SUGERIDAS): IGNORA CRÉDITOS
     keys_fuertes = set(_doc_key(d) for d, _ in fuertes)
     high_no_credits_match: List[Tuple[Document, float]] = []
     for d, s in pares_scored_all:
@@ -373,16 +419,43 @@ async def recomendar_materias(request: Request):
             if len(sugeridos) >= SUGGEST_ITEMS_MAX:
                 break
 
-    if str(creditos).lower() != "cualquiera" and not fuertes and not sugeridos:
+    # =========================
+    # Manejo de "sin resultados" con filtro de créditos
+    # =========================
+    creditos_str = str(creditos).lower() if creditos is not None else "cualquiera"
+    tiene_rango = (creditos_min is not None) or (creditos_max is not None)
+
+    if (creditos_str != "cualquiera" or tiene_rango) and not fuertes and not sugeridos:
+        if tiene_rango:
+            if creditos_min is not None and creditos_max is not None:
+                if creditos_min == creditos_max:
+                    rango_txt = f"{creditos_min} créditos"
+                else:
+                    rango_txt = f"entre {creditos_min} y {creditos_max} créditos"
+            elif creditos_min is not None:
+                rango_txt = f"de al menos {creditos_min} créditos"
+            else:
+                rango_txt = f"de máximo {creditos_max} créditos"
+
+            msg = f"No hubo coincidencias dentro del rango de créditos {rango_txt} para los intereses dados."
+        else:
+            msg = f"No hubo coincidencias exactas con {creditos} créditos para los intereses dados."
+
         return {
             "materias": [],
-            "explicacion": f"No hubo coincidencias exactas con {creditos} créditos para los intereses dados.",
+            "explicacion": msg,
             "materias_sugeridas": [],
             "explicacion_sugeridas": "",
             "observaciones": {
-                "filtros_aplicados": {"intereses": intereses, "creditos": str(creditos), "tipo": tipo},
+                "filtros_aplicados": {
+                    "intereses": intereses,
+                    "creditos": str(creditos),
+                    "creditos_min": creditos_min,
+                    "creditos_max": creditos_max,
+                    "tipo": tipo
+                },
                 "fuente": "faiss",
-                "advertencias": []
+                "advertencias": ["sin_resultados_filtro_creditos"]
             }
         }
 
@@ -422,7 +495,13 @@ async def recomendar_materias(request: Request):
             "materias_sugeridas": [],
             "explicacion_sugeridas": "",
             "observaciones": {
-                "filtros_aplicados": {"intereses": intereses, "creditos": str(creditos), "tipo": tipo},
+                "filtros_aplicados": {
+                    "intereses": intereses,
+                    "creditos": str(creditos),
+                    "creditos_min": creditos_min,
+                    "creditos_max": creditos_max,
+                    "tipo": tipo
+                },
                 "fuente": "faiss",
                 "advertencias": ["sin_resultados_en_umbrales"]
             }
@@ -434,7 +513,13 @@ async def recomendar_materias(request: Request):
         "materias_sugeridas": materias_sugeridas,
         "explicacion_sugeridas": explicacion_sugeridas,
         "observaciones": {
-            "filtros_aplicados": {"intereses": intereses, "creditos": str(creditos), "tipo": tipo},
+            "filtros_aplicados": {
+                "intereses": intereses,
+                "creditos": str(creditos),
+                "creditos_min": creditos_min,
+                "creditos_max": creditos_max,
+                "tipo": tipo
+            },
             "fuente": "faiss",
             "advertencias": []
         }

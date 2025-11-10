@@ -17,7 +17,15 @@ public class RagService {
         return ragClient.queryRag(pregunta);
     }
 
+    public String recomendarMaterias(String intereses,
+                                     Object creditos,
+                                     Integer creditosMin,
+                                     Integer creditosMax,
+                                     String tipo) {
+        return ragClient.queryMaterias(intereses, creditos, creditosMin, creditosMax, tipo);
+    }
+
     public String recomendarMaterias(String intereses, Object creditos, String tipo) {
-        return ragClient.queryMaterias(intereses, creditos, tipo);
+        return ragClient.queryMaterias(intereses, creditos, null, null, tipo);
     }
 }

@@ -36,12 +36,27 @@ public class RagCliente {
         return "No se pudo obtener respuesta del servicio RAG.";
     }
 
-    public String queryMaterias(String intereses, Object creditos, String tipo) {
+    public String queryMaterias(String intereses,
+                                Object creditos,
+                                Integer creditosMin,
+                                Integer creditosMax,
+                                String tipo) {
         try {
             Map<String, Object> request = new HashMap<>();
             request.put("intereses", intereses);
-            request.put("creditos", creditos); // puede ser número o "cualquiera"
-            request.put("tipo", tipo == null ? "cualquiera" : tipo);
+
+            if (creditos != null) {
+                request.put("creditos", creditos);
+            }
+
+            if (creditosMin != null) {
+                request.put("creditos_min", creditosMin);
+            }
+            if (creditosMax != null) {
+                request.put("creditos_max", creditosMax);
+            }
+
+            request.put("tipo", (tipo == null || tipo.isBlank()) ? "cualquiera" : tipo);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -56,5 +71,9 @@ public class RagCliente {
         } catch (RestClientResponseException e) {
             return "{ \"materias\": [], \"explicacion\": \"No fue posible obtener recomendaciones en este momento.\" }";
         }
+    }
+
+    public String queryMaterias(String intereses, Object creditos, String tipo) {
+        return queryMaterias(intereses, creditos, null, null, tipo);
     }
 }
