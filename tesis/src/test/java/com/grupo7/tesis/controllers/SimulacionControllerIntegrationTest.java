@@ -362,7 +362,6 @@ public class SimulacionControllerIntegrationTest {
             cursosVacios,
             cursosVacios,
             cursosVacios,
-            cursosVacios,
             materiasFaltantes
         );
         
