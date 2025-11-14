@@ -1,5 +1,7 @@
 package com.grupo7.tesis.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -55,6 +59,7 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
+
 
         Cookie jwtCookie = new Cookie("jwt-token", token);
         jwtCookie.setHttpOnly(true);
@@ -107,26 +112,35 @@ public class AuthController {
             Cookie[] cookies = request.getCookies();
 
             if (cookies == null) {
+                logger.warn("No se encontraron cookies en la petición");
                 return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
             }
 
+            logger.info("Se encontraron {} cookies:", cookies.length);
             for (Cookie cookie : cookies) {
+                logger.info("   - Cookie: {} = {}", cookie.getName(),
+                        cookie.getValue());
 
                 if ("jwt-token".equals(cookie.getName())) {
                     String token = cookie.getValue();
+                    logger.info("Cookie JWT encontrada. Validando token...");
 
                     if (jwtGenerator.validateToken(token)) {
                         String usuario = jwtGenerator.getUserFromJwt(token);
+                        logger.info("Token válido para usuario: {}", usuario);
                         return new ResponseEntity<>(true, HttpStatus.OK);
                     } else {
+                        logger.warn("Token JWT inválido o expirado");
                         return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
                     }
                 }
             }
 
+            logger.warn("Cookie 'jwt-token' no encontrada");
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
 
         } catch (Exception e) {
+            logger.error("Error al verificar autenticación: {}", e.getMessage());
             return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
         }
     }
